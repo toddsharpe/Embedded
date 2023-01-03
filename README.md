@@ -1,5 +1,5 @@
-# stm32
-Playing around with bare-metal STM32 (CMSIS only).
+# Embedded
+Playing around with bare-metal embedded software without Stm32 HAL / Freedom-SDK.
 
 ## Overview
 * Bootloader + App
@@ -8,6 +8,7 @@ Playing around with bare-metal STM32 (CMSIS only).
 
 ### Boards
  * [NUCLEO-F746ZG](https://www.st.com/en/evaluation-tools/nucleo-f746zg.html)
+ * [HiFive1 Rev B](https://www.sifive.com/boards/hifive1-rev-b)
 
 ### Drivers
 * GPIO
@@ -15,6 +16,7 @@ Playing around with bare-metal STM32 (CMSIS only).
 * SysTick
 * Simple Timer
 * Flash
+* Spi/DMA
 
 ## Demos
 

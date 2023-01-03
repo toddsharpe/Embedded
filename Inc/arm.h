@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <StringPrinter.h>
 
 //M7: DUI0646C_cortex_m7_dgug.pdf
 
@@ -16,6 +17,18 @@ struct SoftwareStackFrame
 	uint32_t R10;
 	uint32_t R11;
 	uint32_t LR;
+
+	SoftwareStackFrame() :
+		R4(),
+		R5(),
+		R6(),
+		R7(),
+		R8(),
+		R9(),
+		R10(),
+		R11(),
+		LR(0xFFFFFFFD) //M7: Table 2-15
+	{}
 };
 
 //M7: Section 2.3.7
@@ -29,6 +42,34 @@ struct HardwareStackFrame
 	uint32_t LR;
 	uint32_t PC;
 	uint32_t xPSR;
+
+	HardwareStackFrame(void* entry, void* Idle) :
+		R0(),
+		R1(),
+		R2(),
+		R3(),
+		R12(),
+		LR((uint32_t)Idle),
+		PC((uint32_t)entry),
+		xPSR(0x01000000)
+	{}
+};
+
+struct ArmContext
+{
+	SoftwareStackFrame SW;
+	HardwareStackFrame HW;
+
+	ArmContext(void* entry, void* Idle) :
+		SW(),
+		HW(entry, Idle)
+	{}
+
+	void Print(StringPrinter& printer) const
+	{
+		printer.Printf("PC: 0x%x, LR: 0x%x, CallerLR: 0x%x\r\n", HW.PC, HW.LR, HW.PC);
+		printer.Printf("R4: 0x%x, R5: 0x%x, R6: 0x%x, R7: 0x%x\r\n", SW.R4, SW.R5, SW.R6, SW.R7);
+	}
 };
 
 struct RCC_CR

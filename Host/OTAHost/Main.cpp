@@ -7,7 +7,7 @@
 #include <shlwapi.h>
 #include <RingBuffer.h>
 
-static const std::string app = "..\\..\\build\\App\\Nucleo.bin";
+static const std::string app = "..\\..\\build\\Stm32\App\\Nucleo.bin";
 
 RingBuffer<uint8_t, 1024*1024> commBuffer;
 

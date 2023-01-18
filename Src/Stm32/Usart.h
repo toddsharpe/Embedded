@@ -97,6 +97,8 @@ public:
 
 	IRQn_Type GetInterupt()
 	{
+		if (m_usart == USART1)
+			return IRQn_Type::USART1_IRQn;
 		if (m_usart == USART2)
 			return IRQn_Type::USART2_IRQn;
 		else if (m_usart == USART3)

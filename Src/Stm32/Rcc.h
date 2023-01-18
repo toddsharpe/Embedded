@@ -21,6 +21,7 @@ namespace Stm32
 
 		uint32_t GetSysClkFreq() const;
 		uint32_t GetPClk1Freq() const;
+		uint32_t GetPClk2Freq() const;
 		uint32_t GetScaledClkFreq(const uint32_t sysClk, const uint32_t prescaler) const;
 
 	private:

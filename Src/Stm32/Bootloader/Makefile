@@ -157,12 +157,17 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32F746ZGTX_FLASH.ld
+LDSCRIPT = ../STM32F746ZGTX_FLASH.ld
+
+# Flash Settings
+FLASH_ORIGIN = 0x8000000
+FLASH_LENGTH = 64k
+LD_FLASH = -Wl,--defsym=FLASH_ORIGIN=$(FLASH_ORIGIN) -Wl,--defsym=FLASH_LENGTH=$(FLASH_LENGTH)
 
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections $(LD_FLASH)
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

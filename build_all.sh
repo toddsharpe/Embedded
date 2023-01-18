@@ -5,6 +5,11 @@ mkdir -p build/HiFive
 
 # Build STM binaries
 
+echo "Building HelloDisco"
+cd Src/Stm32/HelloDisco
+make
+cd ../../../
+
 echo "Building STM32 App"
 cd Src/Stm32/App
 make

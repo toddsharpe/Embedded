@@ -14,10 +14,10 @@
 
 namespace Stm32
 {
-	class NucleoF746ZG : public Board
+	class DiscoF746GNG : public Board
 	{
 	public:
-		NucleoF746ZG();
+		DiscoF746GNG();
 
 		void Init();
 
@@ -29,21 +29,18 @@ namespace Stm32
 		//Peripherals
 		Rcc rcc;
 		Usart uart;
-		GpioPin<Port_B, 0> Led1;
-		GpioPin<Port_B, 7> Led2;
-		GpioPin<Port_B, 14> Led3;
 
 	private:
-		static constexpr PllConfig const PllConfig72MHz = { .Source = PllSrc::HSE, .M = 4, .N = 72, .P = PllDiv::Div2, .Q = 3 };
+		static constexpr PllConfig const PllConfig200MHz = { .Source = PllSrc::HSE, .M = 25, .N = 400, .P = PllDiv::Div2, .Q = 9 };
 
-		//72MHz SYS, 36MHz APB1, 72MHz APB2
-		static constexpr SystemClockConfig const SysClock72MHz =
+		//200MHz SYS, 50MHz APB1, 100MHz APB2
+		static constexpr SystemClockConfig const SysClock200MHz =
 		{
 			.Source = RCC_CFGR_SW_PLL,
 			.AHBCLKDivider = RCC_CFGR_HPRE_DIV1,
-			.APB1CLKDivider = RCC_CFGR_PPRE1_DIV2,
-			.APB2CLKDivider = RCC_CFGR_PPRE2_DIV1,
-			.FlashLatency = FLASH_ACR_LATENCY_2WS
+			.APB1CLKDivider = RCC_CFGR_PPRE1_DIV4,
+			.APB2CLKDivider = RCC_CFGR_PPRE2_DIV2,
+			.FlashLatency = FLASH_ACR_LATENCY_5WS
 		};
 	};
 }

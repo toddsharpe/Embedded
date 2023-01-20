@@ -67,6 +67,7 @@ namespace Stm32
 	static constexpr GpioPinConfig const GpioOutput = {.Mode = GpioMode::Output, .PullType = GpioPullType::None};
 	static constexpr GpioPinConfig const GpioInput = {.Mode = GpioMode::Input, .PullType = GpioPullType::None};
 
+	static constexpr GpioPinConfig const GpioUart1 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Usart1};
 	static constexpr GpioPinConfig const GpioUart2 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Usart2};
 	static constexpr GpioPinConfig const GpioUart3 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Usart3};
 

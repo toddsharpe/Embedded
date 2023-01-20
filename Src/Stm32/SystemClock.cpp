@@ -8,7 +8,7 @@ namespace Stm32
 	void SystemClock::Init(const SystemClockConfig& config)
 	{
 		//Set flash latency
-		MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, FLASH_ACR_LATENCY_2WS);
+		MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, config.FlashLatency);
 		
 		//Set clocks
 		MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, config.AHBCLKDivider);

@@ -29,8 +29,8 @@ namespace Stm32
 		__DSB();
 		
 		//Initialize system clock
-		Pll::Init(DefaultPllConfig);
-		SystemClock::Init(DefaultSysClock);
+		Pll::Init(PllConfig72MHz);
+		SystemClock::Init(SysClock72MHz);
 
 		//Initialize peripherals
 		GpioPin<Port_D, 8> uart3_tx;

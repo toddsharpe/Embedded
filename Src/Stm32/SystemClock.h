@@ -21,14 +21,8 @@ namespace Stm32
 		uint32_t AHBCLKDivider;
 		uint32_t APB1CLKDivider;
 		uint32_t APB2CLKDivider;
-	};
 
-	static constexpr SystemClockConfig const DefaultSysClock =
-	{
-		.Source = RCC_CFGR_SW_PLL,
-		.AHBCLKDivider = RCC_CFGR_HPRE_DIV1,
-		.APB1CLKDivider = RCC_CFGR_PPRE1_DIV2,
-		.APB2CLKDivider = RCC_CFGR_PPRE2_DIV1
+		uint32_t FlashLatency;
 	};
 
 	class SystemClock

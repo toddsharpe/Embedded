@@ -45,7 +45,7 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 320K
-  FLASH    (rx)    : ORIGIN = 0x08040000,   LENGTH = 512K /* Allocating 512K for Bootloader */
+  FLASH    (rx)    : ORIGIN = FLASH_ORIGIN,   LENGTH = FLASH_LENGTH
 }
 
 /* Sections */

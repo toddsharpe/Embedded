@@ -55,6 +55,12 @@ namespace Stm32
 		return GetScaledClkFreq(sysClk, GET_REG_FIELD(RCC->CFGR, RCC_CFGR_PPRE1_Pos, RCC_CFGR_PPRE1));
 	}
 
+	uint32_t Rcc::GetPClk2Freq() const
+	{
+		const uint32_t sysClk = GetSysClkFreq();
+		return GetScaledClkFreq(sysClk, GET_REG_FIELD(RCC->CFGR, RCC_CFGR_PPRE2_Pos, RCC_CFGR_PPRE2));
+	}
+
 	uint32_t Rcc::GetScaledClkFreq(const uint32_t sysClk, const uint32_t prescaler) const
 	{
 		return (sysClk >> APBPrescTable[prescaler]);

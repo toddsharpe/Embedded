@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = Nucleo
+TARGET = Disco
 
 
 ######################################
@@ -29,7 +29,7 @@ OPT = -O3
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../../../build/stm32/App
+BUILD_DIR = ../../../build/stm32/HelloDisco
 
 ######################################
 # source
@@ -42,18 +42,16 @@ system_stm32f7xx.c \
 
 CXX_SOURCES = \
 Main.cpp \
-DisplayTask.cpp \
 ../ArmKernel.cpp \
 ../DmaStream.cpp \
 ../Flash.cpp \
-../Nucleo-F746ZG.cpp \
+../Disco-F746GNG.cpp \
 ../Pll.cpp \
 ../Rcc.cpp \
 ../Spi.cpp \
 ../SystemClock.cpp \
 ../SystemTimer.cpp \
 ../Timer.cpp \
-../../Drivers/St7789.cpp \
 ../../Rtos/Kernel.cpp \
 ../../Rtos/KThread.cpp \
 ../../Rtos/Scheduler.cpp \
@@ -61,7 +59,7 @@ DisplayTask.cpp \
 # ASM sources
 ASM_SOURCES =  \
 ../KernelInterrupts.s \
-startup_stm32f746zgtx.s
+startup_stm32f746nghx.s
 
 
 #######################################
@@ -158,7 +156,7 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = ../STM32F746ZGTX_FLASH.ld
+LDSCRIPT = ../STM32F746NGHX_FLASH.ld
 
 # Flash Settings
 FLASH_ORIGIN = 0x08040000

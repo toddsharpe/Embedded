@@ -1,5 +1,6 @@
 #pragma once
 
+//TODO(tsharpe): Convert to std::function/bind paradigm
 struct Callback
 {
 	Callback() : Context(), Handler()

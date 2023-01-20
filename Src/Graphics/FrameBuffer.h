@@ -122,6 +122,11 @@ namespace Graphics
 			return GetHeight() * GetWidth() * sizeof(Color);
 		}
 
+		size_t PixelSize() const
+		{
+			return sizeof(Color);
+		}
+
 	private:
 		static constexpr size_t PixelScale = 10;
 		static constexpr size_t FontScale = 1;

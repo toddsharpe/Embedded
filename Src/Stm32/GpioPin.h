@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Util.h"
 #include "Sys/GpioPin.h"
 
 #include <stddef.h>
@@ -11,6 +10,19 @@
 
 namespace Stm32
 {
+	namespace
+	{
+		#define SET_REG_FIELD(reg, offset, mask, value)\
+		do\
+		{\
+			uint32_t temp;\
+			temp = reg;\
+			temp &= ~((mask) << (offset));\
+			temp |= ((value) << (offset));\
+			reg = temp;\
+		} while (false)
+	}
+	
 	enum GpioMode : uint8_t
 	{
 		Input = 0b00,
@@ -52,6 +64,8 @@ namespace Stm32
 		Usart2 = 7,
 		Usart3 = 7,
 		Spi1 = 5,
+		Ltdc9 = 9,
+		Ltdc14 = 14,
 		GpioAlternateMask = 0b1111
 	};
 
@@ -72,6 +86,8 @@ namespace Stm32
 	static constexpr GpioPinConfig const GpioUart3 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Usart3};
 
 	static constexpr GpioPinConfig const GpioSpi1 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Spi1};
+	static constexpr GpioPinConfig const GpioLtdc9 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc9};
+	static constexpr GpioPinConfig const GpioLtdc14 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc14};
 
 	constexpr GPIO_TypeDef *Port_A()
 	{
@@ -108,12 +124,38 @@ namespace Stm32
 		return GPIOG;
 	}
 
+	constexpr GPIO_TypeDef *Port_H()
+	{
+		return GPIOH;
+	}
+
+	constexpr GPIO_TypeDef *Port_I()
+	{
+		return GPIOI;
+	}
+
+	constexpr GPIO_TypeDef *Port_J()
+	{
+		return GPIOJ;
+	}
+
+	constexpr GPIO_TypeDef *Port_K()
+	{
+		return GPIOK;
+	}
+
 	template <GPIO_TypeDef *PORT(), size_t TPin>
 	class GpioPin : public Sys::GpioPin
 	{
 	public:
 		GpioPin()
 		{
+		}
+
+		static void Configure(const GpioPinConfig &config, const bool initValue = false)
+		{
+			GpioPin<PORT, TPin> pin;
+			pin.Init(config, initValue);
 		}
 
 		void Init(const GpioPinConfig &config, const bool initValue = false)

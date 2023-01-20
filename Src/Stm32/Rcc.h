@@ -23,6 +23,7 @@ namespace Stm32
 		uint32_t GetPClk1Freq() const;
 		uint32_t GetPClk2Freq() const;
 		uint32_t GetScaledClkFreq(const uint32_t sysClk, const uint32_t prescaler) const;
+		uint32_t GetLcdFreq() const;
 
 	private:
 		static constexpr uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};

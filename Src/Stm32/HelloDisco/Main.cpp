@@ -6,6 +6,7 @@
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
 #include "UI/Label.h"
+#include "UI/ProgressBar.h"
 
 #include <sstream>
 
@@ -40,6 +41,14 @@ void DisplayTask()
 	UI::Label output("Output", {5, 25, 0, 0});
 	window.Children.push_back(&output);
 
+	UI::ProgressBar progressBar("Progress", { 25, 200, 400, 20 });
+	progressBar.Foreground = Graphics::Colors::Red;
+	progressBar.Background = Graphics::Colors::Black;
+	progressBar.InactiveColor = Graphics::Colors::White;
+	progressBar.Value = 0;
+	progressBar.MaxValue = 100;
+	window.Children.push_back(&progressBar);
+
 	board.ltdc.Init();
 	board.ltdc.Layers[0].Init(frameBuffer);
 	board.ltdc.Layers[0].Enable();
@@ -57,7 +66,10 @@ void DisplayTask()
 		output.Text = ss.str();
 		window.Draw(frameBuffer);
 
-		kernel.Sleep(1000);
+		progressBar.Value += 5;
+		if (progressBar.Value > progressBar.MaxValue)
+			progressBar.Value = 0;
+		kernel.Sleep(500);
 	}
 }
 

@@ -33,6 +33,6 @@ namespace Graphics
 		}
 
 	private:
-		Color m_backing[Width][Height];
+		Color m_backing[Height][Width];
 	};
 }

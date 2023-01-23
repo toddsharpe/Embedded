@@ -33,10 +33,8 @@ namespace Stm32
 		SystemClock::Init(SysClock72MHz);
 
 		//Initialize peripherals
-		GpioPin<Port_D, 8> uart3_tx;
-		uart3_tx.Init(GpioUart3);
-		GpioPin<Port_D, 9> uart3_rx;
-		uart3_rx.Init(GpioUart3);
+		GpioPin<Port_D, 8>::Configure(GpioUart3);
+		GpioPin<Port_D, 9>::Configure(GpioUart3);
 		uart.Init(rcc.GetPClk1Freq(), UartDefault);
 		uart.EnableInterrupt(USART_CR1_RXNEIE);
 

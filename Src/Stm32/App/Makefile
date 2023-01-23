@@ -117,7 +117,8 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
--DSTM32F746xx
+-DSTM32F746xx \
+-DCOLOR_RGB565R
 
 
 # AS includes

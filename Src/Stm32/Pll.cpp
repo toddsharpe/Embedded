@@ -19,20 +19,38 @@ namespace Stm32
 		CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
 
 		// Set PLL Config
-		RCC_PLLCFGR cfgr;
-		cfgr.AsUint32 = RCC->PLLCFGR;
-		cfgr.PLLM = config.M;
-		cfgr.PLLN = config.N;
-		cfgr.PLLP = config.P;
-		cfgr.PLLSRC = config.Source;
-		cfgr.PLLQ = config.Q;
-		RCC->PLLCFGR = cfgr.AsUint32;
+		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLM, config.M << RCC_PLLCFGR_PLLM_Pos);
+		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLN, config.N << RCC_PLLCFGR_PLLN_Pos);
+		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLP, config.P << RCC_PLLCFGR_PLLP_Pos);
+		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLQ, config.Q << RCC_PLLCFGR_PLLQ_Pos);
+		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, config.Source << RCC_PLLCFGR_PLLSRC_Pos);
 
-		// Enable PLL
 		SET_BIT(RCC->CR, RCC_CR_PLLON);
 
 		// Wait for PLL to be ready
 		while (!READ_BIT(RCC->CR, RCC_CR_PLLRDY))
+			continue;
+	}
+
+	void Pll::Init(const PllSaiConfig& config)
+	{
+		// Disable PLL SAI
+		CLEAR_BIT(RCC->CR, RCC_CR_PLLSAION);
+
+		// Set PLL SAI Config
+		MODIFY_REG(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIN, config.N << RCC_PLLSAICFGR_PLLSAIN_Pos);
+		MODIFY_REG(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIP, config.P << RCC_PLLSAICFGR_PLLSAIP_Pos);
+		MODIFY_REG(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIQ, config.Q << RCC_PLLSAICFGR_PLLSAIQ_Pos);
+		MODIFY_REG(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIR, config.R << RCC_PLLSAICFGR_PLLSAIR_Pos);
+
+		//DIVR division factor for LCD_CLK
+		MODIFY_REG(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVR, config.RDiv << RCC_DCKCFGR1_PLLSAIDIVR_Pos);
+
+		// Enable PLL SAI
+		SET_BIT(RCC->CR, RCC_CR_PLLSAION);
+
+		// Wait for PLL SAI to be ready
+		while (!READ_BIT(RCC->CR, RCC_CR_PLLSAIRDY))
 			continue;
 	}
 }

@@ -3,6 +3,9 @@
 #include "Stm32/SystemTimer.h"
 #include "Stm32/Disco-F746GNG.h"
 #include "Rtos/Kernel.h"
+#include "Graphics/StaticFrameBuffer.h"
+#include "UI/Window.h"
+#include "UI/Label.h"
 
 #include <sstream>
 
@@ -22,13 +25,25 @@ void HeartbeatTask()
 	while (true)
 	{
 		board.Printf("Heartbeat\r\n");
-		kernel.Sleep(1000);
+		kernel.Sleep(5000);
 	}
 }
 
+Graphics::StaticFrameBuffer<DiscoF746GNG::ScreenWidth(), DiscoF746GNG::ScreenHeight()> frameBuffer;
 void DisplayTask()
 {
 	board.Printf("DisplayTask\r\n");
+
+	UI::Window window("Disco App");
+	window.Background = Graphics::Colors::Black;
+
+	UI::Label output("Output", {5, 25, 0, 0});
+	window.Children.push_back(&output);
+
+	board.ltdc.Init();
+	board.ltdc.Layers[0].Init(frameBuffer);
+	board.ltdc.Layers[0].Enable();
+	board.ltdc.Enable();
 
 	KernelStats stats = {};
 	while (true)
@@ -36,12 +51,13 @@ void DisplayTask()
 		kernel.GetStats(stats);
 
 		std::stringstream ss;
-		ss << "Kernel stats:\r\n";
-		ss << "  Threads: " << stats.Threads << "\r\n";
-		ss << " SysTicks: " << stats.SysTicks << "\r\n";
-		board.Write(ss.str());
+		ss << "Kernel stats" << std::endl;
+		ss << "  Threads: " << stats.Threads << std::endl;
+		ss << " SysTicks: " << stats.SysTicks << std::endl;
+		output.Text = ss.str();
+		window.Draw(frameBuffer);
 
-		kernel.Sleep(5000);
+		kernel.Sleep(1000);
 	}
 }
 

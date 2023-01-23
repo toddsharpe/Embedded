@@ -1,6 +1,7 @@
+#include "Assert.h"
+#include "Util.h"
 #include "Stm32/Rcc.h"
 
-#include "Util.h"
 #include <stm32f746xx.h>
 
 namespace Stm32
@@ -38,7 +39,8 @@ namespace Stm32
 			const uint32_t pllSourceFreq = (pllSource == RCC_PLLCFGR_PLLSRC_HSI) ? m_hsiFreq : m_hseFreq;
 
 			const uint32_t pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
-			const uint32_t pllvco = (pllSourceFreq / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos);
+			const uint32_t plln = GET_REG_FIELD(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_Pos, RCC_PLLCFGR_PLLN);
+			const uint32_t pllvco = (pllSourceFreq / pllm) * plln;
 			const uint32_t pllp = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLP) >> RCC_PLLCFGR_PLLP_Pos) + 1) * 2;
 			return pllvco / pllp;
 			break;
@@ -47,6 +49,22 @@ namespace Stm32
 			return m_hsiFreq;
 			break;
 		}
+	}
+
+	uint32_t Rcc::GetLcdFreq() const
+	{
+		Assert((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL);
+
+		const uint32_t pllSource = (uint32_t)(RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
+		const uint32_t pllSourceFreq = (pllSource == RCC_PLLCFGR_PLLSRC_HSI) ? m_hsiFreq : m_hseFreq;
+		const uint32_t pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+
+		const uint32_t pllsai1n = GET_REG_FIELD(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIN_Pos, RCC_PLLSAICFGR_PLLSAIN);
+		const uint32_t pllsai1r = GET_REG_FIELD(RCC->PLLSAICFGR, RCC_PLLSAICFGR_PLLSAIR_Pos, RCC_PLLSAICFGR_PLLSAIR);
+		const uint32_t divR = GET_REG_FIELD(RCC->DCKCFGR1, RCC_DCKCFGR1_PLLSAIDIVR_Pos, RCC_DCKCFGR1_PLLSAIDIVR);
+		Assert(divR == 0b10);
+
+		return (pllSourceFreq / pllm) * pllsai1n / pllsai1r / 8;
 	}
 
 	uint32_t Rcc::GetPClk1Freq() const

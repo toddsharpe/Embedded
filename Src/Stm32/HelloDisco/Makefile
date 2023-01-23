@@ -46,6 +46,7 @@ Main.cpp \
 ../DmaStream.cpp \
 ../Flash.cpp \
 ../Disco-F746GNG.cpp \
+../Ltdc.cpp \
 ../Pll.cpp \
 ../Rcc.cpp \
 ../Spi.cpp \
@@ -115,7 +116,8 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
--DSTM32F746xx
+-DSTM32F746xx \
+-DCOLOR_RGB565
 
 
 # AS includes

@@ -22,6 +22,14 @@ namespace Stm32
 		Div8 = 0b11,
 	};
 
+	enum PllSaiDivR
+	{
+		DivR2 = 0b00,
+		DivR4 = 0b01,
+		DivR8 = 0b10,
+		DivR16 = 0b11,
+	};
+
 	struct PllConfig
 	{
 		PllSrc Source;
@@ -31,31 +39,21 @@ namespace Stm32
 		uint32_t Q;
 	};
 
-	struct RCC_PLLCFGR
+	struct PllSaiConfig
 	{
-		union
-		{
-			struct
-			{
-				uint32_t PLLM : 6;
-				uint32_t PLLN : 9;
-				uint32_t _reserved1 : 1;
-				uint32_t PLLP : 2;
-				uint32_t _reserved2 : 4;
-				uint32_t PLLSRC : 1;
-				uint32_t _reserved3 : 1;
-				uint32_t PLLQ : 4;
-				uint32_t _reserved4 : 4;
-			};
-			uint32_t AsUint32;
-		};
+		uint32_t N;
+		PllDiv P;
+		uint32_t Q;
+		uint32_t QDiv;
+		uint32_t R;
+		PllSaiDivR RDiv;
 	};
-	static_assert(sizeof(RCC_PLLCFGR) == sizeof(uint32_t));
 
 	class Pll
 	{
 	public:
 		static void Init(const PllConfig& config);
+		static void Init(const PllSaiConfig& config);
 	};
 }
 

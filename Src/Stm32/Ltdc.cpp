@@ -88,8 +88,9 @@ namespace Stm32
 
 	void Ltdc::Enable()
 	{
-		//Shadow reload config immediately
-		LTDC->SRCR = LTDC_SRCR_IMR; //LTDC_SRCR_VBR
+		//Shadow reload config
+		//NOTE(tsharpe): The "correct" value here is unclear, using VBR but maybe consider IMR?
+		LTDC->SRCR = LTDC_SRCR_VBR;
 		SET_BIT(LTDC->GCR, LTDC_GCR_LTDCEN);
 	}
 }

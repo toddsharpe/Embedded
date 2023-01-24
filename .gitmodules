@@ -4,3 +4,6 @@
 [submodule "External/cmsis_device_f7"]
 	path = External/cmsis_device_f7
 	url = https://github.com/STMicroelectronics/cmsis_device_f7.git
+[submodule "External/Graphics"]
+	path = External/Graphics
+	url = https://github.com/toddsharpe/Graphics.git

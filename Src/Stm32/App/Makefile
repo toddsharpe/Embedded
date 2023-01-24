@@ -129,7 +129,8 @@ C_INCLUDES =  \
 -I../../../Inc \
 -I../../../Src \
 -I../../../External/cmsis_device_f7/Include \
--I../../../External/CMSIS_5/CMSIS/Core/Include
+-I../../../External/CMSIS_5/CMSIS/Core/Include \
+-I../../../External/Graphics/Src \
 
 CXX_INCLUDES = $(C_INCLUDES) \
 -I/usr/arm-none-eabi/include/c++/11.2.0

@@ -37,6 +37,12 @@ namespace Stm32
 		LTDC_Layer1->CFBLR = (((lineLength) << LTDC_LxCFBLR_CFBP_Pos) | (lineLength + 3));
 	}
 
+	void Ltdc::Layer::SetSource(Graphics::FrameBuffer& framebuffer)
+	{
+		//Frame buffer address
+		m_layer->CFBAR = (uint32_t)framebuffer.GetBuffer();
+	}
+
 	void Ltdc::Layer::Enable()
 	{
 		SET_BIT(m_layer->CR, LTDC_LxCR_LEN);

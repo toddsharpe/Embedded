@@ -25,7 +25,6 @@ namespace Stm32
 		size_t Vfp;					//Vertical front porch
 	};
 
-
 	class Ltdc
 	{
 	public:
@@ -34,6 +33,7 @@ namespace Stm32
 		public:
 			Layer(LTDC_Layer_TypeDef* layer);
 			void Init(Graphics::FrameBuffer& framebuffer);
+			void SetSource(Graphics::FrameBuffer& framebuffer);
 			void Enable();
 
 		private:

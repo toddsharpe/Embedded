@@ -39,7 +39,7 @@ namespace Stm32
 		{
 			.Source = PllSrc::HSE,
 			.M = 25,
-			.N = 432,
+			.N = 400,
 			.P = PllDiv::Div2,
 			.Q = 9
 		

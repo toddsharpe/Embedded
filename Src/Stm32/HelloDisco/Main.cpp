@@ -3,6 +3,7 @@
 #include "Stm32/SystemTimer.h"
 #include "Stm32/Disco-F746GNG.h"
 #include "Rtos/Kernel.h"
+#include "Graphics/Raycaster.h"
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
 #include "UI/Label.h"
@@ -26,7 +27,7 @@ void HeartbeatTask()
 	while (true)
 	{
 		board.Printf("Heartbeat\r\n");
-		kernel.Sleep(5000);
+		kernel.Sleep(10000);
 	}
 }
 
@@ -73,6 +74,70 @@ void DisplayTask()
 	}
 }
 
+#define mapWidth 24
+#define mapHeight 24
+int worldMap[mapWidth][mapHeight] =
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+
+void RaycasterTask()
+{
+	board.Printf("RaycasterTask\r\n");
+
+	Graphics::Raycaster<mapWidth, mapHeight> raycaster(worldMap);
+
+	board.ltdc.Init();
+	board.ltdc.Layers[0].Init(frameBuffer);
+	board.ltdc.Layers[0].Enable();
+	board.ltdc.Enable();
+
+	UI::DPad dpad = {};
+	dpad.RightPressed = true;
+
+	KernelStats stats = {};
+	kernel.GetStats(stats);
+	uint32_t previous = stats.SysTicks;
+	
+	while (true)
+	{
+		kernel.GetStats(stats);
+		const uint32_t elapsedMs = stats.SysTicks - previous;
+		previous = stats.SysTicks;
+
+		//Update
+		raycaster.Update(dpad, elapsedMs);
+
+		//Draw
+		raycaster.Render(frameBuffer, elapsedMs);
+
+		kernel.Sleep(50);
+	}
+}
+
 int main(void)
 {
 	board.Init();
@@ -86,6 +151,7 @@ int main(void)
 
 	kernel.CreateThread(&HeartbeatTask);
 	kernel.CreateThread(&DisplayTask);
+	//kernel.CreateThread(&RaycasterTask);
 	kernel.Run();
 }
 

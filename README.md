@@ -2,7 +2,7 @@
 Playing around with bare-metal embedded software. Currently supporting:
 * STM32
 * HiFive (RiscV)
-* [Custom SoC (RiscV)](Soc/)
+* [Custom SoC (RiscV)](SoC/)
 
 ## Overview
 * Bootloader + App

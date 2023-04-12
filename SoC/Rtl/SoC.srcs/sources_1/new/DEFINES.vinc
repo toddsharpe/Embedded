@@ -1,0 +1,53 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 02/12/2023 09:58:18 AM
+// Design Name: 
+// Module Name: ALU_OP
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+`ifndef _DEFINES_
+`define _DEFINES_
+
+`define DEBUG
+
+localparam ALU_ADD = 0; //Add
+localparam ALU_SUB = 1; //Subtract
+localparam ALU_SLL = 2; //Shift Left Logical
+localparam ALU_SLT = 3; //Set Less Than
+localparam ALU_SLTU = 4; //Set Less Than Unsigned
+localparam ALU_XOR = 5; //Exclusive OR
+localparam ALU_SRL = 6; //Shift Right Logical
+localparam ALU_SRA = 7; //Shift Right Arithmetic
+localparam ALU_OR = 8; //Logical OR
+localparam ALU_AND = 9; //Logical AND
+
+localparam B_EQ = 0; //Branch if equal
+localparam B_NE = 1; //Branch if not equal
+localparam B_LT = 4; //Branch if less than
+localparam B_GE = 5; //Branch if greater than or equal
+localparam B_LTU = 6; //Branch if less than unsigned
+localparam B_GEU = 7; //Branch if greater than or equal unsigned
+
+localparam PC_NEXT = 0; //PC + 4
+localparam PC_REL = 1; //PC + imm
+localparam PC_ABS = 2; //PC from alu
+
+localparam LS_BYTE = 2'b00;
+localparam LS_HALF = 2'b01;
+localparam LS_WORD = 2'b10;
+
+`endif

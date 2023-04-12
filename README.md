@@ -1,5 +1,8 @@
 # Embedded
-Playing around with bare-metal embedded software without Stm32 HAL / Freedom-SDK.
+Playing around with bare-metal embedded software. Currently supporting:
+* STM32
+* HiFive (RiscV)
+* [Custom SoC (RiscV)](Soc/)
 
 ## Overview
 * Bootloader + App

@@ -1,4 +1,16 @@
-.vscode
-.project
+# VS
 .vs
+*.user
+.vscode
+
+# Builds
 build
+
+# FPGA
+SoC/Rtl/SOC.cache
+SoC/Rtl/SOC.gen
+SoC/Rtl/SOC.hw
+SoC/Rtl/SOC.runs
+SoC/Rtl/SOC.sim
+SoC/Rtl/SOC.ip_user_files
+SoC/Rtl/vivado*

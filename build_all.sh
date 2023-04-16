@@ -27,3 +27,11 @@ echo "Building HiFive App"
 cd Src/HiFive/App
 make
 cd ../../../
+
+# Build SoC Binaries
+export GCC_PATH=/home/tsharpe/toolchain/bin
+
+echo "Building SoC Bootloader"
+cd Src/SoC/Bootloader
+make
+cd ../../../

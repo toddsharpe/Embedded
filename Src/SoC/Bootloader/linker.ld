@@ -2,25 +2,13 @@ ENTRY(_enter)
 
 MEMORY
 {
-   rom (irx!wa)  : ORIGIN = 0x00000, LENGTH = 0xC000 /* 48K */
-   ram (arw!xi) : ORIGIN = 0x0C000, LENGTH = 0x4000 /* 16K */
-}
-
-PHDRS
-{
-    rom PT_LOAD;
-    ram_init PT_LOAD;
-    tls PT_TLS;
-    ram PT_LOAD;
-    text PT_LOAD;
+   BRAM (RWX) : ORIGIN = 0x0000, LENGTH = 0x10000 /* 64k */
 }
 
 SECTIONS
 {
-    __stack_size = DEFINED(__stack_size) ? __stack_size : 0x400;
-    PROVIDE(__stack_size = __stack_size);
-
-    __heap_size = DEFINED(__heap_size) ? __heap_size : 0x800;
+    __stack_size = 0x1000;
+    __heap_size = 0x1000;
 
     /* ROM SECTION
      *
@@ -33,17 +21,17 @@ SECTIONS
         /* The _enter symbol is placed in the .text.metal.init.enter section
          * and must be placed at the beginning of the program */
         KEEP (*(.text.init.enter))
-    } >rom :rom
+    } >BRAM
 
     .fini : {
         KEEP (*(SORT_NONE(.fini)))
-    } >rom :rom
+    } >BRAM
 
     .preinit_array : ALIGN(8) {
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP (*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
-    } >rom :rom
+    } >BRAM
 
     .init_array : ALIGN(8) {
         PROVIDE_HIDDEN (__init_array_start = .);
@@ -54,7 +42,7 @@ SECTIONS
         KEEP (*(SORT_BY_INIT_PRIORITY(.metal.init_array.*)));
         KEEP (*(.metal.init_array));
         PROVIDE_HIDDEN ( metal_constructors_end = .);
-    } >rom :rom
+    } >BRAM
 
     .fini_array : ALIGN(8) {
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -65,7 +53,7 @@ SECTIONS
         KEEP (*(SORT_BY_INIT_PRIORITY(.metal.fini_array.*)));
         KEEP (*(.metal.fini_array));
         PROVIDE_HIDDEN ( metal_destructors_end = .);
-    } >rom :rom
+    } >BRAM
 
     .ctors : {
         KEEP (*crtbegin.o(.ctors))
@@ -74,7 +62,7 @@ SECTIONS
         KEEP (*(SORT(.ctors.*)))
         KEEP (*(.ctors))
         KEEP (*(.metal.ctors .metal.ctors.*))
-    } >rom :rom
+    } >BRAM
 
     .dtors : {
         KEEP (*crtbegin.o(.dtors))
@@ -83,7 +71,7 @@ SECTIONS
         KEEP (*(SORT(.dtors.*)))
         KEEP (*(.dtors))
         KEEP (*(.metal.dtors .metal.dtors.*))
-    } >rom : rom
+    } >BRAM
 
     .rodata : {
         *(.rdata)
@@ -95,7 +83,7 @@ SECTIONS
         *(.srodata.cst4)
         *(.srodata.cst2)
         *(.srodata .srodata.*)
-    } >rom :rom
+    } >BRAM
 
     /* TEXT SECTION
      *
@@ -108,7 +96,7 @@ SECTIONS
         *(.text.startup .text.startup.*)
         *(.text .text.*)
         *(.gnu.linkonce.t.*)
-    } >rom :text
+    } >BRAM
 
     /* RAM SECTION
      *
@@ -130,12 +118,12 @@ SECTIONS
         PROVIDE( __global_pointer$ = . + 0x800 );
         *(.sdata .sdata.* .sdata2.*)
         *(.gnu.linkonce.s.*)
-    } >ram AT>rom :ram_init
+    } >BRAM
 
     .tdata : ALIGN(8) {
         PROVIDE( __tls_base = . );
-	*(.tdata .tdata.* .gnu.linkonce.td.*)
-    } >ram AT>rom :tls :ram_init
+	    *(.tdata .tdata.* .gnu.linkonce.td.*)
+    } >BRAM
 
     PROVIDE( __tdata_source = LOADADDR(.tdata) );
     PROVIDE( __tdata_size = SIZEOF(.tdata) );
@@ -145,16 +133,16 @@ SECTIONS
     PROVIDE( data_target_end = ADDR(.tdata) + SIZEOF(.tdata) );
 
     .tbss : ALIGN(8) {
-	*(.tbss .tbss.* .gnu.linkonce.tb.*)
-	*(.tcommon .tcommon.*)
-	PROVIDE( __tls_end = . );
-    } >ram AT>ram :tls :ram
+	    *(.tbss .tbss.* .gnu.linkonce.tb.*)
+	    *(.tcommon .tcommon.*)
+	    PROVIDE( __tls_end = . );
+    } >BRAM
     PROVIDE( __tbss_size = SIZEOF(.tbss) );
     PROVIDE( __tls_size = __tls_end - __tls_base );
 
     .tbss_space : ALIGN(8) {
-	. = . + __tbss_size;
-    } >ram :ram
+	    . = . + __tbss_size;
+    } >BRAM
 
     .bss (NOLOAD): ALIGN(8) {
         *(.sbss*)
@@ -162,7 +150,7 @@ SECTIONS
         *(.bss .bss.*)
         *(.gnu.linkonce.b.*)
         *(COMMON)
-    } >ram :ram
+    } >BRAM
 
     PROVIDE( bss_source_start = LOADADDR(.tbss) );
     PROVIDE( bss_target_start = ADDR(.tbss) );
@@ -173,10 +161,9 @@ SECTIONS
         . += __stack_size; /* Hart 0 */
         PROVIDE( _sp = . );
         PROVIDE(stack_end = .);
-    } >ram :ram
+    } >BRAM
 
     .heap (NOLOAD) : ALIGN(8) {
-        PROVIDE( __end = . );
         PROVIDE( __heap_start = . );
         PROVIDE( heap_target_start = . );
         /* If __heap_max is defined, grow the heap to use the rest of RAM,
@@ -185,7 +172,7 @@ SECTIONS
         PROVIDE( heap_target_end = . );
         PROVIDE( _heap_end = . );
         PROVIDE( __heap_end = . );
-    } >ram :ram
+    } >BRAM
 
     /* C++ exception handling information is
      * not useful with our current runtime environment,

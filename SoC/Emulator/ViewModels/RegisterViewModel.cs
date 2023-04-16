@@ -7,9 +7,17 @@ using System.Threading.Tasks;
 
 namespace Emulator.ViewModels
 {
+	[Flags]
+	internal enum Access
+	{
+		Read = 1,
+		Write = 2,
+		ReadWrite = Read | Write
+	}
+	
 	internal class RegisterViewModel : BaseViewModel
 	{
-		public string Name { get; set; }
+		public string Name { get; }
 
 		private uint _value;
 		public uint Value
@@ -32,10 +40,13 @@ namespace Emulator.ViewModels
 			}
 		}
 
-		public RegisterViewModel(string name)
+		public Access Access { get; }
+
+		public RegisterViewModel(string name, Access access = Access.ReadWrite)
 		{
 			Name = name;
 			Value = 0;
+			Access = access;
 		}
 
 		public override string ToString()

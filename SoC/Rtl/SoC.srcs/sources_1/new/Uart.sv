@@ -23,18 +23,23 @@
 //Defines a UART module
 //0: TX Data [1:full|23:reserved|8:data]
 
-module Uart(
+module Uart #(parameter ADDRESS, parameter WORDS = 1)(
     input clk,
+
+    //Memory interface
     input cpu_clk,
     input reset,
-    input enable,
-    input [7:0] dataIn,
+    input [31:2] address,
+    input [31:0] dataIn,
     output [31:0] dataOut,
-    input write,
+    input [3:0] write,
+
+    //UART
     output uartTx
 );
 
     reg [7:0] txdata;
+    wire enabled = ((address >= ADDRESS[31:2]) && (address < (ADDRESS[31:2] + WORDS)));
 
     always_ff @(posedge cpu_clk)
     begin
@@ -42,7 +47,7 @@ module Uart(
         begin
             txdata <= 32'h00000000;
         end
-        else if (enable & write) begin
+        else if (enabled & write) begin
             txdata[7:0] <= dataIn[7:0];
         end
     end
@@ -53,7 +58,7 @@ module Uart(
     reg tx_transmit;
     always_ff @(posedge clk)
     begin
-        if (enable & write)
+        if (enabled & write)
             tx_cur <= 1;
         else
             tx_cur <= 0;
@@ -77,6 +82,7 @@ module Uart(
         .recv_error() // Indicates error in receiving packet.
     );
 
-    assign dataOut = {tx_idle, 31'h0};
+    //NOTE(tsharpe): tx_idle is active low, therefore a high tx_idle means uart is full.
+    assign dataOut = enabled ? {tx_idle, 31'h0} : 32'hzzzzzzzz;
 
 endmodule

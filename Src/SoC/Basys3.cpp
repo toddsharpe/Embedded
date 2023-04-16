@@ -18,6 +18,11 @@ namespace SoC
 
 		//Print welcome
 		uart.Printf("Board initialized\r\n");
+		uart.Printf("Cycles: 0x%x, Freq: 0x%x\r\n", SOC_BLOCK->cycles, SOC_BLOCK->freq);
+
+		//Set LEDs
+		IO_BLOCK->led_display = 0x1234;
+		IO_BLOCK->led_bar = 0xFF00;
 	}
 
 	void Basys3::Printf(const char *format, ...)
@@ -40,6 +45,6 @@ namespace SoC
 
 	uint32_t Basys3::GetSysClkFreq() const
 	{
-		return 50'000'000;
+		return 1'000'000;
 	}
 }

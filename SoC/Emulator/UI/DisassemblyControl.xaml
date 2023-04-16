@@ -17,6 +17,7 @@
 				<DataGridTextColumn Header="Address" Width="75" Binding="{Binding Path=Address, StringFormat=0x{0:X8}}" IsReadOnly="True" />
 				<DataGridTextColumn Header="Bytes" Width="75" Binding="{Binding Path=BytesString}" IsReadOnly="True" />
 				<DataGridTextColumn Header="Instruction" Width="150" Binding="{Binding Path=InstructionString}" IsReadOnly="True"/>
+				<DataGridTextColumn Header="Reference" Width="*" Binding="{Binding Path=ReferenceString}" IsReadOnly="True" />
 			</DataGrid.Columns>
 		</DataGrid>
 	</Grid>

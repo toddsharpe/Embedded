@@ -34,10 +34,10 @@ namespace HiFive
 
 		void Init(const GpioPinConfig &config, const bool initValue = false)
 		{
-			Set(initValue);
-
 			if (config.Mode == GpioMode::Output)
 			{
+				Set(initValue);
+
 				GPIO0->input_en &= ~(1 << TPin);
 				GPIO0->output_en |= (1 << TPin);
 			}

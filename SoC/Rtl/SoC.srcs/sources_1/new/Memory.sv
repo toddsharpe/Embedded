@@ -21,10 +21,10 @@
 
 `include "DEFINES.vinc"
 
-module Memory #(parameter WORDS = 32)(
+module Memory #(parameter ADDRESS, parameter WORDS = 32)(
+    //Memory interface
     input cpu_clk,
     input reset,
-    input enable,
     input [31:2] address,
     input [31:0] dataIn,
     output [31:0] dataOut,
@@ -33,6 +33,7 @@ module Memory #(parameter WORDS = 32)(
 
     (* ram_style = "block" *)
     reg [31:0] MEM [0:(WORDS - 1)];
+    wire enabled = ((address >= ADDRESS[31:2]) && (address < (ADDRESS[31:2] + WORDS)));
 
     initial begin
         $display("Loading RAM.");
@@ -46,7 +47,7 @@ module Memory #(parameter WORDS = 32)(
         begin
             $readmemh("fpga.mem", MEM);
         end
-        else if (enable)
+        else if (enabled)
         begin
             if(write[0]) MEM[wordAddress][7:0] <= dataIn[7:0];
             if(write[1]) MEM[wordAddress][15:8] <= dataIn[15:8];
@@ -55,6 +56,6 @@ module Memory #(parameter WORDS = 32)(
         end
     end
 
-    assign dataOut = MEM[wordAddress];
+    assign dataOut = enabled ? MEM[wordAddress] : 32'hzzzzzzzz;
 
 endmodule

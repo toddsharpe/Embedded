@@ -22,13 +22,6 @@ namespace Emulator.Models
 			{
 				BitConverter.GetBytes(words[i]).CopyTo(_memory, i * sizeof(uint));
 			}
-
-			//Fill rest of memory with a well known value for debugging
-			for (int i = words.Length * 4; i < _memory.Length; i++)
-			{
-				if (_memory[i] == 0)
-					_memory[i] = 0xcc;
-			}
 		}
 
 		public override uint Read(uint address, MemorySize size)
@@ -45,6 +38,11 @@ namespace Emulator.Models
 				throw new Exception();
 
 			WriteBytes(_memory, address, value, size);
+		}
+
+		public MemoryStream AsStream()
+		{
+			return new MemoryStream(_memory);
 		}
 	}
 }

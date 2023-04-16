@@ -1,11 +1,10 @@
 #pragma once
 
-#include <cstdarg>
-#include <cstddef>
 #include <cstdint>
 #include <string>
-#include <ctype.h>
 #include <cstring>
+
+#include <printf.h>
 
 class StringPrinter
 {
@@ -25,7 +24,7 @@ public:
 	{
 		char buffer[255];
 
-		int retval = vsprintf(buffer, format, args);
+		int retval = vsnprintf(buffer, sizeof(buffer), format, args);
 		buffer[retval] = '\0';
 
 		this->Write(std::string(buffer));

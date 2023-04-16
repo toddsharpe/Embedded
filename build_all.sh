@@ -2,6 +2,7 @@
 
 mkdir -p build/Stm32
 mkdir -p build/HiFive
+mkdir -p build/SoC
 
 # Build STM binaries
 

@@ -50,4 +50,7 @@ localparam LS_BYTE = 2'b00;
 localparam LS_HALF = 2'b01;
 localparam LS_WORD = 2'b10;
 
+//1MHz clock
+localparam CPU_FREQ = 'h100000;
+
 `endif

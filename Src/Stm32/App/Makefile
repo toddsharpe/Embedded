@@ -39,6 +39,7 @@ C_SOURCES =  \
 system_stm32f7xx.c \
 ../sysmem.c \
 ../../syscalls.c \
+../../../External/printf/printf.c \
 
 CXX_SOURCES = \
 Main.cpp \
@@ -131,6 +132,7 @@ C_INCLUDES =  \
 -I../../../External/cmsis_device_f7/Include \
 -I../../../External/CMSIS_5/CMSIS/Core/Include \
 -I../../../External/Graphics/Src \
+-I../../../External/printf \
 
 CXX_INCLUDES = $(C_INCLUDES) \
 -I/usr/arm-none-eabi/include/c++/11.2.0

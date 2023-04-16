@@ -39,6 +39,7 @@ module Main(
     //CPU Clock
     wire manual_clk;
     wire cpu_clk;
+    /*
     cpu_clk_wiz cpu_clk_wiz(
         // Clock out ports
         .clk_out1_ce(~halt),  // input clk_out1_ce
@@ -46,17 +47,23 @@ module Main(
         // Clock in ports
         .clk_in1(clk)      // input clk_in1
     );
+    */
+    clock_divider #(.FREQ(1024)) clk_1024(
+        .clk(clk),
+        .reset(),
+        .clk_div(cpu_clk)
+    );
 
     button_pressed btnC_pressed(
-        .clk(cpu_clk),
+        .clk(clk),
         .button(btnC),
         .pressed(manual_clk)
     );
-    assign soc_clk = (sw[15] ? manual_clk : cpu_clk);
+    wire soc_clk = (sw[15] ? manual_clk : cpu_clk);
 
     //SoC
     SoC soc(
-        .clk(cpu_clk),
+        .clk(clk),
         .cpu_clk(soc_clk),
         .reset(1'b0),
         .halt(halt),

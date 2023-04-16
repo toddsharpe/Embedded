@@ -48,11 +48,11 @@ module SoC(
 
     //Memory Controller
     //TODO(tsharpe): Find a better way to do this
-    wire isMemory = (memAddr < 'h4000);
-    wire isLedDisplay = ((memAddr >= 'h4000) && (memAddr < 'h4004));
-    wire isLedBar = ((memAddr >= 'h4004) && (memAddr < 'h4008));
-    wire isSwitches = ((memAddr >= 'h4008) && (memAddr < 'h400C));
-    wire isUart = ((memAddr >= 'h4010) && (memAddr < 'h4014));
+    wire isMemory = (memAddr < 'h10000);
+    wire isLedDisplay = ((memAddr >= 'h10000) && (memAddr < 'h10004));
+    wire isLedBar = ((memAddr >= 'h10004) && (memAddr < 'h10008));
+    wire isSwitches = ((memAddr >= 'h10008) && (memAddr < 'h1000C));
+    wire isUart = ((memAddr >= 'h10010) && (memAddr < 'h10014));
 
     wire [31:0] memoryOut;
     wire [31:0] switchesOut;
@@ -61,9 +61,9 @@ module SoC(
     assign memDataOut = isMemory ? memoryOut :
                         isSwitches ? switchesOut :
                         isUart ? uartOut :
-                        32'h00000000;
+                        32'hcccccccc;
 
-    Memory #(.WORDS(4096)) memory(
+    Memory #(.WORDS('h4000)) memory(
         .cpu_clk(cpu_clk),
         .reset(reset),
         .enable(isMemory),

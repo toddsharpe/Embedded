@@ -62,7 +62,8 @@ module Uart(
     end
 
     //CLOCK_DIVIDE = Frequency(clk) / (4 * Baud)
-    uart_core #(.CLOCK_DIVIDE(109)) uart(
+    wire tx_idle;
+    uart_core #(.CLOCK_DIVIDE(217)) uart(
         .clk(clk), // The master clock for this module
         .rst(reset), // Synchronous reset.
         .rx(), // Incoming serial line

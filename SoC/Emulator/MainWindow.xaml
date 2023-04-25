@@ -1,0 +1,119 @@
+﻿<Window x:Class="Emulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="clr-namespace:Emulator.UI"
+		xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+		xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock" xmlns:s="clr-namespace:System;assembly=netstandard"
+		mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1050">
+
+	<DockPanel>
+		<ToolBarTray DockPanel.Dock="Top">
+			<ToolBar>
+				<Button Content="Start" Command="{Binding Path=StartCommand}" Click="Start_Click" />
+				<Button Content="Pause" Command="{Binding Path=PauseCommand}" Click="Pause_Click" />
+				<Button Content="Single Step" Command="{Binding Path=SingleCommand}" Click="Single_Click" />
+			</ToolBar>
+			<!--<ToolBar>
+				<TextBlock Text="Theme:" Margin="0,0,10,0" VerticalAlignment="Center"/>
+				<ComboBox x:Name="ThemeCombo" SelectedIndex="0" Width="200">
+					<ComboBoxItem Content="Generic" />
+					<ComboBoxItem Content="Aero">
+						<ComboBoxItem.Tag>
+							<xcad:AeroTheme />
+						</ComboBoxItem.Tag>
+					</ComboBoxItem>
+					<ComboBoxItem Content="VS2010">
+						<ComboBoxItem.Tag>
+							<xcad:VS2010Theme />
+						</ComboBoxItem.Tag>
+					</ComboBoxItem>
+					<ComboBoxItem Content="Metro">
+						<ComboBoxItem.Tag>
+							<xcad:MetroTheme />
+						</ComboBoxItem.Tag>
+					</ComboBoxItem>
+				</ComboBox>
+			</ToolBar>-->
+		</ToolBarTray>
+		<!--Theme="{Binding ElementName=ThemeCombo, Path=SelectedItem.Tag}"-->
+		<xcad:DockingManager AllowMixedOrientation="True" BorderBrush="Black" BorderThickness="1">
+			<xcad:DockingManager.DocumentHeaderTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Horizontal">
+						<Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
+						<TextBlock Text="{Binding Title}" />
+					</StackPanel>
+				</DataTemplate>
+			</xcad:DockingManager.DocumentHeaderTemplate>
+			<xcad:LayoutRoot x:Name="LayoutRoot">
+				<xcad:LayoutPanel Orientation="Horizontal">
+					<xcad:LayoutDocumentPaneGroup >
+						<xcad:LayoutDocumentPane>
+							<xcad:LayoutDocument ContentId="FlatDisasm" Title="Disassembly" CanClose="False">
+								<!--<Controls:DisassemblyControl x:Name="DisassemblyControl" />-->
+							</xcad:LayoutDocument>
+							<xcad:LayoutDocument ContentId="Windows" Title="Windows" CanClose="False">
+								<!--<Controls:ProcessViewControl x:Name="ProcessViewControl" />-->
+							</xcad:LayoutDocument>
+							<xcad:LayoutDocument ContentId="PE_Headers" Title="PE Headers" CanClose="False">
+								<TextBox Text="Document 2 Content" AcceptsReturn="True"/>
+							</xcad:LayoutDocument>
+							<xcad:LayoutDocument ContentId="Resources" Title="Resources" CanClose="False">
+								<TextBox Text="Document 2 Content" AcceptsReturn="True"/>
+							</xcad:LayoutDocument>
+							<xcad:LayoutDocument ContentId="Imports" Title="Imports" CanClose="False">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="300" />
+										<ColumnDefinition Width="*" />
+									</Grid.ColumnDefinitions>
+									<TreeView x:Name="ImportTreeView" />
+								</Grid>
+							</xcad:LayoutDocument>
+						</xcad:LayoutDocumentPane>
+					</xcad:LayoutDocumentPaneGroup >
+					<xcad:LayoutDocumentPaneGroup >
+						<xcad:LayoutDocumentPane>
+							<xcad:LayoutAnchorable Title="Graph" ContentId="Graph" CanClose="False">
+								<!--<Controls:GraphDisassemblyControl x:Name="GraphDisassemblyControl" />-->
+							</xcad:LayoutAnchorable>
+							<xcad:LayoutAnchorable Title="Memory" ContentId="Memory" CanClose="False">
+								<!--<Controls:MemoryViewControl x:Name="MemoryViewControl" />-->
+							</xcad:LayoutAnchorable>
+						</xcad:LayoutDocumentPane>
+					</xcad:LayoutDocumentPaneGroup>
+					<xcad:LayoutPanel Orientation="Vertical" DockWidth="350">
+						<xcad:LayoutDocumentPaneGroup>
+							<xcad:LayoutDocumentPane>
+								<xcad:LayoutAnchorable ContentId="Context" Title="Context">
+									<ui:ContextControl DataContext="{Binding Path=SoC.Context}" />
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable ContentId="Flags" Title="Flags">
+									<!--<Controls:FlagsControl x:Name="FlagsControl" />-->
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable ContentId="Stack" Title="Stack View">
+									<!--<Controls:StackViewControl x:Name="StackViewControl" />-->
+								</xcad:LayoutAnchorable>
+							</xcad:LayoutDocumentPane>
+						</xcad:LayoutDocumentPaneGroup>
+						<xcad:LayoutDocumentPaneGroup>
+							<xcad:LayoutDocumentPane>
+								<xcad:LayoutAnchorable Title="Uart Log" CanClose="False">
+									<ScrollViewer>
+										<TextBlock Text="{Binding Path=SoC.Uart.Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+									</ScrollViewer>
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable Title="LED Display" CanClose="False">
+									<ui:LedDisplayControl DataContext="{Binding Path=SoC.Display}" />
+								</xcad:LayoutAnchorable>
+							</xcad:LayoutDocumentPane>
+						</xcad:LayoutDocumentPaneGroup>
+					</xcad:LayoutPanel>
+				</xcad:LayoutPanel>
+			</xcad:LayoutRoot>
+		</xcad:DockingManager>
+	</DockPanel>
+</Window>

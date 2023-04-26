@@ -42,7 +42,7 @@ namespace Emulator.Models
 				case AluOp.SRA:
 					return in1 >> in2;
 				case AluOp.OR:
-					return in2 | in2;
+					return in1 | in2;
 				case AluOp.AND:
 					return in1 & in2;
 				default:

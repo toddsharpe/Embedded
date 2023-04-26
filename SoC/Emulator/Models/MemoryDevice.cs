@@ -46,7 +46,24 @@ namespace Emulator.Models
 
 		protected static void WriteBytes(byte[] memory, uint address, uint value, MemorySize size)
 		{
-			byte[] bytes = BitConverter.GetBytes(value);
+			byte[] bytes;
+			switch (size)
+			{
+				case MemorySize.Byte:
+					bytes = new [] { (byte)value };
+					break;
+
+				case MemorySize.HalfWord:
+					bytes = BitConverter.GetBytes((ushort)value);
+					break;
+
+				case MemorySize.Word:
+					bytes = BitConverter.GetBytes(value);
+					break;
+
+				default:
+					throw new Exception();
+			}
 			bytes.CopyTo(memory, address);
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,11 +13,13 @@ namespace Emulator.Disasm
 		public static Instruction Decode(uint instr)
 		{
 			Instruction parsed = new Instruction();
+			parsed.Instr = instr;
 			//Instruction
 			uint op = instr & 0b1111111;
 			if (!Enum.IsDefined(typeof(OpCode), op))
-				throw new Exception();
-			parsed.OpCode = (OpCode)op;
+				parsed.OpCode = OpCode.Unknown;
+			else
+				parsed.OpCode = (OpCode)op;
 
 			//Immediates
 			parsed.Uimm = (GetBit(instr, 31) << 31) | (GetBits(instr, 12, 19) << 12);
@@ -24,6 +27,10 @@ namespace Emulator.Disasm
 			parsed.Simm = (ExtendBit(GetBit(instr, 31), 21) << 11) | GetBits(instr, 25, 6) << 5 | GetBits(instr, 7, 5);
 			parsed.Bimm = (ExtendBit(GetBit(instr, 31), 20) << 12) | GetBit(instr, 7) << 11 | GetBits(instr, 25, 6) << 5 | GetBits(instr, 8, 4) << 1;
 			parsed.Jimm = (ExtendBit(GetBit(instr, 31), 12) << 20) | GetBits(instr, 12, 8) << 12 | GetBit(instr, 20) << 11 | GetBits(instr, 21, 10) << 1;
+
+			uint bimm2 = ParseBimm2(instr);
+			if (parsed.Bimm != bimm2)
+				Debugger.Break();
 
 			//Registers
 			parsed.Rs1Id = GetBits2(instr, 15, 19);
@@ -35,6 +42,19 @@ namespace Emulator.Disasm
 			parsed.Funct7 = GetBits(instr, 25, 7);
 
 			return parsed;
+		}
+
+		private static uint ParseBimm2(uint instr)
+		{
+			uint RdId = GetBits2(instr, 7, 11);
+			uint funct7 = GetBits(instr, 25, 7);
+			uint imm_11 = RdId & 1;
+			uint imm_4_1 = RdId >> 1;
+			uint imm_10_5 = (uint)(funct7 & ~(1 << 6));
+			uint imm_12 = funct7 >> 6;
+			uint imm_32_13 = ExtendBit(imm_12, 19);
+
+			return imm_32_13 << 13 | imm_12 << 12 | imm_11 << 11 | imm_10_5 << 5 | imm_4_1 << 1;
 		}
 
 		private static uint ExtendBit(uint value, int length)

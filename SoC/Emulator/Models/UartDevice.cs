@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -22,10 +23,24 @@ namespace Emulator.Models
 				OnPropertyChanged();
 			}
 		}
-		
-		public UartDevice(uint baseAddr, uint size) : base(baseAddr, size)
+
+		private string _hex;
+		public string Hex
 		{
-			_log = string.Empty;
+			get => _hex;
+			set
+			{
+				if (_hex == value) return;
+
+				_hex = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public UartDevice(uint baseAddr) : base(baseAddr, sizeof(uint))
+		{
+			Log = string.Empty;
+			Hex = string.Empty;
 		}
 
 		public override uint Read(uint address, MemorySize size)
@@ -43,6 +58,7 @@ namespace Emulator.Models
 				throw new Exception();
 
 			Log += (char)(value & 0xFF);
+			Hex += String.Format("{0:X2} ", ((byte)value));
 		}
 	}
 }

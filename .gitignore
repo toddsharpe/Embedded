@@ -14,3 +14,7 @@ SoC/Rtl/SOC.runs
 SoC/Rtl/SOC.sim
 SoC/Rtl/SOC.ip_user_files
 SoC/Rtl/vivado*
+
+# Emulator
+SoC/Emulator/bin
+SoC/Emulator/obj

@@ -8,6 +8,7 @@ namespace Emulator.Disasm
 {
 	enum OpCode : uint
 	{
+		Unknown = 0,
 		LUI = 0b0110111,
 		AUIPC = 0b0010111,
 		JAL = 0b1101111,

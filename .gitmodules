@@ -7,3 +7,6 @@
 [submodule "External/Graphics"]
 	path = External/Graphics
 	url = https://github.com/toddsharpe/Graphics.git
+[submodule "External/printf"]
+	path = External/printf
+	url = https://github.com/mpaland/printf.git

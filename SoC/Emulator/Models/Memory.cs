@@ -13,16 +13,21 @@ namespace Emulator.Models
 	{
 		private byte[] _memory;
 		
-		public Memory(uint baseAddr, uint size, string memFile) : base(baseAddr, size)
+		public Memory(uint baseAddr, uint size, uint[] words) : base(baseAddr, size)
 		{
 			_memory = new byte[size];
 
 			//Load file
-			string[] lines = File.ReadAllLines(memFile);
-			for (int i = 0; i < lines.Length; i++)
+			for (int i = 0; i < words.Length; i++)
 			{
-				uint value = uint.Parse(lines[i], System.Globalization.NumberStyles.HexNumber);
-				BitConverter.GetBytes(value).CopyTo(_memory, i * sizeof(uint));
+				BitConverter.GetBytes(words[i]).CopyTo(_memory, i * sizeof(uint));
+			}
+
+			//Fill rest of memory with a well known value for debugging
+			for (int i = words.Length * 4; i < _memory.Length; i++)
+			{
+				if (_memory[i] == 0)
+					_memory[i] = 0xcc;
 			}
 		}
 

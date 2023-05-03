@@ -5,6 +5,9 @@ FPGA_MEM_FILE=$SOC_DIR/fpga.mem
 rm -rf $OUTPUT_DIR
 mkdir -p $OUTPUT_DIR
 
+# Using external printf
+PRINTF_DIR=../../../External/printf
+
 # Use SoC toolchain
 export TOOLCHAIN=/opt/rv32i/
 export BIN_PATH=$TOOLCHAIN/bin
@@ -17,9 +20,10 @@ OBJDUMP=$BIN_PATH/riscv32-unknown-elf-objdump
 AS=$BIN_PATH/riscv32-unknown-elf-as
 
 # Build ELF (no c, no compression)
-$GCC -r -g demo.c -o $OUTPUT_DIR/demo.o -march=rv32ima -mabi=ilp32 -O0 -ffunction-sections
-$GCC -r -g start.c -o $OUTPUT_DIR/start.o -march=rv32ima -mabi=ilp32 -O0 -ffunction-sections
-$GCC $OUTPUT_DIR/demo.o $OUTPUT_DIR/start.o -march=rv32ima -mabi=ilp32 --specs=nano.specs -nostartfiles -o $OUTPUT_DIR/demo.elf -T demo.ld -Wl,--start-group -lc -lm -lstdc++ -lnosys  -Wl,--end-group -Wl,-Map=$OUTPUT_DIR/demo.map -mno-relax
+$GCC -r -g demo.c -o $OUTPUT_DIR/demo.o -I $PRINTF_DIR -march=rv32i -mabi=ilp32 -O0 -ffunction-sections
+$GCC -r -g start.c -o $OUTPUT_DIR/start.o -march=rv32i -mabi=ilp32 -O0 -ffunction-sections
+$GCC -r -g $PRINTF_DIR/printf.c -o $OUTPUT_DIR/printf.o -DPRINTF_DISABLE_SUPPORT_FLOAT -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL -march=rv32i -mabi=ilp32 -O0 -ffunction-sections
+$GCC $OUTPUT_DIR/demo.o $OUTPUT_DIR/start.o $OUTPUT_DIR/printf.o -march=rv32i -mabi=ilp32 --specs=nano.specs -nostartfiles -o $OUTPUT_DIR/demo.elf -T demo.ld -Wl,--start-group -lc -lm -lstdc++ -lnosys  -Wl,--end-group -Wl,-Map=$OUTPUT_DIR/demo.map -mno-relax
 
 # Disassemble
 $OBJDUMP -S --disassemble $OUTPUT_DIR/demo.elf > $OUTPUT_DIR/demo.disasm

@@ -1,12 +1,18 @@
 #include "SOC.h"
 #include <string.h>
+#include "printf.h"
 
 void write(const uint8_t *buffer, size_t length);
 
+void _putchar(char character)
+{
+	while (UART->txdata.full) {};
+	UART->txdata.data = character;
+}
+
 void main()
 {
-	char *buffer = "Hello World!\r\n";
-	write((uint8_t *)buffer, strlen(buffer));
+	printf("i %d\r\n", 123);
 
 	uint32_t value = 0;
 	while (1)
@@ -26,6 +32,7 @@ void main()
 		IO_BLOCK->led_display = value;
 		IO_BLOCK->led_bar = value;
 
+		//Delay
 		for (volatile int i = 0; i < 50000; i++)
 			__asm("nop");
 	}

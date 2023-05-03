@@ -50,36 +50,15 @@
 			</xcad:DockingManager.DocumentHeaderTemplate>
 			<xcad:LayoutRoot x:Name="LayoutRoot">
 				<xcad:LayoutPanel Orientation="Horizontal">
-					<xcad:LayoutDocumentPaneGroup >
+					<xcad:LayoutDocumentPaneGroup DockWidth="300" >
 						<xcad:LayoutDocumentPane>
-							<xcad:LayoutDocument ContentId="FlatDisasm" Title="Disassembly" CanClose="False">
-								<!--<Controls:DisassemblyControl x:Name="DisassemblyControl" />-->
-							</xcad:LayoutDocument>
-							<xcad:LayoutDocument ContentId="Windows" Title="Windows" CanClose="False">
-								<!--<Controls:ProcessViewControl x:Name="ProcessViewControl" />-->
-							</xcad:LayoutDocument>
-							<xcad:LayoutDocument ContentId="PE_Headers" Title="PE Headers" CanClose="False">
-								<TextBox Text="Document 2 Content" AcceptsReturn="True"/>
-							</xcad:LayoutDocument>
-							<xcad:LayoutDocument ContentId="Resources" Title="Resources" CanClose="False">
-								<TextBox Text="Document 2 Content" AcceptsReturn="True"/>
-							</xcad:LayoutDocument>
-							<xcad:LayoutDocument ContentId="Imports" Title="Imports" CanClose="False">
-								<Grid>
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="300" />
-										<ColumnDefinition Width="*" />
-									</Grid.ColumnDefinitions>
-									<TreeView x:Name="ImportTreeView" />
-								</Grid>
+							<xcad:LayoutDocument Title="Disassembly" CanClose="False">
+								<ui:DisassemblyControl DataContext="{Binding Path=SoC.Instructions}" />
 							</xcad:LayoutDocument>
 						</xcad:LayoutDocumentPane>
 					</xcad:LayoutDocumentPaneGroup >
 					<xcad:LayoutDocumentPaneGroup >
 						<xcad:LayoutDocumentPane>
-							<xcad:LayoutAnchorable Title="Graph" ContentId="Graph" CanClose="False">
-								<!--<Controls:GraphDisassemblyControl x:Name="GraphDisassemblyControl" />-->
-							</xcad:LayoutAnchorable>
 							<xcad:LayoutAnchorable Title="Memory" ContentId="Memory" CanClose="False">
 								<!--<Controls:MemoryViewControl x:Name="MemoryViewControl" />-->
 							</xcad:LayoutAnchorable>
@@ -104,6 +83,11 @@
 								<xcad:LayoutAnchorable Title="Uart Log" CanClose="False">
 									<ScrollViewer>
 										<TextBlock Text="{Binding Path=SoC.Uart.Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+									</ScrollViewer>
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable Title="Uart Hex" CanClose="False">
+									<ScrollViewer>
+										<TextBlock Text="{Binding Path=SoC.Uart.Hex}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 									</ScrollViewer>
 								</xcad:LayoutAnchorable>
 								<xcad:LayoutAnchorable Title="LED Display" CanClose="False">

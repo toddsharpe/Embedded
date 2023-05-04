@@ -62,17 +62,6 @@ void _enter(void)   {
 // At this point we have a stack and global poiner, but no access to global variables.
 void _start(void) {
 
-    // Init memory regions
-    // Clear the .bss section (global variables with no initial values)
-    std::fill(&bss_target_start, // cppcheck-suppress mismatchingContainers
-              &bss_target_end,
-              0U);
-
-    // Initialize the .data section (global variables with initial values)
-    std::copy(&data_source_start, // cppcheck-suppress mismatchingContainers
-              &data_source_start + (&data_target_end-&data_target_start),
-              &data_target_start);
-
     // Call constructors
     std::for_each( &__init_array_start,
                    &__init_array_end, 

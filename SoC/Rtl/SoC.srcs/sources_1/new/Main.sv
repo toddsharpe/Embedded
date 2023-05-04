@@ -19,12 +19,14 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+`include "DEFINES.vinc"
 
 module Main(
     input clk,
     input btnC,
     input [15:0] sw,
     output [3:0] an,
+    inout [7:0] JC,
     output [6:0] seg,
     output [15:0] led,
     output RsTx
@@ -48,7 +50,8 @@ module Main(
         .clk_in1(clk)      // input clk_in1
     );
     */
-    clock_divider #(.FREQ(1024)) clk_1024(
+
+    clock_divider #(.FREQ(CPU_FREQ)) cpu_clk_div(
         .clk(clk),
         .reset(),
         .clk_div(cpu_clk)
@@ -70,6 +73,7 @@ module Main(
         .switchesIn({1'b0, sw[14:0]}),
         .displayOut(displayOut),
         .ledsOut(led),
+        .JC(JC),
         .uartTx(RsTx)
     );
 

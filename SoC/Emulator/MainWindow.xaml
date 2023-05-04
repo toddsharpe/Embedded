@@ -60,7 +60,7 @@
 					<xcad:LayoutDocumentPaneGroup >
 						<xcad:LayoutDocumentPane>
 							<xcad:LayoutAnchorable Title="Memory" ContentId="Memory" CanClose="False">
-								<!--<Controls:MemoryViewControl x:Name="MemoryViewControl" />-->
+								<ui:MemoryControl DataContext="{Binding Path=SoC.Reader}" />
 							</xcad:LayoutAnchorable>
 						</xcad:LayoutDocumentPane>
 					</xcad:LayoutDocumentPaneGroup>
@@ -90,8 +90,11 @@
 										<TextBlock Text="{Binding Path=SoC.Uart.Hex}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 									</ScrollViewer>
 								</xcad:LayoutAnchorable>
-								<xcad:LayoutAnchorable Title="LED Display" CanClose="False">
-									<ui:LedDisplayControl DataContext="{Binding Path=SoC.Display}" />
+								<xcad:LayoutAnchorable Title="Io Block" CanClose="False">
+									<ui:IoBlockControl DataContext="{Binding Path=SoC.Io}" />
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable Title="Soc Block" CanClose="False">
+									<ui:SocBlockControl DataContext="{Binding Path=SoC.Soc}" />
 								</xcad:LayoutAnchorable>
 							</xcad:LayoutDocumentPane>
 						</xcad:LayoutDocumentPaneGroup>

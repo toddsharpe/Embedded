@@ -19,6 +19,13 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+localparam MEM_MEMORY_START = 'h0;
+localparam DEVICE_START = 'h100000;
+localparam MEM_SOC_START = DEVICE_START;
+localparam MEM_IO_START = DEVICE_START  + 'h100;
+localparam MEM_GPIO1_START = DEVICE_START + 'h200;
+localparam MEM_UART_START = DEVICE_START  + 'h300;
+localparam MEM_SPI1_START = DEVICE_START + 'h400;
 
 module SoC(
     input clk,
@@ -28,6 +35,7 @@ module SoC(
     input [15:0] switchesIn,
     output [15:0] displayOut,
     output [15:0] ledsOut,
+    inout [7:0] JC,
     output uartTx
 );
 
@@ -35,83 +43,90 @@ module SoC(
     wire [31:0] memDataIn;
     wire [31:0] memDataOut;
     wire [3:0] memWrite;
+
+    //TODO(tsharpe): Signal isn't currently used, should it be?
     wire memRead;
 
-    //Memory Map
-    //0x0000-0x1FFF: Memory
-    //0x4000 (int16): LED Display
-    //0x4004 (int16): LED Bar
-    //0x4008 (int16): Switches
-    //0x400C (int16): <Unallocated>
-    //0x4010 (int32): UART
-    //-----0: UART TX
-
     //Memory Controller
-    //TODO(tsharpe): Find a better way to do this
-    wire isMemory = (memAddr < 'h10000);
-    wire isLedDisplay = ((memAddr >= 'h10000) && (memAddr < 'h10004));
-    wire isLedBar = ((memAddr >= 'h10004) && (memAddr < 'h10008));
-    wire isSwitches = ((memAddr >= 'h10008) && (memAddr < 'h1000C));
-    wire isUart = ((memAddr >= 'h10010) && (memAddr < 'h10014));
-
-    wire [31:0] memoryOut;
-    wire [31:0] switchesOut;
-    wire [31:0] uartOut;
-
-    assign memDataOut = isMemory ? memoryOut :
-                        isSwitches ? switchesOut :
-                        isUart ? uartOut :
-                        32'hcccccccc;
-
-    Memory #(.WORDS('h4000)) memory(
+    Memory #(.ADDRESS(MEM_MEMORY_START), .WORDS('h4000)) memory(
+        //Memory interface
         .cpu_clk(cpu_clk),
         .reset(reset),
-        .enable(isMemory),
         .address(memAddr[31:2]),
         .dataIn(memDataIn),
-        .dataOut(memoryOut),
+        .dataOut(memDataOut),
         .write(memWrite)
     );
 
-    wire [31:0] device1024;
-    GpioOutputPort ledDisplay(
+    SocBlock #(.ADDRESS(MEM_SOC_START)) socBlock(
+        //Memory interface
         .cpu_clk(cpu_clk),
         .reset(reset),
-        .enable(isLedDisplay),
+        .address(memAddr[31:2]),
         .dataIn(memDataIn),
-        .write(memWrite),
-        .device(device1024)
+        .dataOut(memDataOut)
     );
-    assign displayOut = device1024[15:0];
 
-    wire [31:0] device1028;
-    GpioOutputPort ledBar(
+    IoBlock #(.ADDRESS(MEM_IO_START)) ioBlock(
+        //Memory interface
         .cpu_clk(cpu_clk),
         .reset(reset),
-        .enable(isLedBar),
+        .address(memAddr[31:2]),
         .dataIn(memDataIn),
+        .dataOut(memDataOut),
         .write(memWrite),
-        .device(device1028)
-    );
-    assign ledsOut = device1028[15:0];
 
-    wire [31:0] device1032 = {16'h0000, switchesIn};
-    GpioInputPort switches(
-        //input cpu_clk,
-        //input reset,
-        .dataOut(switchesOut),
-        .device(device1032)
+        //IO
+        .displayOut(displayOut),
+        .ledsOut(ledsOut),
+        .switchesIn(switchesIn)
     );
 
-    Uart uart(
+    //Bits [0-3]: JC Pins 7-10
+    GpioBlock #(.ADDRESS(MEM_GPIO1_START)) gpio1(
+        //Memory interface
+        .cpu_clk(cpu_clk),
+        .reset(reset),
+        .address(memAddr[31:2]),
+        .dataIn(memDataIn),
+        .dataOut(memDataOut),
+        .write(memWrite),
+        
+        //GPIO
+        .devices(JC[7:4])
+    );
+
+    Uart #(.ADDRESS(MEM_UART_START)) uart(
         .clk(clk),
+
+        //Memory interface
         .cpu_clk(cpu_clk),
         .reset(reset),
-        .enable(isUart),
+        .address(memAddr[31:2]),
         .dataIn(memDataIn[7:0]),
-        .dataOut(uartOut),
+        .dataOut(memDataOut),
         .write(memWrite[0]),
+
+        //UART
         .uartTx(uartTx)
+    );
+
+    Spi #(.ADDRESS(MEM_SPI1_START)) spi(
+        .clk(clk),
+
+        //Memory interface
+        .cpu_clk(cpu_clk),
+        .reset(reset),
+        .address(memAddr[31:2]),
+        .dataIn(memDataIn[7:0]),
+        .dataOut(memDataOut),
+        .write(memWrite[0]),
+
+        //SPI
+        .cs(JC[0]),
+        .mosi(JC[1]),
+        .miso(JC[2]),
+        .sck(JC[3])
     );
 
     Processor processor(

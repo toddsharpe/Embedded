@@ -27,6 +27,7 @@ BUILD_DIR = ../../../build/HiFive/App
 C_SOURCES = \
 ../sysmem.c \
 ../../syscalls.c \
+../../../External/printf/printf.c \
 
 CXX_SOURCES = \
 Main.cpp \
@@ -114,6 +115,7 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -I../../../Inc \
 -I../../../Src \
+-I../../../External/printf \
 
 CXX_INCLUDES = $(C_INCLUDES) 
 

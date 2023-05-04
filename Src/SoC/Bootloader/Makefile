@@ -38,13 +38,17 @@ FPGA_MEM_FILE=$(SOC_DIR)/fpga.mem
 ######################################
 # C sources
 C_SOURCES =  \
-
+../sysmem.c \
+../../syscalls.c \
+../../../External/printf/printf.c \
 
 CXX_SOURCES = \
 Main.cpp \
 ../Basys3.cpp \
 ../Uart.cpp \
+../Spi.cpp \
 ../start.cpp \
+../../Drivers/Ssd1331.cpp \
 ../../demangle.cpp
 
 # ASM sources
@@ -103,6 +107,9 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
+-DCOLOR_RGB565 \
+-DPRINTF_DISABLE_SUPPORT_FLOAT \
+-DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \
 
 # AS includes
 AS_INCLUDES = 
@@ -111,13 +118,15 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -I../../../Inc \
 -I../../../Src \
+-I../../../External/Graphics/Src \
+-I../../../External/printf \
 
 CXX_INCLUDES = $(C_INCLUDES)
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -fno-exceptions  -fno-rtti
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -fno-exceptions  -fno-rtti
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -fno-exceptions
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

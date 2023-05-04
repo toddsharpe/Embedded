@@ -17,23 +17,25 @@ namespace Emulator.ViewModels
 		//Memory layout constants
 		private const uint MEM_START = 0;
 		private const uint MEM_SIZE = 0x10000;
-		private const uint LED_DISPLAY_START = 0x10000;
-		private const uint LED_DISPLAY_SIZE = sizeof(uint);
-		private const uint LED_BAR_START = 0x10004;
-		private const uint LED_BAR_SIZE = sizeof(uint);
-		private const uint SWITCHES_START = 0x10008;
-		private const uint SWITCHES_SIZE = sizeof(uint);
-		private const uint UART_START = 0x10010;
-		private const uint UART_SIZE = sizeof(uint);
+
+		private const uint DEVICE_START = 0x100000;
+		private const uint SOC_BLOCK = DEVICE_START;
+		private const uint IO_BLOCK = DEVICE_START + 0x100;
+		private const uint GPIO1 = DEVICE_START + 0x200;
+		private const uint UART = DEVICE_START + 0x300;
+		private const uint SPI1 = DEVICE_START + 0x400;
 
 		//Memory
 		public List<InstructionViewModel> Instructions { get; }
 		public Memory Memory { get; }
+		public SocBlock Soc { get; }
+		public IoBlock Io { get; }
 		public UartDevice Uart { get; }
-		public LedDisplay Display { get; }
+		public IoBlock Display { get; }
 		private List<MemoryDevice> _devices;
+		public BinaryReader Reader { get; }
 
-		//State
+		//Context
 		public ContextViewModel Context { get; }
 		private bool _halted;
 		public bool Halted
@@ -61,18 +63,18 @@ namespace Emulator.ViewModels
 
 			//Memory devices
 			Memory = new Memory(MEM_START, MEM_SIZE, words);
-			Display = new LedDisplay(LED_DISPLAY_START, LED_DISPLAY_SIZE);
-			MemoryHole hole = new MemoryHole(LED_BAR_START, LED_BAR_SIZE + SWITCHES_SIZE);
-			Uart = new UartDevice(UART_START);
+			Soc = new SocBlock(SOC_BLOCK);
+			Io = new IoBlock(IO_BLOCK);
+			Uart = new UartDevice(UART);
+			_devices = new List<MemoryDevice>
+			{
+				Memory, Soc, Io, Uart
+			};
+			Reader = new BinaryReader(Memory.AsStream());
+			OnPropertyChanged("Reader");
 
 			//Instructions
 			Instructions = words.Select((v, i) => new InstructionViewModel((uint)(i * sizeof(int)), v)).ToList();
-			OnPropertyChanged("Instructions");
-
-			_devices = new List<MemoryDevice>
-			{
-				Memory, Display, hole, Uart
-			};
 
 			//Context
 			Context = new ContextViewModel();
@@ -100,8 +102,8 @@ namespace Emulator.ViewModels
 
 		private void Run()
 		{
-			//State
-			const int clk_freq = 1024;
+			const int clk_freq = 0x100000;
+			Soc.SetFreq(clk_freq);
 
 			while (!Halted)
 			{
@@ -115,7 +117,7 @@ namespace Emulator.ViewModels
 
 				//Derrived data
 				AluOp op = instr.GetAluOp();
-				
+
 				//Decoding asserts (would catch M instruction).
 				if (instr.OpCode == OpCode.ALUreg)
 				{
@@ -216,6 +218,7 @@ namespace Emulator.ViewModels
 				}
 
 				Thread.Sleep(TimeSpan.FromMicroseconds(1000000.0 / clk_freq));
+				Soc.AddCycles(2);
 			}
 		}
 

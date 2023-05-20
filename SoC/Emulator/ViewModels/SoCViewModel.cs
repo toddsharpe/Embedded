@@ -30,8 +30,9 @@ namespace Emulator.ViewModels
 		public Memory Memory { get; }
 		public SocBlock Soc { get; }
 		public IoBlock Io { get; }
+		public GpioBlock Gpio { get; }
 		public UartDevice Uart { get; }
-		public IoBlock Display { get; }
+		public SpiDevice Spi { get; }
 		private List<MemoryDevice> _devices;
 		public BinaryReader Reader { get; }
 
@@ -65,13 +66,14 @@ namespace Emulator.ViewModels
 			Memory = new Memory(MEM_START, MEM_SIZE, words);
 			Soc = new SocBlock(SOC_BLOCK);
 			Io = new IoBlock(IO_BLOCK);
+			Gpio = new GpioBlock(GPIO1);
 			Uart = new UartDevice(UART);
+			Spi = new SpiDevice(SPI1);
 			_devices = new List<MemoryDevice>
 			{
-				Memory, Soc, Io, Uart
+				Memory, Soc, Io, Gpio, Uart, Spi
 			};
 			Reader = new BinaryReader(Memory.AsStream());
-			OnPropertyChanged("Reader");
 
 			//Instructions
 			Instructions = words.Select((v, i) => new InstructionViewModel((uint)(i * sizeof(int)), v)).ToList();

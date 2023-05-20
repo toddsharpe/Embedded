@@ -16,7 +16,7 @@
 				<Button Content="Pause" Command="{Binding Path=PauseCommand}" Click="Pause_Click" />
 				<Button Content="Single Step" Command="{Binding Path=SingleCommand}" Click="Single_Click" />
 			</ToolBar>
-			<!--<ToolBar>
+			<ToolBar>
 				<TextBlock Text="Theme:" Margin="0,0,10,0" VerticalAlignment="Center"/>
 				<ComboBox x:Name="ThemeCombo" SelectedIndex="0" Width="200">
 					<ComboBoxItem Content="Generic" />
@@ -36,10 +36,9 @@
 						</ComboBoxItem.Tag>
 					</ComboBoxItem>
 				</ComboBox>
-			</ToolBar>-->
+			</ToolBar>
 		</ToolBarTray>
-		<!--Theme="{Binding ElementName=ThemeCombo, Path=SelectedItem.Tag}"-->
-		<xcad:DockingManager AllowMixedOrientation="True" BorderBrush="Black" BorderThickness="1">
+		<xcad:DockingManager AllowMixedOrientation="True" BorderBrush="Black" BorderThickness="1" Theme="{Binding ElementName=ThemeCombo, Path=SelectedItem.Tag}">
 			<xcad:DockingManager.DocumentHeaderTemplate>
 				<DataTemplate>
 					<StackPanel Orientation="Horizontal">
@@ -70,9 +69,6 @@
 								<xcad:LayoutAnchorable ContentId="Context" Title="Context">
 									<ui:ContextControl DataContext="{Binding Path=SoC.Context}" />
 								</xcad:LayoutAnchorable>
-								<xcad:LayoutAnchorable ContentId="Flags" Title="Flags">
-									<!--<Controls:FlagsControl x:Name="FlagsControl" />-->
-								</xcad:LayoutAnchorable>
 								<xcad:LayoutAnchorable ContentId="Stack" Title="Stack View">
 									<!--<Controls:StackViewControl x:Name="StackViewControl" />-->
 								</xcad:LayoutAnchorable>
@@ -85,16 +81,19 @@
 										<TextBlock Text="{Binding Path=SoC.Uart.Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 									</ScrollViewer>
 								</xcad:LayoutAnchorable>
-								<xcad:LayoutAnchorable Title="Uart Hex" CanClose="False">
+								<xcad:LayoutAnchorable Title="Spi Log" CanClose="False">
 									<ScrollViewer>
-										<TextBlock Text="{Binding Path=SoC.Uart.Hex}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+										<TextBlock Text="{Binding Path=SoC.Spi.Log}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 									</ScrollViewer>
+								</xcad:LayoutAnchorable>
+								<xcad:LayoutAnchorable Title="Soc Block" CanClose="False">
+									<ui:SocBlockControl DataContext="{Binding Path=SoC.Soc}" />
 								</xcad:LayoutAnchorable>
 								<xcad:LayoutAnchorable Title="Io Block" CanClose="False">
 									<ui:IoBlockControl DataContext="{Binding Path=SoC.Io}" />
 								</xcad:LayoutAnchorable>
-								<xcad:LayoutAnchorable Title="Soc Block" CanClose="False">
-									<ui:SocBlockControl DataContext="{Binding Path=SoC.Soc}" />
+								<xcad:LayoutAnchorable Title="Gpio Block" CanClose="False">
+									<ui:SocBlockControl DataContext="{Binding Path=SoC.Gpio}" />
 								</xcad:LayoutAnchorable>
 							</xcad:LayoutDocumentPane>
 						</xcad:LayoutDocumentPaneGroup>

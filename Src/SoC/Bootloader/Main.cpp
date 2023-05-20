@@ -1,9 +1,13 @@
 #include "SoC/Basys3.h"
 #include "SoC/GpioPin.h"
 #include "SoC/Spi.h"
-#include "Drivers/Ssd1331.h"
+#include "Rtos/Types.h"
+//#include "Drivers/Ssd1331.h"
+#include "Drivers/St7789.h"
 #include "Graphics/Color.h"
 #include "Graphics/StaticFrameBuffer.h"
+#include "UI/Window.h"
+#include "UI/Label.h"
 
 using namespace SoC;
 
@@ -11,7 +15,7 @@ using namespace SoC;
 Basys3 board = {};
 
 //Graphics buffer
-//Graphics::StaticFrameBuffer<96, 64> frameBuffer;
+Graphics::StaticFrameBuffer<240, 240> frameBuffer;
 
 int main()
 {
@@ -19,33 +23,40 @@ int main()
 	board.Init();
 	board.Printf("Bootloader Active\r\n");
 
-/*
-	//Write to frame
+	//Display screen SPI
+	Spi spi1(SPI1);
+	
+	//Display screen pins
+	GpioPin<0> dcPin;
+	GpioPin<1> resetPin;
+	dcPin.Init(GpioOutput);
+	resetPin.Init(GpioOutput, true);
+
+	//Screen
+	Drivers::St7789 screen(spi1, dcPin, resetPin);
+	screen.Init();
+
+	UI::Window window("SoC App");
+	window.Background = Graphics::Colors::Black;
+
+	UI::Label output("Hello SoC!", {5, 25, 0, 0});
+	output.Foreground = Graphics::Colors::Red;
+	window.Children.push_back(&output);
+
+	window.Draw(frameBuffer);
+	screen.Write(frameBuffer);
+}
+
+//NOTE(tsharpe): This uses SocBlock directly, versus a kernel call
+void ThreadSleep(const milli_t ms)
+{
+	milli_t current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
+	const milli_t stop = current + ms;
+	while (current < stop)
 	{
-		frameBuffer.DrawText({0, 0}, "Hello World", Graphics::Colors::Red);
+		current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
+		__asm("nop");
 	}
-
-	//Write to display
-	{
-		GpioPin<0> dcPin;
-		dcPin.Init(GpioOutput);
-		GpioPin<1> resetPin;
-		resetPin.Init(GpioOutput, true);
-		GpioPin<1> vccenPin;
-		vccenPin.Init(GpioOutput);
-		GpioPin<1> pmodenPin;
-		pmodenPin.Init(GpioOutput);
-
-		Spi spi1(SPI1);
-		spi1.Init();
-
-		//Screen
-		Drivers::Ssd1331 screen(spi1, dcPin, resetPin);
-		screen.Init();
-
-	}
-*/
-
 }
 
 void DebugPrintf(const char* format, ...)

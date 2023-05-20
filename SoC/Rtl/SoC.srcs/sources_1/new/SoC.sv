@@ -21,7 +21,8 @@
 
 `include "DEFINES.vinc"
 
-localparam MEM_MEMORY_START = 'h0;
+localparam MEM_MEMORY1_START = 'h0;
+localparam MEM_MEMORY2_START = 'h20000;
 localparam DEVICE_START = 'h100000;
 localparam MEM_SOC_START = DEVICE_START;
 localparam MEM_IO_START = DEVICE_START  + 'h100;
@@ -49,8 +50,21 @@ module SoC(
     //TODO(tsharpe): Signal isn't currently used, should it be?
     wire memRead;
 
-    //Memory Controller
-    Memory #(.ADDRESS(MEM_MEMORY_START), .WORDS('h4000)) memory(
+    //RAM 192Kb, separated into 128k and 64k blocks
+
+    //128k block
+    Memory #(.ADDRESS(MEM_MEMORY1_START), .ADDR_WIDTH(15)) memory1(
+        //Memory interface
+        .cpu_clk(cpu_clk),
+        .reset(reset),
+        .address(memAddr[31:2]),
+        .dataIn(memDataIn),
+        .dataOut(memDataOut),
+        .write(memWrite)
+    );
+
+    //64k block
+    Memory #(.ADDRESS(MEM_MEMORY2_START), .ADDR_WIDTH(14)) memory2(
         //Memory interface
         .cpu_clk(cpu_clk),
         .reset(reset),

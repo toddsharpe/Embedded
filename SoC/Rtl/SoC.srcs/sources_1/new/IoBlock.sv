@@ -55,7 +55,7 @@ module IoBlock #(parameter ADDRESS)(
         begin
             integer i;
             for (i = 0; i < IO_WORDS; i = i + 1) begin
-                MEM[i] = 0;
+                MEM[i] <= 0;
             end
         end
         else if (enabled & write)

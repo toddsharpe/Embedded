@@ -22,7 +22,7 @@
 `ifndef _DEFINES_
 `define _DEFINES_
 
-`define DEBUG
+//`define DEBUG
 
 //1MHz clock
 localparam CPU_FREQ = 'h100000;

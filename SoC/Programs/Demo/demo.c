@@ -13,9 +13,12 @@ void _putchar(char character)
 
 void main()
 {
+	//Uart test
+	uart_write("Hello, world!\r\n", 15);
+
+	//Printf test
 	printf("Cycles: 0x%x, Freq: 0x%x\r\n", SOC_BLOCK->cycles, SOC_BLOCK->freq);
 	printf("i=%d\r\n", 123);
-	printf("Cycles: 0x%x, Freq: 0x%x\r\n", SOC_BLOCK->cycles, SOC_BLOCK->freq);
 
 	uint32_t value = 0;
 	while (1)
@@ -43,7 +46,7 @@ void main()
 	__asm("ebreak");
 }
 
-void write(const uint8_t *buffer, size_t length)
+void uart_write(const uint8_t *buffer, size_t length)
 {
 	for (size_t i = 0; i < length; i++)
 	{

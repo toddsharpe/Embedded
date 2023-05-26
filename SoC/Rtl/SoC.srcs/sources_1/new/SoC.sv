@@ -19,6 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+`include "DEFINES.vinc"
+
 localparam MEM_MEMORY_START = 'h0;
 localparam DEVICE_START = 'h100000;
 localparam MEM_SOC_START = DEVICE_START;

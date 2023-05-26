@@ -67,7 +67,7 @@ module Uart #(parameter ADDRESS, parameter WORDS = 1)(
     end
 
     //CLOCK_DIVIDE = Frequency(clk) / (4 * Baud)
-    wire tx_idle;
+    wire is_busy;
     uart_core #(.CLOCK_DIVIDE(217)) uart(
         .clk(clk), // The master clock for this module
         .rst(reset), // Synchronous reset.
@@ -78,11 +78,20 @@ module Uart #(parameter ADDRESS, parameter WORDS = 1)(
         .received(), // Indicated that a byte has been received.
         .rx_byte(), // Byte received
         .is_receiving(), // Low when receive line is idle.
-        .is_transmitting(tx_idle), // Low when transmit line is idle.
+        .is_transmitting(is_busy), // Low when transmit line is idle.
         .recv_error() // Indicates error in receiving packet.
     );
 
-    //NOTE(tsharpe): tx_idle is active low, therefore a high tx_idle means uart is full.
-    assign dataOut = enabled ? {tx_idle, 31'h0} : 32'hzzzzzzzz;
+    assign dataOut = enabled ? {is_busy, 31'h0} : 32'hzzzzzzzz;
+
+`ifdef DEBUG
+    uart_vio uart_vio (
+        .clk(clk),              // input wire clk
+        .probe_in0(enabled),  // input wire [0 : 0] probe_in0
+        .probe_in1(tx_transmit),  // input wire [0 : 0] probe_in1
+        .probe_in2(txdata),  // input wire [7 : 0] probe_in2
+        .probe_in3(is_busy)  // input wire [0 : 0] probe_in3
+    );
+`endif
 
 endmodule

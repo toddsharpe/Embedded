@@ -22,7 +22,11 @@
 `include "DEFINES.vinc"
 
 //SPEC: Docs\RiscV\riscv-spec-20191213.pdf
-module Decoder(
+module Decoder import SoC::*; (
+    `ifdef DEBUG
+    input clk,
+    `endif
+
     input [31:0] instr,
 
     //Instructions
@@ -82,5 +86,17 @@ module Decoder(
     //SPEC: P130. Function3/7 selects
     assign funct3 = instr[14:12];
     assign funct7 = instr[31:25];
+
+`ifdef DEBUG
+    decoder_vio decoder_vio (
+        .clk(clk),              // input wire clk
+        .probe_in0(instr),  // input wire [31 : 0] probe_in0
+        .probe_in1(rs1Id),  // input wire [4 : 0] probe_in1
+        .probe_in2(rs2Id),  // input wire [4 : 0] probe_in2
+        .probe_in3(rdId),  // input wire [4 : 0] probe_in3
+        .probe_in4(funct3),  // input wire [2 : 0] probe_in4
+        .probe_in5(funct7)  // input wire [6 : 0] probe_in5
+    );
+`endif
 
 endmodule

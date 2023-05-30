@@ -32,7 +32,9 @@ module Memory #(parameter ADDRESS, parameter WORDS = 32)(
 );
 
     (* ram_style = "block" *)
+    (* ram_decomp = "power" *)
     reg [31:0] MEM [0:(WORDS - 1)];
+    reg [31:0] memData;
     wire enabled = ((address >= ADDRESS[31:2]) && (address < (ADDRESS[31:2] + WORDS)));
 
     initial begin
@@ -53,9 +55,10 @@ module Memory #(parameter ADDRESS, parameter WORDS = 32)(
             if(write[1]) MEM[wordAddress][15:8] <= dataIn[15:8];
             if(write[2]) MEM[wordAddress][23:16] <= dataIn[23:16];
             if(write[3]) MEM[wordAddress][31:24] <= dataIn[31:24];
+            memData <= MEM[wordAddress];
         end
     end
 
-    assign dataOut = enabled ? MEM[wordAddress] : 32'hzzzzzzzz;
+    assign dataOut = enabled ? memData : 32'hzzzzzzzz;
 
 endmodule

@@ -30,37 +30,34 @@ module RegisterFile(
     input [4:0] rs1Id,
     input [4:0] rs2Id,
     input [4:0] rdId,
+    input read,
     input latch,
     input [31:0] dataIn,
-    output [31:0] rs1,
-    output [31:0] rs2
+    output reg [31:0] rs1,
+    output reg [31:0] rs2
 );
-
-    integer i;
-
     //X0-X32. X0 is always 0
     reg [31:0] REGISTERS [0:31];
+    integer i;
 
     //Initialize
-    initial begin
-        for (i = 0; i < 32; i = i + 1) begin
+    initial
+        for (i = 0; i < 32; i = i + 1)
             REGISTERS[i] = 0;
-        end
-    end
 
     //Writeback
     always_ff @(posedge cpu_clk) begin
-        if (reset) begin
-            for (i = 0; i < 32; i = i + 1) begin
+        if (reset)
+            for (i = 0; i < 32; i = i + 1)
                 REGISTERS[i] = 0;
-            end
-        end else if (latch && (rdId != 4'b0)) begin
-            REGISTERS[rdId] <= dataIn;
+        else if (read)
+        begin
+            rs1 <= REGISTERS[rs1Id];
+            rs2 <= REGISTERS[rs2Id];
         end
+        else if (latch && (rdId != 4'b0))
+            REGISTERS[rdId] <= dataIn;
     end
-
-    assign rs1 = REGISTERS[rs1Id];
-    assign rs2 = REGISTERS[rs2Id];
 
 `ifdef DEBUG
     registerfile_vio registerfile_vio (
@@ -97,7 +94,8 @@ module RegisterFile(
         .probe_in29(REGISTERS[29]),  // input wire [31 : 0] probe_in29
         .probe_in30(REGISTERS[30]),  // input wire [31 : 0] probe_in30
         .probe_in31(REGISTERS[31]),  // input wire [31 : 0] probe_in31
-        .probe_in32(latch)  // input wire [0 : 0] probe_in32
+        .probe_in32(read),  // input wire [0 : 0] probe_in32
+        .probe_in33(latch)  // input wire [0 : 0] probe_in33
     );
 `endif
 endmodule

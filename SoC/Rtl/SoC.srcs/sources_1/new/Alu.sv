@@ -21,56 +21,52 @@
 
 `include "DEFINES.vinc"
 
-module ALU(
-    input [3:0] op,
-    input [31:0] aluIn1,
-    input [31:0] aluIn2,
-    output reg [31:0] aluOut,
-    output EQ,
-    output LT,
-    output LTU
+module ALU import SoC::*; (
+    `ifdef DEBUG
+    input clk,
+    `endif
+
+    input ALU_OP op,
+    input wire [31:0] in1,
+    input wire [31:0] in2,
+
+    output reg [31:0] out,
+    output wire EQ,
+    output wire LT,
+    output wire LTU
 );
-
-    //SPEC: Page 130.
-    //Func3
-    //000: ADD/SUB,ADDI
-    //001: SLL,SLLI
-    //010: SLT,SLTI
-    //011: SLTU,SLTIU
-    //100: XOR,XORI
-    //101: SRL/SRA,SRLI/SRAI
-    //110: OR,ORI
-    //111: AND,ANDI
-
-    wire [32:0] aluMinus = {1'b1, ~aluIn2} + {1'b0,aluIn1} + 33'b1;
-    assign LT  = (aluIn1[31] ^ aluIn2[31]) ? aluIn1[31] : aluMinus[32];
-    assign LTU = aluMinus[32];
-    assign EQ  = (aluMinus[31:0] == 0);
 
     always_comb
         case(op)
-            ALU_ADD:
-                aluOut = aluIn1 + aluIn2;
-            ALU_SUB:
-                aluOut = aluMinus;
-            ALU_SLL:
-                aluOut = aluIn1 << aluIn2;
-            ALU_SLT:
-                aluOut = {31'b0, LT};
-            ALU_SLTU:
-                aluOut = {31'b0, LTU};
-            ALU_XOR:
-                aluOut = aluIn1 ^ aluIn2;
-            ALU_SRL:
-                aluOut = aluIn1 >> aluIn2;
-            ALU_SRA:
-                aluOut = aluIn1 >>> aluIn2;
-            ALU_OR:
-                aluOut = aluIn1 | aluIn2;
-            ALU_AND:
-                aluOut = aluIn1 & aluIn2;
-            default:
-                aluOut = 0;
+            ALU_ADD: out = in1 + in2;
+            ALU_SUB: out = in1 - in2;
+            ALU_SLL: out = in1 << in2;
+            ALU_SLT: out = $signed(in1) < $signed(in2);
+            ALU_SLTU: out = in1 < in2;
+            ALU_XOR: out = in1 ^ in2;
+            ALU_SRL: out = in1 >> in2;
+            ALU_SRA: out = in1 >>> in2;
+            ALU_OR: out = in1 | in2;
+            ALU_AND: out = in1 & in2;
+            default: out = 0;
         endcase
+
+    //Flags
+    assign EQ = in1 == in2;
+    assign LT = $signed(in1) < $signed(in2);
+    assign LTU = in1 < in2;
+
+`ifdef DEBUG
+    alu_vio alu_vio (
+        .clk(clk),              // input wire clk
+        .probe_in0(op),  // input wire [3 : 0] probe_in0
+        .probe_in1(in1),  // input wire [31 : 0] probe_in1
+        .probe_in2(in2),  // input wire [31 : 0] probe_in2
+        .probe_in3(out),  // input wire [31 : 0] probe_in3
+        .probe_in4(EQ),  // input wire [0 : 0] probe_in4
+        .probe_in5(LT),  // input wire [0 : 0] probe_in5
+        .probe_in6(LTU)  // input wire [0 : 0] probe_in6
+    );
+`endif
 
 endmodule

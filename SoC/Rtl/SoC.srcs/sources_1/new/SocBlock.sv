@@ -52,7 +52,6 @@ module SocBlock #(parameter ADDRESS)(
         if (reset)
         begin
             MEM[SOC_CYCLES] <= 32'h0;
-            MEM[SOC_FREQ] <= CPU_FREQ;
         end
         else
         begin

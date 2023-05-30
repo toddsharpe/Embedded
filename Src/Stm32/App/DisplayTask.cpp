@@ -3,7 +3,7 @@
 #include "Stm32/DmaStream.h"
 #include "Stm32/GpioPin.h"
 #include "Stm32/Spi.h"
-#include "Drivers/St7789.h"
+#include "Drivers/St7789Dma.h"
 #include "Graphics/Color.h"
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
@@ -43,7 +43,7 @@ void DisplayTask()
 	resetPin.Init(GpioOutput, true);
 
 	//Screen
-	Drivers::St7789 screen(spi1, dmaStream, dcPin, resetPin);
+	Drivers::St7789Dma screen(spi1, dcPin, resetPin, dmaStream);
 	screen.Init();
 
 	KernelStats stats = {};

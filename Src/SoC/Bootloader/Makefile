@@ -42,14 +42,16 @@ C_SOURCES =  \
 ../../syscalls.c \
 ../../../External/printf/printf.c \
 
+#../../Drivers/Ssd1331.cpp
 CXX_SOURCES = \
 Main.cpp \
 ../Basys3.cpp \
 ../Uart.cpp \
 ../Spi.cpp \
 ../start.cpp \
-../../Drivers/Ssd1331.cpp \
-../../demangle.cpp
+../../Drivers/St7789Base.cpp \
+../../Drivers/St7789.cpp \
+../../demangle.cpp \
 
 # ASM sources
 ASM_SOURCES =  \
@@ -107,7 +109,7 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
--DCOLOR_RGB565 \
+-DCOLOR_RGB565R \
 -DPRINTF_DISABLE_SUPPORT_FLOAT \
 -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \
 

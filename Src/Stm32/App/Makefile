@@ -54,7 +54,8 @@ DisplayTask.cpp \
 ../SystemClock.cpp \
 ../SystemTimer.cpp \
 ../Timer.cpp \
-../../Drivers/St7789.cpp \
+../../Drivers/St7789Base.cpp \
+../../Drivers/St7789Dma.cpp \
 ../../Rtos/Kernel.cpp \
 ../../Rtos/KThread.cpp \
 ../../Rtos/Scheduler.cpp \

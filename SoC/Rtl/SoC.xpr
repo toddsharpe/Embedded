@@ -89,13 +89,6 @@
   <FileSets Version="1" Minor="31">
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
       <Filter Type="Srcs"/>
-      <File Path="$PSRCDIR/sources_1/ip/uart_vio/uart_vio.xci">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PSRCDIR/sources_1/new/button_pressed.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -104,6 +97,13 @@
         </FileInfo>
       </File>
       <File Path="$PSRCDIR/sources_1/new/button_pulse.v">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/bytewrite_tdp_ram_rf.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -338,6 +338,7 @@
     <FileSet Name="spi_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/spi_vio" RelGenDir="$PGENDIR/spi_vio">
       <File Path="$PSRCDIR/sources_1/ip/spi_vio/spi_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -352,6 +353,7 @@
     <FileSet Name="registerfile_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/registerfile_vio" RelGenDir="$PGENDIR/registerfile_vio">
       <File Path="$PSRCDIR/sources_1/ip/registerfile_vio/registerfile_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -366,6 +368,7 @@
     <FileSet Name="alu_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/alu_vio" RelGenDir="$PGENDIR/alu_vio">
       <File Path="$PSRCDIR/sources_1/ip/alu_vio/alu_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -380,6 +383,7 @@
     <FileSet Name="processor_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/processor_vio" RelGenDir="$PGENDIR/processor_vio">
       <File Path="$PSRCDIR/sources_1/ip/processor_vio/processor_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -394,6 +398,7 @@
     <FileSet Name="decoder_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/decoder_vio" RelGenDir="$PGENDIR/decoder_vio">
       <File Path="$PSRCDIR/sources_1/ip/decoder_vio/decoder_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -408,6 +413,7 @@
     <FileSet Name="regmux_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/regmux_vio" RelGenDir="$PGENDIR/regmux_vio">
       <File Path="$PSRCDIR/sources_1/ip/regmux_vio/regmux_vio.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -415,6 +421,21 @@
       </File>
       <Config>
         <Option Name="TopModule" Val="regmux_vio"/>
+        <Option Name="dataflowViewerSettings" Val="min_width=16"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="uart_vio" Type="BlockSrcs" RelSrcDir="$PSRCDIR/uart_vio" RelGenDir="$PGENDIR/uart_vio">
+      <File Path="$PSRCDIR/sources_1/ip/uart_vio/uart_vio.xci">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="uart_vio"/>
         <Option Name="dataflowViewerSettings" Val="min_width=16"/>
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
@@ -451,62 +472,65 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="spi_vio_synth_1" Type="Ft3:Synth" SrcSet="spi_vio" Part="xc7a35tcpg236-1" ConstrsSet="spi_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/spi_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/spi_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/spi_vio_synth_1">
+    <Run Id="spi_vio_synth_1" Type="Ft3:Synth" SrcSet="spi_vio" Part="xc7a35tcpg236-1" ConstrsSet="spi_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/spi_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/spi_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="registerfile_vio_synth_1" Type="Ft3:Synth" SrcSet="registerfile_vio" Part="xc7a35tcpg236-1" ConstrsSet="registerfile_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/registerfile_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/registerfile_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/registerfile_vio_synth_1">
+    <Run Id="registerfile_vio_synth_1" Type="Ft3:Synth" SrcSet="registerfile_vio" Part="xc7a35tcpg236-1" ConstrsSet="registerfile_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/registerfile_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/registerfile_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="alu_vio_synth_1" Type="Ft3:Synth" SrcSet="alu_vio" Part="xc7a35tcpg236-1" ConstrsSet="alu_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/alu_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/alu_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/alu_vio_synth_1">
+    <Run Id="alu_vio_synth_1" Type="Ft3:Synth" SrcSet="alu_vio" Part="xc7a35tcpg236-1" ConstrsSet="alu_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/alu_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/alu_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="processor_vio_synth_1" Type="Ft3:Synth" SrcSet="processor_vio" Part="xc7a35tcpg236-1" ConstrsSet="processor_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/processor_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/processor_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/processor_vio_synth_1">
+    <Run Id="processor_vio_synth_1" Type="Ft3:Synth" SrcSet="processor_vio" Part="xc7a35tcpg236-1" ConstrsSet="processor_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/processor_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/processor_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="decoder_vio_synth_1" Type="Ft3:Synth" SrcSet="decoder_vio" Part="xc7a35tcpg236-1" ConstrsSet="decoder_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/decoder_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/decoder_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/decoder_vio_synth_1">
+    <Run Id="decoder_vio_synth_1" Type="Ft3:Synth" SrcSet="decoder_vio" Part="xc7a35tcpg236-1" ConstrsSet="decoder_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/decoder_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/decoder_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="regmux_vio_synth_1" Type="Ft3:Synth" SrcSet="regmux_vio" Part="xc7a35tcpg236-1" ConstrsSet="regmux_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/regmux_vio_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/regmux_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/regmux_vio_synth_1">
+    <Run Id="regmux_vio_synth_1" Type="Ft3:Synth" SrcSet="regmux_vio" Part="xc7a35tcpg236-1" ConstrsSet="regmux_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/regmux_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/regmux_vio_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="uart_vio_synth_1" Type="Ft3:Synth" SrcSet="uart_vio" Part="xc7a35tcpg236-1" ConstrsSet="uart_vio" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/uart_vio_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/uart_vio_synth_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
+        <Step Id="synth_design"/>
+      </Strategy>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
@@ -615,6 +639,23 @@
       <RQSFiles/>
     </Run>
     <Run Id="regmux_vio_impl_1" Type="Ft2:EntireDesign" Part="xc7a35tcpg236-1" ConstrsSet="regmux_vio" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="regmux_vio_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/regmux_vio_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/regmux_vio_impl_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="uart_vio_impl_1" Type="Ft2:EntireDesign" Part="xc7a35tcpg236-1" ConstrsSet="uart_vio" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="uart_vio_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/uart_vio_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/uart_vio_impl_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022"/>
         <Step Id="init_design"/>

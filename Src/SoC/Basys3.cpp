@@ -45,6 +45,6 @@ namespace SoC
 
 	uint32_t Basys3::GetSysClkFreq() const
 	{
-		return 1'000'000;
+		return SOC_BLOCK->freq;
 	}
 }

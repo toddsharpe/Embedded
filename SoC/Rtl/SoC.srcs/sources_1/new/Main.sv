@@ -64,13 +64,31 @@ module Main(
     );
     wire soc_clk = (sw[15] ? manual_clk : cpu_clk);
 
+    //Reset
+    /*
+    reg reset;
+    reg running;
+    always_ff @(posedge cpu_clk) begin
+        if (!running)
+            if (!reset) begin
+                reset <= 1;
+                running <=0;
+            end else begin
+                reset <= 0;
+                running <= 1;
+            end
+    end
+    */
+
+    wire reset = sw[14];
+
     //SoC
     SoC soc(
         .clk(clk),
         .cpu_clk(soc_clk),
-        .reset(1'b0),
+        .reset(reset),
         .halt(halt),
-        .switchesIn({1'b0, sw[14:0]}),
+        .switchesIn({2'b0, sw[13:0]}),
         .displayOut(displayOut),
         .ledsOut(led),
         .JC(JC),

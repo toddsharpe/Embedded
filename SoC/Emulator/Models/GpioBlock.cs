@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace Emulator.Models
 {
-	internal class GpioBlock : MemoryDevice
+	internal class IoBlock : MemoryDevice
 	{
 		public List<RegisterViewModel> Values { get; }
 
-		public GpioBlock(uint baseAddr) : base(baseAddr, 3 * sizeof(int))
+		public IoBlock(uint baseAddr) : base(baseAddr, 3 * sizeof(int))
 		{
 			Values = new List<RegisterViewModel>
 			{
-				new RegisterViewModel("Data In"),
-				new RegisterViewModel("Data Out"),
-				new RegisterViewModel("Dir")
+				new RegisterViewModel("Led Display"),
+				new RegisterViewModel("Led Bar"),
+				new RegisterViewModel("Switches", Access.Read)
 			};
 		}
 

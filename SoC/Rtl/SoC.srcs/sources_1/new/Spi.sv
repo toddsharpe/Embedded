@@ -41,6 +41,10 @@ module Spi #(parameter ADDRESS, parameter WORDS = 1)(
     reg [7:0] txdata;
     wire enabled = ((address >= ADDRESS[31:2]) && (address < (ADDRESS[31:2] + WORDS)));
 
+    // Edge detector for transmit
+    reg tx_cur;
+    reg tx_prev;
+    reg tx_transmit;
     always_ff @(posedge cpu_clk)
     begin
         if (reset)
@@ -48,18 +52,9 @@ module Spi #(parameter ADDRESS, parameter WORDS = 1)(
             txdata <= 32'h00000000;
         end
         else if (enabled & write) begin
+            tx_cur <= 1;
             txdata[7:0] <= dataIn[7:0];
         end
-    end
-
-    // Edge detector for transmit
-    reg tx_cur;
-    reg tx_prev;
-    reg tx_transmit;
-    always_ff @(posedge clk)
-    begin
-        if (enabled & write)
-            tx_cur <= 1;
         else
             tx_cur <= 0;
         tx_transmit <= tx_cur & ~tx_prev;
@@ -71,7 +66,7 @@ module Spi #(parameter ADDRESS, parameter WORDS = 1)(
     wire rx_available;
     wire [7:0] rx_data;
 
-    spi_core #(.SPI_MODE(0), .CLKS_PER_HALF_BIT(8)) spi_core(
+    spi_core #(.SPI_MODE(3), .CLKS_PER_HALF_BIT(8)) spi_core(
         .i_Rst_L(!reset),
         .i_Clk(clk),
         .i_TX_Byte(txdata),

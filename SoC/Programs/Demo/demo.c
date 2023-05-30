@@ -16,10 +16,18 @@ void main()
 	//Uart test
 	uart_write("Hello, world!\r\n", 15);
 
+	//SPI test
+	spi_write("Hello, world!\r\n", 15);
+
+	//GPIO test
+	GPIO1->dir = 0x1;
+	GPIO1->data_out = 0x1;
+
 	//Printf test
 	printf("Cycles: 0x%x, Freq: 0x%x\r\n", SOC_BLOCK->cycles, SOC_BLOCK->freq);
 	printf("i=%d\r\n", 123);
 
+	//LED loop
 	uint32_t value = 0;
 	while (1)
 	{

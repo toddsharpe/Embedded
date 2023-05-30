@@ -5,7 +5,7 @@
 #include "Assert.h"
 #include "DataChannel.h"
 #include "StringPrinter.h"
-#include "RIngBuffer.h"
+#include "RingBuffer.h"
 
 #include <cstdint>
 #include <FE310.h>

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "DataChannel.h"
+#include "DirectDataChannel.h"
 
 #include <cstdint>
 #include <SoC.h>
 
 namespace SoC
 {
-	class Spi : public DataChannel
+	class Spi : public DirectDataChannel
 	{
 	public:
 		Spi(spi_block *spi);
@@ -17,6 +17,7 @@ namespace SoC
 		virtual void Write(const uint8_t* buffer, size_t length) override;
 		virtual void Read(uint8_t* buffer, size_t length) override;
 		virtual size_t BytesAvailable() override;
+		virtual void* GetWriteAddress() override;
 
 	private:
 		spi_block * const m_spi;

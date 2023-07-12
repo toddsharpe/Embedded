@@ -31,7 +31,7 @@ namespace Stm32
 		virtual void Write(const uint8_t* buffer, size_t length) override;
 		virtual void Read(uint8_t* buffer, size_t length) override;
 		virtual size_t BytesAvailable() override;
-		void* GetWriteAddress();
+		virtual void* GetWriteAddress() override;
 
 	private:
 		SPI_TypeDef *m_spi;

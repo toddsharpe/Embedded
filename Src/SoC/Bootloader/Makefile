@@ -48,9 +48,10 @@ Main.cpp \
 ../Basys3.cpp \
 ../Uart.cpp \
 ../Spi.cpp \
+../SpiDmaStream.cpp \
 ../start.cpp \
 ../../Drivers/St7789Base.cpp \
-../../Drivers/St7789.cpp \
+../../Drivers/St7789Dma.cpp \
 ../../demangle.cpp \
 
 # ASM sources

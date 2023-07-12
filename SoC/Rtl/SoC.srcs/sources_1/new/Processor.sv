@@ -34,7 +34,8 @@ module Processor import SoC::*; (
     input [31:0] memDataR,
     output [31:0] memDataW,
     output [3:0] memWrite,
-    output memRead
+    output memRead,
+    output memUse
 );
     //State
     reg [31:0] instr;
@@ -252,11 +253,14 @@ module Processor import SoC::*; (
         endcase
     end
 
-    //Output wires
-    assign regRead = (state == LOAD_REGS);
+    //Memory outputs
     assign memAddr = (state == FETCH || state == FETCH_WAIT) ? pcOut : loadStoreAddr;
     assign memRead = (state == FETCH || state == LOAD);
     assign memWrite = (state == STORE) ? writeMask : 4'b0;
+    assign memUse = (state == FETCH || state == FETCH_WAIT || state == LOAD || state == STORE);
+
+    //Output wires
+    assign regRead = (state == LOAD_REGS);
     assign regLatch = (state == EXECUTE || state == LOAD_WAIT) ? regWrite : 1'b0;
     assign pcLatch = (state == EXECUTE);
 

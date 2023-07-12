@@ -29,6 +29,7 @@ localparam MEM_IO_START = DEVICE_START  + 'h100;
 localparam MEM_GPIO1_START = DEVICE_START + 'h200;
 localparam MEM_UART_START = DEVICE_START  + 'h300;
 localparam MEM_SPI1_START = DEVICE_START + 'h400;
+localparam MEM_SPI_DMA1_START = DEVICE_START + 'h500;
 
 module SoC(
     input clk,
@@ -47,7 +48,8 @@ module SoC(
     wire [31:0] memDataOut;
     wire [3:0] memWrite;
 
-    //TODO(tsharpe): Signal isn't currently used, should it be?
+    //TODO(tsharpe): Signal isn't currently used, since mem-reads were async.
+    //Should probably be changed now that processor has read states
     wire memRead;
 
     //RAM 192Kb, separated into 128k and 64k blocks
@@ -143,6 +145,16 @@ module SoC(
         .mosi(JC[1]),
         .miso(JC[2]),
         .sck(JC[3])
+    );
+
+    SpiDma #(.ADDRESS(MEM_SPI_DMA1_START)) spiDma(
+        //Memory interface
+        .cpu_clk(cpu_clk),
+        .reset(reset),
+        .address(memAddr[31:2]),
+        .dataIn(memDataIn),
+        .dataOut(memDataOut),
+        .write(memWrite)
     );
 
     Processor processor(

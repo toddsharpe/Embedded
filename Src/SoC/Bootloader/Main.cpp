@@ -1,9 +1,10 @@
 #include "SoC/Basys3.h"
 #include "SoC/GpioPin.h"
 #include "SoC/Spi.h"
+#include "SoC/SpiDmaStream.h"
 #include "Rtos/Types.h"
 //#include "Drivers/Ssd1331.h"
-#include "Drivers/St7789.h"
+#include "Drivers/St7789Dma.h"
 #include "Graphics/Color.h"
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
@@ -17,14 +18,19 @@ Basys3 board = {};
 //Graphics buffer
 Graphics::StaticFrameBuffer<240, 240> frameBuffer;
 
+void ThreadSleep(const milli_t ms);
+
 int main()
 {
 	//Init Board
 	board.Init();
 	board.Printf("Bootloader Active\r\n");
 
-	//Display screen SPI
+	//Display screen SPI and DMA
 	Spi spi1(SPI1);
+
+	SpiDmaStream dmaStream(SPI_DMA1);
+	dmaStream.Init(Spi_HWrite);
 	
 	//Display screen pins
 	GpioPin<0> dcPin;
@@ -33,7 +39,7 @@ int main()
 	resetPin.Init(GpioOutput, true);
 
 	//Screen
-	Drivers::St7789 screen(spi1, dcPin, resetPin);
+	Drivers::St7789Dma screen(spi1, dcPin, resetPin, dmaStream);
 	screen.Init();
 
 	UI::Window window("SoC App");
@@ -43,18 +49,33 @@ int main()
 	output.Foreground = Graphics::Colors::Red;
 	window.Children.push_back(&output);
 
-	window.Draw(frameBuffer);
-	screen.Write(frameBuffer);
+	const Graphics::Color color[3] = { Graphics::Colors::Black, Graphics::Colors::Red, Graphics::Colors::Blue };
+	int index = 0;
+
+	IO_BLOCK->led_display = 0x0;
+	IO_BLOCK->led_bar = 0x0;
+	while (true)
+	{
+		window.Background = color[index];
+		index = (index + 1) % 3;
+
+		output.Foreground = color[index];
+		index = (index + 1) % 3;
+
+		window.Draw(frameBuffer);
+		screen.Write(frameBuffer);
+		IO_BLOCK->led_display++;
+		IO_BLOCK->led_bar--;
+		ThreadSleep(100);
+	}
 }
 
 //NOTE(tsharpe): This uses SocBlock directly, versus a kernel call
 void ThreadSleep(const milli_t ms)
 {
-	milli_t current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
-	const milli_t stop = current + ms;
-	while (current < stop)
+	const milli_t stop = SOC_BLOCK->cycles + SOC_BLOCK->freq * ms / 1000;
+	while (SOC_BLOCK->cycles < stop)
 	{
-		current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
 		__asm("nop");
 	}
 }

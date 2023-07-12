@@ -51,7 +51,7 @@ namespace Drivers
 		m_dcPin.Set(true);
 
 		m_dmaStream.Start(buffer, m_dmaWriteAddress, length);
-		while (!m_event.IsSignalled())
-			;
+		//while (!m_event.IsSignalled())
+			//;
 	}
 }

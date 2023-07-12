@@ -2,7 +2,9 @@
 
 namespace SoC
 {
-	Spi::Spi(spi_block *spi) : DataChannel(), m_spi(spi)
+	Spi::Spi(spi_block *spi) :
+		DirectDataChannel(),
+		m_spi(spi)
 	{
 	}
 
@@ -31,5 +33,10 @@ namespace SoC
 	{
 		// TODO(tsharpe): Not implemented
 		return 0;
+	}
+
+	void* Spi::GetWriteAddress()
+	{
+		return (void*)&m_spi->txdata;
 	}
 }

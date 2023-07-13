@@ -1595,7 +1595,7 @@
         "OUTPUTDIR": [ { "value": "../../../../SOC.gen/sources_1/ip/decoder_vio" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "." } ],
-        "SWVERSION": [ { "value": "2022.2" } ],
+        "SWVERSION": [ { "value": "2023.1" } ],
         "SYNTHESISFLOW": [ { "value": "OUT_OF_CONTEXT" } ]
       }
     },

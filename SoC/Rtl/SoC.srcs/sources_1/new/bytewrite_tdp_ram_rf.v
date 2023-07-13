@@ -35,13 +35,13 @@ module bytewrite_tdp_ram_rf #(
     input [NUM_COL-1:0] weA,
     input [ADDR_WIDTH-1:0] addrA,
     input [DATA_WIDTH-1:0] dinA,
-    output reg [DATA_WIDTH-1:0] doutA
-    //input clkB,
-    //input enaB,
-    //input [NUM_COL-1:0] weB,
-    //input [ADDR_WIDTH-1:0] addrB,
-    //input [DATA_WIDTH-1:0] dinB,
-    //output reg [DATA_WIDTH-1:0] doutB
+    output reg [DATA_WIDTH-1:0] doutA,
+    input clkB,
+    input enaB,
+    input [NUM_COL-1:0] weB,
+    input [ADDR_WIDTH-1:0] addrB,
+    input [DATA_WIDTH-1:0] dinB,
+    output reg [DATA_WIDTH-1:0] doutB
 );
 
     // Core Memory
@@ -73,7 +73,6 @@ module bytewrite_tdp_ram_rf #(
         end
     end
 
-/*
     // Port-B Operation:
     always @ (posedge clkB) begin
         if(enaB)
@@ -88,6 +87,5 @@ module bytewrite_tdp_ram_rf #(
             doutB <= ram_block[addrB];
         end
     end
-*/
 
 endmodule // bytewrite_tdp_ram_rf

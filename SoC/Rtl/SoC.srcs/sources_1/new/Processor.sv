@@ -21,7 +21,7 @@
 
 `include "DEFINES.vinc"
 
-module Processor import SoC::*; (
+module Processor import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif
@@ -29,12 +29,16 @@ module Processor import SoC::*; (
     input reset,
     output halt,
 
-    //Memory
-    output [31:0] memAddr,
-    input [31:0] memDataR,
-    output [31:0] memDataW,
-    output [3:0] memWrite,
-    output memRead
+    //Instruction memory interface
+    output [31:0] instrAddress,
+    input [31:0] instrOut,
+
+    //Data memory interface
+    output [31:0] dataAddress,
+    output [31:0] dataIn,
+    output dataRead,
+    output [3:0] dataWrite,
+    input [31:0] dataOut
 );
     //State
     reg [31:0] instr;
@@ -139,7 +143,6 @@ module Processor import SoC::*; (
     wire pcLatch;
     wire [31:0] pcPlus4;
     wire [31:0] pcPlusImm;
-    wire [31:0] pcOut;
     ProgramCounter programCounter(
         `ifdef DEBUG
         .clk(clk),
@@ -152,7 +155,7 @@ module Processor import SoC::*; (
         .LT(LT),
         .LTU(LTU),
 
-        //Pc Calc
+        //PC Calc
         .pcOp(pcOp),
         .pcImm(pcImm),
         .pcAbs(aluOut),
@@ -164,7 +167,7 @@ module Processor import SoC::*; (
         //Output
         .pcPlus4(pcPlus4),
         .pcPlusImm(pcPlusImm),
-        .out(pcOut)
+        .out(instrAddress)
     );
 
     //Register mux
@@ -185,7 +188,6 @@ module Processor import SoC::*; (
     );
 
     //Memory access
-    wire [31:0] loadStoreAddr;
     wire [3:0] writeMask;
     MemoryAccess memoryAccess(
         `ifdef DEBUG
@@ -197,9 +199,9 @@ module Processor import SoC::*; (
         .memSize(memSize),
         .rs2(rs2),
         .memSigned(memSigned),
-        .memDataR(memDataR),
-        .loadStoreAddr(loadStoreAddr),
-        .memDataW(memDataW),
+        .memDataR(dataOut),
+        .loadStoreAddr(dataAddress),
+        .memDataW(dataIn),
         .loadData(memData),
         .writeMask(writeMask)
     );
@@ -247,16 +249,17 @@ module Processor import SoC::*; (
                 instr <= 32'h0;
             end
             FETCH_WAIT: begin
-                instr <= memDataR;
+                instr <= instrOut;
             end
         endcase
     end
 
+    //Data interface
+    assign dataRead = (state == LOAD);
+    assign dataWrite = (state == STORE) ? writeMask : 4'b0;
+
     //Output wires
     assign regRead = (state == LOAD_REGS);
-    assign memAddr = (state == FETCH || state == FETCH_WAIT) ? pcOut : loadStoreAddr;
-    assign memRead = (state == FETCH || state == LOAD);
-    assign memWrite = (state == STORE) ? writeMask : 4'b0;
     assign regLatch = (state == EXECUTE || state == LOAD_WAIT) ? regWrite : 1'b0;
     assign pcLatch = (state == EXECUTE);
 
@@ -264,17 +267,19 @@ module Processor import SoC::*; (
     processor_vio processor_vio (
         .clk(clk),                // input wire clk
         .probe_in0(state),    // input wire [3 : 0] probe_in0
-        .probe_in1(pcOut),    // input wire [31 : 0] probe_in1
-        .probe_in2(memAddr),    // input wire [31 : 0] probe_in2
-        .probe_in3(memWrite),    // input wire [3 : 0] probe_in3
-        .probe_in4(memRead),    // input wire [0 : 0] probe_in4
-        .probe_in5(memDataR),    // input wire [31 : 0] probe_in5
-        .probe_in6(memDataW),    // input wire [31 : 0] probe_in6
-        .probe_in7(regLatch),    // input wire [0 : 0] probe_in7
-        .probe_in8(regData),    // input wire [31 : 0] probe_in8
-        .probe_in9(instr),    // input wire [31 : 0] probe_in9
-        .probe_in10(halt),  // input wire [0 : 0] probe_in10
-        .probe_in11(memOp)  // input wire [1 : 0] probe_in11
+        .probe_in1(regLatch),    // input wire [0 : 0] probe_in1
+        .probe_in2(regData),    // input wire [31 : 0] probe_in2
+        .probe_in3(instr),    // input wire [31 : 0] probe_in3
+        .probe_in4(halt),    // input wire [0 : 0] probe_in4
+        .probe_in5(memOp),    // input wire [1 : 0] probe_in5
+        .probe_in6(instrAddress),    // input wire [31 : 0] probe_in6
+        .probe_in7(instrOut),    // input wire [31 : 0] probe_in7
+        .probe_in8(dataAddress),    // input wire [31 : 0] probe_in8
+        .probe_in9(dataIn),    // input wire [31 : 0] probe_in9
+        .probe_in10(dataRead),  // input wire [0 : 0] probe_in10
+        .probe_in11(dataWrite),  // input wire [3 : 0] probe_in11
+        .probe_in12(dataOut)  // input wire [31 : 0] probe_in12
     );
+
 `endif
 endmodule

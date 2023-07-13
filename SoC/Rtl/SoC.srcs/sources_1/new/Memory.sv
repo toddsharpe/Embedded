@@ -22,35 +22,45 @@
 `include "DEFINES.vinc"
 
 module Memory #(parameter ADDRESS, parameter ADDR_WIDTH) (
-    //Memory interface
     input cpu_clk,
     input reset,
-    input [31:2] address,
+
+    //PortA
+    input [31:2] instrAddress,
+    output [31:0] instrOut,
+
+    //PortB
+    input [31:2] dataAddress,
     input [31:0] dataIn,
-    output [31:0] dataOut,
-    input [3:0] write
+    input [3:0] dataWrite,
+    output [31:0] dataOut
 );
 
     localparam MAX_ADDR = 2**ADDR_WIDTH + ADDRESS;
-    wire enabled = ((address >= ADDRESS[31:2]) && (address < MAX_ADDR));
+    wire enaA = ((instrAddress >= ADDRESS[31:2]) && (instrAddress < MAX_ADDR));
+    wire enaB = ((dataAddress >= ADDRESS[31:2]) && (dataAddress < MAX_ADDR));
 
-    wire [31:0] bramDataOut;
+    //PortA: Instruction port
+    //PortB: Data port
+    wire [31:0] doutA;
+    wire [31:0] doutB;
     bytewrite_tdp_ram_rf #(.ADDR_WIDTH(ADDR_WIDTH)) block_ram(
         .clkA(cpu_clk),
         .reset(reset),
-        .enaA(enabled),
-        .weA(write),
-        .addrA(address[ADDR_WIDTH+1:2]),
-        .dinA(dataIn),
-        .doutA(bramDataOut)
-        //.clkB(),
-        //.enaB(),
-        //.weB(),
-        //.addrB(),
-        //.dinB(),
-        //.doutB()
+        .enaA(enaA),
+        .weA(4'b0),
+        .addrA(instrAddress[ADDR_WIDTH+1:2]),
+        .dinA(32'b0),
+        .doutA(doutA),
+        .clkB(cpu_clk),
+        .enaB(enaB),
+        .weB(dataWrite),
+        .addrB(dataAddress[ADDR_WIDTH+1:2]),
+        .dinB(dataIn),
+        .doutB(doutB)
     );
 
-    assign dataOut = enabled ? bramDataOut : 32'hzzzzzzzz;
+    assign instrOut = enaA ? doutA : 32'hzzzzzzzz;
+    assign dataOut = enaB ? doutB : 32'hzzzzzzzz;
 
 endmodule

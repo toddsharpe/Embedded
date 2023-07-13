@@ -26,7 +26,6 @@ module SocBlock #(parameter ADDRESS)(
     input cpu_clk,
     input reset,
     input [31:2] address,
-    input [31:0] dataIn,
     output [31:0] dataOut
 );
 

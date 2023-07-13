@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module RegisterMux import SoC::*; (
+module RegisterMux import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif

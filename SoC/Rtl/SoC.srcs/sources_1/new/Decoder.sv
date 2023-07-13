@@ -22,7 +22,7 @@
 `include "DEFINES.vinc"
 
 //SPEC: Docs\RiscV\riscv-spec-20191213.pdf
-module Decoder import SoC::*; (
+module Decoder import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif

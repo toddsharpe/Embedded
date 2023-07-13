@@ -22,7 +22,7 @@
 `include "DEFINES.vinc"
 
 //Modifies decoder signals into control signals
-module ControlUnit import SoC::*; (
+module ControlUnit import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif

@@ -17,6 +17,8 @@ Basys3 board = {};
 //Graphics buffer
 Graphics::StaticFrameBuffer<240, 240> frameBuffer;
 
+void ThreadSleep(const milli_t ms);
+
 int main()
 {
 	//Init Board
@@ -43,18 +45,33 @@ int main()
 	output.Foreground = Graphics::Colors::Red;
 	window.Children.push_back(&output);
 
-	window.Draw(frameBuffer);
-	screen.Write(frameBuffer);
+	const Graphics::Color color[3] = { Graphics::Colors::Black, Graphics::Colors::Red, Graphics::Colors::Blue };
+	int index = 0;
+
+	IO_BLOCK->led_display = 0x0;
+	IO_BLOCK->led_bar = 0x0;
+	while (true)
+	{
+		window.Background = color[index];
+		index = (index + 1) % 3;
+
+		output.Foreground = color[index];
+		index = (index + 1) % 3;
+
+		window.Draw(frameBuffer);
+		screen.Write(frameBuffer);
+		IO_BLOCK->led_display++;
+		IO_BLOCK->led_bar--;
+		ThreadSleep(100);
+	}
 }
 
 //NOTE(tsharpe): This uses SocBlock directly, versus a kernel call
 void ThreadSleep(const milli_t ms)
 {
-	milli_t current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
-	const milli_t stop = current + ms;
-	while (current < stop)
+	const milli_t stop = SOC_BLOCK->cycles + SOC_BLOCK->freq * ms / 1000;
+	while (SOC_BLOCK->cycles < stop)
 	{
-		current = SOC_BLOCK->cycles * 1000 / SOC_BLOCK->freq;
 		__asm("nop");
 	}
 }

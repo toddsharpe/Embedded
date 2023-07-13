@@ -20,7 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-package SoC;
+//NOTE(tsharpe): Renamed from SoC so it doesn't interfere with xil_defaultlib.SoC
+package _SoC;
     typedef enum logic [3:0]
     {
         ALU_ADD,

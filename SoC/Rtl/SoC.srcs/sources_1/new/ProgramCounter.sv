@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ProgramCounter import SoC::*;(
+module ProgramCounter import _SoC::*;(
     `ifdef DEBUG
     input clk,
     `endif

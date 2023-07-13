@@ -24,7 +24,10 @@
 
 //`define DEBUG
 
+//16MHz clock
+localparam CPU_FREQ = 'h1000000;
+
 //1MHz clock
-localparam CPU_FREQ = 'h100000;
+//localparam CPU_FREQ = 'h100000;
 
 `endif

@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 `include "DEFINES.vinc"
 
-import SoC::*;
+import _SoC::*;
 
 //Store mask
 //1111 - Word
@@ -53,7 +53,7 @@ function [31:0] StoreData(input [31:0] rs2, input [31:0] address);
     end
 endfunction : StoreData
 
-module MemoryAccess import SoC::*; (
+module MemoryAccess import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif

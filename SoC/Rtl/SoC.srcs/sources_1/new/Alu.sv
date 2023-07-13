@@ -21,7 +21,7 @@
 
 `include "DEFINES.vinc"
 
-module ALU import SoC::*; (
+module ALU import _SoC::*; (
     `ifdef DEBUG
     input clk,
     `endif

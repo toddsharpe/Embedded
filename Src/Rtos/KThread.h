@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rtos/Types.h"
+#include "Rtos/Types.h"
 
 #include <cstring>
 #include <cstdint>

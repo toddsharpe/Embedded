@@ -3,7 +3,7 @@
 #include <map>
 #include <cstdint>
 #include "Assert.h"
-#include "stm32/Usart.h"
+#include "Stm32/Usart.h"
 #include "Event.h"
 #include "DataChannel.h"
 

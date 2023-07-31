@@ -1,8 +1,10 @@
 #!/bin/bash
 
-mkdir -p build/Stm32
-mkdir -p build/HiFive
-mkdir -p build/SoC
+mkdir -p build/Stm32/HelloDisco
+mkdir -p build/Stm32/App
+mkdir -p build/Stm32/Bootloader
+mkdir -p build/HiFive/App
+mkdir -p build/SoC/Bootloader
 
 # Build STM binaries
 
@@ -30,7 +32,7 @@ make
 cd ../../../
 
 # Build SoC Binaries
-export GCC_PATH=/home/tsharpe/toolchain/bin
+export GCC_PATH=/opt/riscv32-unknown-elf/bin
 
 echo "Building SoC Bootloader"
 cd Src/SoC/Bootloader

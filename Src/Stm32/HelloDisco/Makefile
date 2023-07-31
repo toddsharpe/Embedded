@@ -29,7 +29,7 @@ OPT = -O3
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../../../build/stm32/HelloDisco
+BUILD_DIR = ../../../build/Stm32/HelloDisco
 
 ######################################
 # source

@@ -29,7 +29,7 @@ OPT = -O3
 # paths
 #######################################
 # Build path
-BUILD_DIR = ../../../build/stm32/App
+BUILD_DIR = ../../../build/Stm32/App
 
 ######################################
 # source

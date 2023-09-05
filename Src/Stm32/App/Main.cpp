@@ -14,6 +14,7 @@ Kernel kernel(board, sysTimer);
 
 //Tasks
 extern void DisplayTask();
+extern void EthernetTask();
 void AliveTask()
 {
 	board.Led1.Set(false);
@@ -33,11 +34,17 @@ int main(void)
 
 	kernel.RegisterInterrupt(IRQn_Type::SysTick_IRQn, {&Kernel::OnSysTick, &kernel});
 	kernel.RegisterInterrupt(board.uart.GetInterupt(), {&Usart::OnInterrupt, &board.uart});
+	kernel.RegisterInterrupt(IRQn_Type::ETH_IRQn, {&EthMac::OnInterrupt, &board.mac});
 
 	board.Printf("Application Active\r\n");
 
 	kernel.CreateThread(&AliveTask);
-	kernel.CreateThread(&DisplayTask);
+
+	//NOTE(tsharpe): SPI MOSI and ETH MII_RX_DV share A7 and are exclusive on Nucleo144
+	//See: https://os.mbed.com/teams/ST/wiki/Nucleo-144pins-ethernet-spi-conflict
+	//kernel.CreateThread(&DisplayTask);
+	kernel.CreateThread(&EthernetTask);
+
 	kernel.Run();
 }
 
@@ -61,6 +68,11 @@ void DebugPrintf(const char* format, ...)
 	va_start(args, format);
 	board.Printf(format, args);
 	va_end(args);
+}
+
+void DebugPrintBytes(const char* buffer, const size_t length)
+{
+	board.uart.PrintBytes(buffer, length);
 }
 
 void Bugcheck(const char* file, const char* line, const char* format, ...)

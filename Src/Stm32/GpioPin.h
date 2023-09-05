@@ -12,6 +12,7 @@ namespace Stm32
 {
 	namespace
 	{
+		//NOTE(tsharpe): Beware both mask and value are shifted by offset, making this difficult to really use with CMSIS
 		#define SET_REG_FIELD(reg, offset, mask, value)\
 		do\
 		{\
@@ -65,6 +66,7 @@ namespace Stm32
 		Usart3 = 7,
 		Spi1 = 5,
 		Ltdc9 = 9,
+		Eth = 11,
 		Ltdc14 = 14,
 		GpioAlternateMask = 0b1111
 	};
@@ -87,6 +89,7 @@ namespace Stm32
 
 	static constexpr GpioPinConfig const GpioSpi1 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Spi1};
 	static constexpr GpioPinConfig const GpioLtdc9 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc9};
+	static constexpr GpioPinConfig const GpioEth = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Eth};
 	static constexpr GpioPinConfig const GpioLtdc14 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc14};
 
 	constexpr GPIO_TypeDef *Port_A()
@@ -148,7 +151,8 @@ namespace Stm32
 	class GpioPin : public Sys::GpioPin
 	{
 	public:
-		GpioPin()
+		GpioPin() : 
+			Sys::GpioPin()
 		{
 		}
 

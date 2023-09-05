@@ -107,7 +107,7 @@ namespace Stm32
 			;
 
 		// Check no errors
-		AssertPrintInt(READ_BIT(FLASH->SR, FLASH_FLAG_ALL_ERRORS) == 0, FLASH->SR);
+		AssertPrintHex32(READ_BIT(FLASH->SR, FLASH_FLAG_ALL_ERRORS) == 0, FLASH->SR);
 
 		// CLear end of operation if set
 		if (READ_BIT(FLASH->SR, FLASH_SR_EOP) != 0)

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p build/Stm32/HelloDisco
 mkdir -p build/Stm32/App
 mkdir -p build/Stm32/Bootloader

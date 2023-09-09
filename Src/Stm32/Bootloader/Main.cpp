@@ -74,6 +74,11 @@ void DebugPrintf(const char* format, ...)
 	va_end(args);
 }
 
+void DebugPrintBytes(const char* buffer, const size_t length)
+{
+	board.uart.PrintBytes(buffer, length);
+}
+
 void Bugcheck(const char* file, const char* line, const char* format, ...)
 {
 	board.Printf("Kernel Bugcheck\r\n");

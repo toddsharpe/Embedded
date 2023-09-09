@@ -44,13 +44,17 @@ system_stm32f7xx.c \
 CXX_SOURCES = \
 Main.cpp \
 DisplayTask.cpp \
+EthernetTask.cpp \
 ../ArmKernel.cpp \
 ../DmaStream.cpp \
+../EthMac.cpp \
 ../Flash.cpp \
+../Mdio.cpp \
 ../Nucleo-F746ZG.cpp \
 ../Pll.cpp \
 ../Rcc.cpp \
 ../Spi.cpp \
+../SysCfg.cpp \
 ../SystemClock.cpp \
 ../SystemTimer.cpp \
 ../Timer.cpp \

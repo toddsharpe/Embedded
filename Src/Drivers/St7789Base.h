@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Sys/GpioPin.h"
-#include "DataChannel.h"
+#include "OutputChannel.h"
 #include "Graphics/FrameBuffer.h"
 
 namespace Drivers
@@ -12,7 +12,7 @@ namespace Drivers
 	class St7789Base
 	{
 	public:
-		St7789Base(DataChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
+		St7789Base(OutputChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
 
 		virtual void Init();
 		virtual void Write(Graphics::FrameBuffer& framebuffer) = 0;
@@ -68,7 +68,7 @@ namespace Drivers
 		void SendData(const uint8_t data);
 		void SendData(const uint8_t* buffer, const size_t length);
 
-		DataChannel& m_channel;
+		OutputChannel& m_channel;
 		Sys::GpioPin& m_dcPin;
 		Sys::GpioPin& m_resetPin;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Rtos/Types.h"
 #include <cstdint>
 #include <array>
 
@@ -44,6 +45,25 @@ public:
 		m_count--;
 		item = m_buffer[m_head];
 		m_head = (m_head + 1) % m_buffer.size();
+		return true;
+	}
+
+	bool CopyTo(Buffer& buffer)
+	{
+		//Check if theres enough room
+		buffer.Count = m_count;
+		if (m_count > buffer.Length)
+			return false;
+
+		//Loop through and read
+		//TODO(tsharpe): Replace with 1 or 2 memcpys
+		uint8_t* data = (uint8_t*)buffer.Data;
+		for (size_t i = 0; i < m_count; i++)
+		{
+			if (!Read(data[i]))
+				return false;
+		}
+
 		return true;
 	}
 

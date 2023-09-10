@@ -2,34 +2,21 @@
 
 namespace SoC
 {
-	Spi::Spi(spi_block *spi) : DataChannel(), m_spi(spi)
+	Spi::Spi(spi_block *spi) :
+		OutputChannel(),
+		m_spi(spi)
 	{
-	}
-
-	void Spi::Init()
-	{
-
 	}
 
 	// Write in 8bit chunks
-	void Spi::Write(const uint8_t *buffer, size_t length)
+	void Spi::Write(const ReadOnlyBuffer& buffer)
 	{
-		for (size_t i = 0; i < length; i++)
+		const uint8_t *data = (uint8_t*)buffer.Data;
+		for (size_t i = 0; i < buffer.Length; i++)
 		{
-			while (UART->txdata.full) {};
-			SPI1->txdata.data = buffer[i];
+			while (SPI1->txdata.full) {};
+			SPI1->txdata.data = data[i];
 		}
 		while (SPI1->txdata.full) {};
-	}
-
-	void Spi::Read(uint8_t *buffer, size_t length)
-	{
-		// TODO(tsharpe): Not implemented
-	}
-
-	size_t Spi::BytesAvailable()
-	{
-		// TODO(tsharpe): Not implemented
-		return 0;
 	}
 }

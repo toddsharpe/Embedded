@@ -4,7 +4,7 @@
 
 #include "Rtos/Types.h"
 #include "Sys/GpioPin.h"
-#include "DirectDataChannel.h"
+#include "OutputChannel.h"
 #include "Sys/DmaStream.h"
 #include "Rtos/KEvent.h"
 #include "Graphics/FrameBuffer.h"
@@ -14,7 +14,7 @@ namespace Drivers
 	class Ssd1331
 	{
 	public:
-		Ssd1331(DataChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
+		Ssd1331(OutputChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
 
 		void Init();
 		void Write(Graphics::FrameBuffer& framebuffer);
@@ -41,7 +41,7 @@ namespace Drivers
 		void SendData(uint8_t data);
 		void SendData(const uint8_t* buffer, size_t length);
 
-		DataChannel& m_channel;
+		OutputChannel& m_channel;
 		Sys::GpioPin& m_dcPin;
 		Sys::GpioPin& m_resetPin;
 		Rtos::KEvent m_event;

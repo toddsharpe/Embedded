@@ -1,0 +1,4 @@
+BinName=OTAHost
+
+[CppSources]
+Main.cpp

@@ -4,7 +4,9 @@
 
 namespace SoC
 {
-	Uart::Uart(uart_block *uart) : DataChannel(), m_uart(uart)
+	Uart::Uart(uart_block *uart) :
+		DgramChannel(),
+		m_uart(uart)
 	{
 
 	}
@@ -16,26 +18,23 @@ namespace SoC
 
 	void Uart::Write(const std::string &string)
 	{
-		this->Write((const uint8_t *)string.c_str(), (int)string.length());
+		const ReadOnlyBuffer buffer = { string.c_str(), string.length() };
+		this->Write(buffer);
 	}
 
-	void Uart::Write(const uint8_t *buffer, size_t length)
+	void Uart::Write(const ReadOnlyBuffer& buffer)
 	{
-		for (size_t i = 0; i < length; i++)
+		const uint8_t* data = (uint8_t*)buffer.Data;
+		for (size_t i = 0; i < buffer.Length; i++)
 		{
 			while (m_uart->txdata.full) {};
-			m_uart->txdata.data = buffer[i];
+			m_uart->txdata.data = data[i];
 		}
 		while (m_uart->txdata.full) {};
 	}
 
-	void Uart::Read(uint8_t *buffer, size_t length)
+	ReadOnlyBuffer Uart::Read()
 	{
-
-	}
-
-	size_t Uart::BytesAvailable()
-	{
-		return 0;
+		return ReadOnlyBuffer();
 	}
 }

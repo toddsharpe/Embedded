@@ -6,14 +6,11 @@
 arm_exception_handler:
 	cpsid if // Disable interrupts
 
-	//R0: hardware context
-	mov r0, SP
-
 	//R1: software context
 	push {R4-R11, LR}
 
 	// Set handler arguments
-	mov r1, SP
+	mov r0, SP
 	bl exception_handler
 
 	cpsie if // Enable interrupts

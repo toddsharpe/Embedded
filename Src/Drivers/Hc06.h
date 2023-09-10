@@ -5,14 +5,18 @@
 #include "Assert.h"
 #include "Stm32/Usart.h"
 #include "Event.h"
-#include "DataChannel.h"
+#include "DgramChannel.h"
 
-class Hc06: public DataChannel
+class Hc06: public DgramChannel
 {
 public:
-	static void OnDataReceived(void* arg, const size_t bytesAvailable) { ((Hc06*)arg)->OnDataReceived(bytesAvailable); };
+	static void OnDgramReceived(void* arg) { ((Hc06*)arg)->OnDgramReceived(); };
 
-	Hc06(Usart& uart) : DataChannel(), m_uart(uart), m_event(), m_internalOp()
+	Hc06(Stm32::Usart& uart) :
+		DgramChannel(),
+		m_uart(uart),
+		m_event(),
+		m_internalOp()
 	{
 
 	}
@@ -22,8 +26,8 @@ public:
 		//Ensure RX and Idle is enabled
 		m_uart.EnableInterrupt(USART_CR1_RXNEIE | USART_CR1_IDLEIE);
 		
-		m_uart.DataReceived.Context = this;
-		m_uart.DataReceived.Handler = &Hc06::OnDataReceived;
+		m_uart.DgramReceived.Context = this;
+		m_uart.DgramReceived.Handler = &Hc06::OnDgramReceived;
 
 		//VerifyCommand("AT", "OK");
 	}
@@ -33,14 +37,15 @@ public:
 		m_internalOp = true;
 		m_uart.Write(request);
 
+		//Blocks and waits
 		m_event.WaitFor();
 
-		uint8_t buffer[32] = {};
-		m_uart.Read(buffer, m_uart.BytesAvailable());
-		Assert(std::string((char*)&buffer[0]) == response);
+		//Verify response
+		const ReadOnlyBuffer dgram = m_uart.Read();
+		Assert(std::string((char*)dgram.Length) == response);
 	}
 
-	void OnDataReceived(const size_t bytesAvailable)
+	void OnDgramReceived()
 	{
 		if (m_internalOp)
 		{
@@ -49,24 +54,19 @@ public:
 		}
 		else
 		{
-			if (DataReceived.IsCallable())
-				DataReceived.Invoke(m_uart.BytesAvailable());
+			if (DgramReceived.IsCallable())
+				DgramReceived.Invoke();
 		}
 	}
 
-	virtual void Write(const uint8_t* buffer, size_t length) override
+	virtual void Write(const ReadOnlyBuffer& buffer) override
 	{
-		m_uart.Write(buffer, length);
+		m_uart.Write(buffer);
 	}
 
-	virtual void Read(uint8_t* buffer, size_t length) override
+	virtual ReadOnlyBuffer Read() override
 	{
-		m_uart.Read(buffer, length);
-	}
-
-	virtual size_t BytesAvailable() override
-	{
-		return m_uart.BytesAvailable();
+		return m_uart.Read();
 	}
 
 private:
@@ -78,7 +78,7 @@ private:
 		{ 230400, '9' }, { 460800, 'A' }, { 921600, 'B' }, { 1382400, 'C' },
 	};*/
 
-	Usart& m_uart;
+	Stm32::Usart& m_uart;
 	Event m_event;
 	bool m_internalOp;
 };

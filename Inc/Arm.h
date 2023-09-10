@@ -67,7 +67,7 @@ struct ArmContext
 
 	void Print(StringPrinter& printer) const
 	{
-		printer.Printf("PC: 0x%x, LR: 0x%x, CallerLR: 0x%x\r\n", HW.PC, HW.LR, HW.PC);
+		printer.Printf("PC: 0x%x, LR: 0x%x, CallerLR: 0x%x\r\n", HW.PC, SW.LR, HW.LR);
 		printer.Printf("R4: 0x%x, R5: 0x%x, R6: 0x%x, R7: 0x%x\r\n", SW.R4, SW.R5, SW.R6, SW.R7);
 	}
 };

@@ -4,7 +4,7 @@
 
 #include "Rtos/Types.h"
 #include "Sys/GpioPin.h"
-#include "DirectDataChannel.h"
+#include "DirectOutputChannel.h"
 #include "Sys/DmaStream.h"
 #include "Rtos/KEvent.h"
 #include "Graphics/FrameBuffer.h"
@@ -18,7 +18,7 @@ namespace Drivers
 	public:
 		static void OnTransferComplete(void* arg);
 
-		St7789Dma(DirectDataChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin, Sys::DmaStream& dmaStream);
+		St7789Dma(DirectOutputChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin, Sys::DmaStream& dmaStream);
 
 		virtual void Init() override;
 		void Write(Graphics::FrameBuffer& framebuffer);

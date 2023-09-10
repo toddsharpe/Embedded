@@ -18,9 +18,9 @@ namespace Sys
 
 		}
 
-		virtual void Send(uint8_t* buffer, const size_t length) = 0;
+		virtual void Send(const ReadOnlyBuffer& frame) = 0;
 		virtual void Display() = 0;
 
-		ParamCallback<const Buffer&> FrameReceived;
+		ParamCallback<const ReadOnlyBuffer&> FrameReceived;
 	};
 }

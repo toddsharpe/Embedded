@@ -2,7 +2,9 @@
 
 namespace Stm32
 {
-	Spi::Spi(SPI_TypeDef *spi) : DirectDataChannel(), m_spi(spi)
+	Spi::Spi(SPI_TypeDef *spi) :
+		DirectOutputChannel(),
+		m_spi(spi)
 	{
 	}
 
@@ -37,33 +39,18 @@ namespace Stm32
 	}
 
 	// Write in 8bit chunks
-	void Spi::Write(const uint8_t *buffer, size_t length)
+	void Spi::Write(const ReadOnlyBuffer& buffer)
 	{
-		for (size_t i = 0; i < length; i++)
+		const uint8_t *data = (uint8_t*)buffer.Data;
+		for (size_t i = 0; i < buffer.Length; i++)
 		{
-			while (!(m_spi->SR & (SPI_SR_TXE)))
-			{
-			};
-			*((volatile uint8_t *)&(SPI1->DR)) = buffer[i];
+			while (!(m_spi->SR & (SPI_SR_TXE))) {};
+			*((volatile uint8_t *)&(SPI1->DR)) = data[i];
 		}
-		while ((m_spi->SR & (SPI_SR_BSY)))
-		{
-		};
+		while ((m_spi->SR & (SPI_SR_BSY))) {};
 	}
 
-	void Spi::Read(uint8_t *buffer, size_t length)
-	{
-		// TODO(tsharpe): Not implemented
-	}
-
-	size_t Spi::BytesAvailable()
-	{
-		// TODO(tsharpe): Not implemented
-		return 0;
-	}
-
-	// DMA peripheral interface?
-	void *Spi::GetWriteAddress()
+	void* Spi::GetWriteAddress()
 	{
 		return (void *)&m_spi->DR;
 	}

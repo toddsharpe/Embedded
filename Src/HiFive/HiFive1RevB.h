@@ -14,8 +14,6 @@ namespace HiFive
 
 		void Init();
 
-		virtual void Printf(const char *format, ...) override;
-		virtual void Printf(const char *format, va_list args) override;
 		virtual void Write(const std::string &str) override;
 		virtual uint32_t GetSysClkFreq() const override;
 

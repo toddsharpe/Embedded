@@ -8,7 +8,7 @@ extern void ThreadSleep(const milli_t ms);
 
 namespace Drivers
 {
-	St7789::St7789(DataChannel &channel, Sys::GpioPin &dcPin, Sys::GpioPin &resetPin) :
+	St7789::St7789(OutputChannel &channel, Sys::GpioPin &dcPin, Sys::GpioPin &resetPin) :
 		St7789Base(channel, dcPin, resetPin)
 	{
 	}

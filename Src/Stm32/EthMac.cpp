@@ -3,6 +3,7 @@
 #include "Sys/EthPhy.h"
 #include "Stm32/Mdio.h"
 #include "Rtos/Types.h"
+#include "Util.h"
 
 #include <stm32f7xx.h>
 #include <stm32f746xx.h>
@@ -91,20 +92,43 @@ namespace Stm32
 
 	void EthMac::Display()
 	{
-		DebugPrintf("DMASR 0x%08X\r\n", m_eth->DMASR);
+		DMASR_Reg reg;
+		reg.AsUint32 = m_eth->DMASR;
+		DebugPrintf("DMASR 0x%08X\r\n", reg.AsUint32);
+		DebugPrintf("  TS: 0x%x\r\n", reg.TS);
+		DebugPrintf("  TPSS: 0x%x\r\n", reg.TPSS);
+		DebugPrintf("  TBUS: 0x%x\r\n", reg.TBUS);
+		DebugPrintf("  TJTS: 0x%x\r\n", reg.TJTS);
+		DebugPrintf("  ROS: 0x%x\r\n", reg.ROS);
+		DebugPrintf("  TUS: 0x%x\r\n", reg.TUS);
+		DebugPrintf("  RS: 0x%x\r\n", reg.RS);
+		DebugPrintf("  RBUS: 0x%x\r\n", reg.RBUS);
+		DebugPrintf("  RPSS: 0x%x\r\n", reg.RPSS);
+		DebugPrintf("  RWTS: 0x%x\r\n", reg.RWTS);
+		DebugPrintf("  ETS: 0x%x\r\n", reg.ETS);
+		DebugPrintf("  FBES: 0x%x\r\n", reg.FBES);
+		DebugPrintf("  ERS: 0x%x\r\n", reg.ERS);
+		DebugPrintf("  AIS: 0x%x\r\n", reg.AIS);
+		DebugPrintf("  NIS: 0x%x\r\n", reg.NIS);
+		DebugPrintf("  RPS: 0x%x\r\n", reg.RPS);
+		DebugPrintf("  TPS: 0x%x\r\n", reg.TPS);
+		DebugPrintf("  EBS: 0x%x\r\n", reg.EBS);
+		DebugPrintf("  MMCS: 0x%x\r\n", reg.MMCS);
+		DebugPrintf("  PMTS: 0x%x\r\n", reg.PMTS);
+		DebugPrintf("  TSTS: 0x%x\r\n", reg.TSTS);
 	}
 
-	void EthMac::Send(uint8_t* buffer, const size_t length)
+	void EthMac::Send(const ReadOnlyBuffer& frame)
 	{
 		//Check buffer size
-		Assert(length <= EthMac::BufferSize);
+		Assert(frame.Length <= EthMac::BufferSize);
 		
 		//Ensure descriptor is free
 		AssertPrintHex32(m_txDescriptors[m_txIndex].TDES0.Own == 0, m_eth->DMASR);
 
 		//Copy data to buffer
-		memcpy(m_txBuffers[m_txIndex], buffer, length);
-		m_txDescriptors[m_txIndex].TDES1.Buffer1Size = length;
+		memcpy(m_txBuffers[m_txIndex], frame.Data, frame.Length);
+		m_txDescriptors[m_txIndex].TDES1.Buffer1Size = frame.Length;
 		
 		m_txDescriptors[m_txIndex].TDES0.AsUint32 = 0;
 		m_txDescriptors[m_txIndex].TDES0.FS = 1;
@@ -133,7 +157,9 @@ namespace Stm32
 				if (desc.TDES0.Own)
 					continue;
 
-				const Buffer buffer = { m_rxBuffers[i], desc.TDES0.FrameLength };
+				uint8_t packet[desc.TDES0.FrameLength];
+				memcpy(packet, m_rxBuffers[i], desc.TDES0.FrameLength);
+				const ReadOnlyBuffer buffer = { packet, desc.TDES0.FrameLength };
 				if (FrameReceived.IsCallable())
 					FrameReceived.Invoke(buffer);
 
@@ -150,5 +176,15 @@ namespace Stm32
 			SET_BIT(m_eth->DMASR, ETH_DMASR_RBUS);
 			SET_BIT(m_eth->DMARPDR, ETH_DMARPDR_RPD);
 		}
+
+		//If Tx Suspended, restart
+		/*
+		if (GET_REG_FIELD(m_eth->DMASR, ETH_DMASR_TPS_Suspended, ETH_DMASR_TPS_Pos))
+		{
+			m_eth->DMASR |= ETH_DMASR_TPS;
+		}
+		*/
+		m_eth->DMASR = m_eth->DMASR & ~(ETH_DMASR_TBUS | ETH_DMASR_RBUS);
+		SET_BIT(m_eth->DMATPDR, ETH_DMATPDR_TPD);
 	}
 }

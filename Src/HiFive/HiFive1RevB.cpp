@@ -22,19 +22,6 @@ namespace HiFive
 		LedBlue.Init(GpioOutput);
 	}
 
-	void HiFive1RevB::Printf(const char *format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-		uart.Printf(format, args);
-		va_end(args);
-	}
-
-	void HiFive1RevB::Printf(const char *format, va_list args)
-	{
-		uart.Printf(format, args);
-	}
-
 	void HiFive1RevB::Write(const std::string &str)
 	{
 		uart.Write(str);

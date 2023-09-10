@@ -1,0 +1,4 @@
+BinName=OTATest
+
+[CppSources]
+Main.cpp

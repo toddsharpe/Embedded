@@ -1,0 +1,4 @@
+OutDir=../build
+
+[Toolchains]
+Host

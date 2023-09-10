@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Assert.h"
-#include "DataChannel.h"
+#include "DgramChannel.h"
 #include "StringPrinter.h"
 
 #include <cstdint>
@@ -11,7 +11,7 @@
 
 namespace SoC
 {
-	class Uart : public DataChannel, public StringPrinter
+	class Uart : public DgramChannel
 	{
 	public:
 		static void OnInterrupt(void* arg);
@@ -21,11 +21,8 @@ namespace SoC
 		void Init();
 
 		void Write(const std::string &string);
-		virtual void Write(const uint8_t *buffer, size_t length) override;
-
-		virtual void Read(uint8_t *buffer, size_t length) override;
-
-		virtual size_t BytesAvailable() override;
+		virtual void Write(const ReadOnlyBuffer& buffer) override;
+		virtual ReadOnlyBuffer Read() override;
 
 	private:
 		uart_block *m_uart;

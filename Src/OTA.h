@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "Net/Net.h"
 
 //Client: Get App
 //Server: App size, # of blocks
@@ -11,6 +12,8 @@
 namespace OTA
 {
 	static constexpr size_t DataSize = 512;
+	static const Net::IpAddress Server = { 172, 26, 1, 1};
+	static constexpr uint16_t Port = 8080;
 	
 	enum MessageType : uint8_t
 	{
@@ -23,31 +26,31 @@ namespace OTA
 		DataBlock,
 	};
 
-	struct MessageHeader
+	struct __attribute__((packed)) MessageHeader
 	{
 		uint16_t Length;
 		MessageType Type;
 		uint8_t Reserved;
 	};
 
-	struct GetAppMessage : public MessageHeader
+	struct __attribute__((packed)) GetAppMessage : public MessageHeader
 	{
 		
 	};
 
-	struct GetDataBlockMessage : public MessageHeader
+	struct __attribute__((packed)) GetDataBlockMessage : public MessageHeader
 	{
 		uint16_t BlockNumber;
 		uint16_t Reserved;
 	};
 
-	struct AppInfoMessage : public MessageHeader
+	struct __attribute__((packed)) AppInfoMessage : public MessageHeader
 	{
 		uint16_t NumberOfBlocks;
 		uint16_t Reserved;
 	};
 
-	struct DataBlockMessage : public MessageHeader
+	struct __attribute__((packed)) DataBlockMessage : public MessageHeader
 	{
 		uint16_t BlockNumber;
 		uint16_t Reserved;

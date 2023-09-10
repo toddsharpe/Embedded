@@ -36,7 +36,6 @@ namespace Stm32
 		GpioPin<Port_A, 9>::Configure(GpioUart1);
 		GpioPin<Port_B, 7>::Configure(GpioUart1);
 		uart.Init(rcc.GetPClk2Freq(), UartDefault);
-		uart.EnableInterrupt(USART_CR1_RXNEIE);
 
 		//Initialize LTDC
 		GpioPin<Port_I, 15>::Configure(GpioLtdc14);		//R0
@@ -73,24 +72,11 @@ namespace Stm32
 		//Print clocks
 		RccClocks clocks = {};
 		rcc.GetSystemClocksFreq(clocks);
-		uart.Printf("-SysClkFreq: %d\r\n", clocks.SysClkFreq);
-		uart.Printf("-HClkFreq: %d\r\n", clocks.HClkFreq);
-		uart.Printf("-PClk1Freq: %d\r\n", clocks.PClk1Freq);
-		uart.Printf("-PClk2Freq: %d\r\n", clocks.PClk2Freq);
-		uart.Printf("-LCD_CLK: %d\r\n", rcc.GetLcdFreq());
-	}
-
-	void DiscoF746GNG::Printf(const char *format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-		uart.Printf(format, args);
-		va_end(args);
-	}
-
-	void DiscoF746GNG::Printf(const char* format, va_list args)
-	{
-		uart.Printf(format, args);
+		this->Printf("-SysClkFreq: %d\r\n", clocks.SysClkFreq);
+		this->Printf("-HClkFreq: %d\r\n", clocks.HClkFreq);
+		this->Printf("-PClk1Freq: %d\r\n", clocks.PClk1Freq);
+		this->Printf("-PClk2Freq: %d\r\n", clocks.PClk2Freq);
+		this->Printf("-LCD_CLK: %d\r\n", rcc.GetLcdFreq());
 	}
 
 	void DiscoF746GNG::Write(const std::string& str)

@@ -87,9 +87,14 @@ namespace Net
 		Reply = 2,
 	};
 
+	enum ArpHardwareType : uint16_t
+	{
+		Ethernet = 1,
+	};
+
 	struct __attribute__((packed)) ArpPacket
 	{
-		uint16_t HardwareType;
+		ArpHardwareType HardwareType;
 		EtherType ProtocolType;
 		uint8_t HardwareSize;
 		uint8_t ProtocolSize;
@@ -146,40 +151,5 @@ namespace Net
 	static constexpr uint16_t ntohs(uint16_t value)
 	{
 		return htons(value);
-	}
-
-	//http://www.faqs.org/rfcs/rfc1071.html Section 4.1
-	//http://www.microhowto.info/howto/calculate_an_internet_protocol_checksum_in_c.html
-	//Input and output in network byte order (big-endian)
-	static inline uint16_t IpChecksum(const void* vdata, const size_t length)
-	{
-		// Cast the data pointer to one that can be indexed.
-		char* data = (char*)vdata;
-
-		// Initialise the accumulator.
-		uint32_t acc = 0xffff;
-
-		// Handle complete 16-bit blocks.
-		for (size_t i = 0; i + 1 < length; i += 2) {
-			uint16_t word;
-			memcpy(&word, data + i, 2);
-			acc += word;
-			if (acc > 0xffff) {
-				acc -= 0xffff;
-			}
-		}
-
-		// Handle any partial block at the end of the data.
-		if (length & 1) {
-			uint16_t word = 0;
-			memcpy(&word, data + length - 1, 1);
-			acc += word;
-			if (acc > 0xffff) {
-				acc -= 0xffff;
-			}
-		}
-
-		// Return the checksum in network byte order.
-		return ~acc;
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "Assert.h"
 #include "Board.h"
-#include "DataChannel.h"
+#include "DgramChannel.h"
 #include "Stm32/System.h"
 #include "OTA.h"
 #include "Rtos/Kernel.h"
@@ -15,12 +15,17 @@ using namespace Stm32;
 class Updater
 {
 public:
-	static void OnDataReceived(void* arg, const size_t bytesAvailable) { ((Updater*)arg)->OnDataReceived(bytesAvailable); };
+	static void OnDataReceived(void* arg) { ((Updater*)arg)->OnDataReceived(); };
 
-	Updater(Board& board, Kernel& kernel, DataChannel& channel) : m_board(board), m_kernel(kernel), m_channel(channel), m_state(State::Init), m_event()
+	Updater(Board& board, Kernel& kernel, DgramChannel& channel) :
+		m_board(board),
+		m_kernel(kernel),
+		m_channel(channel),
+		m_state(State::Init),
+		m_event()
 	{
-		m_channel.DataReceived.Context = this;
-		m_channel.DataReceived.Handler = &Updater::OnDataReceived;
+		m_channel.DgramReceived.Context = this;
+		m_channel.DgramReceived.Handler = &Updater::OnDataReceived;
 	}
 
 	void Run()
@@ -40,11 +45,13 @@ public:
 					break;
 
 				case State::UnlockFlash:
+					m_board.Printf("UnlockFlash\r\n");
 					Flash::Unlock();
 					m_state = State::ErashFlash;
 					break;
 
 				case State::ErashFlash:
+					m_board.Printf("ErashFlash\r\n");
 					Flash::EraseSector(SystemSectors::App1);
 					Flash::EraseSector(SystemSectors::App2);
 					m_state = State::GetAppData;
@@ -55,6 +62,7 @@ public:
 					break;
 
 				case State::LockFlash:
+					m_board.Printf("LockFlash\r\n");
 					Flash::Lock();
 					m_state = State::BootApp;
 					break;
@@ -63,7 +71,12 @@ public:
 					m_state = BootApp();
 					break;
 
+				case State::Faulted:
+					m_board.Printf("Faulted\r\n");
+					break;
+
 				default:
+					m_board.Printf("Updater::Run: Unknown state\r\n");
 					break;
 			}
 		}
@@ -85,7 +98,6 @@ private:
 	State GetAppInfo(uint16_t& numberOfBlocks)
 	{
 		m_board.Printf("GetAppInfo\r\n");
-		
 		GetAppMessage request = {};
 		request.Length = sizeof(GetAppMessage);
 		request.Type = MessageType::GetApp;
@@ -104,7 +116,6 @@ private:
 	State GetAppData(uint16_t numberOfBlocks)
 	{
 		m_board.Printf("GetAppData\r\n");
-		
 		for (size_t i = 0; i < numberOfBlocks; i++)
 		{
 			m_board.Printf("  Block: %d ", i);
@@ -117,14 +128,13 @@ private:
 			DataBlockMessage response = {};
 			if (!SendAndReceive(request, response))
 				return State::Faulted;
-			m_board.Printf("Received.\r\n");
 
 			AssertEqual(response.Type, MessageType::DataBlock);
 
 			//Write bytes
 			const uintptr_t address = (uintptr_t)SystemMemoryMap::App + (i * sizeof(response.Data));
 			const uint32_t* data = (uint32_t*)&response.Data[0];
-			m_board.Printf("  Writing at 0x%x\r\n", address);
+			m_board.Printf("Writing at 0x%x\r\n", address);
 			for (size_t j = 0; j < sizeof(response.Data) / sizeof(uint32_t); j++)
 			{
 				Flash::WriteWord(address + j * sizeof(uint32_t), data[j]);
@@ -156,29 +166,31 @@ private:
 	template<class TSend, class TReceive>
 	bool SendAndReceive(TSend& send, TReceive& receive)
 	{
-		m_channel.Write((uint8_t*)&send, send.Length);
+		m_channel.Write({(uint8_t*)&send, send.Length});
 
-		while (m_channel.BytesAvailable() < sizeof(TReceive))
+		//Wait for dgram
+		WaitStatus status = m_kernel.KeWait(m_event, 5 * 1000);
+		if (status == WaitStatus::Timeout)
 		{
-			WaitStatus status = m_kernel.KeWait(m_event, 5*1000);
-			if (status == WaitStatus::Timeout)
-			{
-				m_board.Printf("SendAndReceive timeout\r\n");
-				return false;
-			}
+			m_board.Printf("SendAndReceive timeout\r\n");
+			return false;
 		}
-		m_channel.Read((uint8_t*)&receive, sizeof(TReceive));
+
+		const ReadOnlyBuffer buffer = m_channel.Read();
+		AssertEqual(buffer.Length, sizeof(TReceive));
+		memcpy(&receive, buffer.Data, buffer.Length);
+
 		return true;
 	}
 
-	void OnDataReceived(const size_t bytesAvailable)
+	void OnDataReceived()
 	{
 		m_kernel.KeSignal(m_event);
 	}
 
 	Board& m_board;
 	Kernel& m_kernel;
-	DataChannel& m_channel;
+	DgramChannel& m_channel;
 
 	State m_state;
 	KEvent m_event;

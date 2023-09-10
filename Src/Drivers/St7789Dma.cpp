@@ -9,13 +9,7 @@ namespace Drivers
 {
 	void St7789Dma::OnTransferComplete(void *arg) { ((St7789Dma *)arg)->OnTransferComplete(); };
 
-	St7789Dma::St7789Dma
-	(
-		DirectDataChannel &channel,
-		Sys::GpioPin &dcPin,
-		Sys::GpioPin &resetPin,
-		Sys::DmaStream &dmaStream
-	) :
+	St7789Dma::St7789Dma(DirectOutputChannel &channel, Sys::GpioPin &dcPin, Sys::GpioPin &resetPin, Sys::DmaStream &dmaStream) :
 		St7789Base(channel, dcPin, resetPin),
 		m_dmaStream(dmaStream),
 		m_dmaWriteAddress(channel.GetWriteAddress()),

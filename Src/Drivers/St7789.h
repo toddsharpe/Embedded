@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Sys/GpioPin.h"
-#include "DataChannel.h"
+#include "OutputChannel.h"
 #include "Graphics/FrameBuffer.h"
 #include "Drivers/St7789Base.h"
 
@@ -13,7 +13,7 @@ namespace Drivers
 	class St7789 : public St7789Base
 	{
 	public:
-		St7789(DataChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
+		St7789(OutputChannel& channel, Sys::GpioPin& dcPin, Sys::GpioPin& resetPin);
 
 		void Write(Graphics::FrameBuffer& framebuffer);
 	};

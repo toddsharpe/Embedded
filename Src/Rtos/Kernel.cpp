@@ -50,8 +50,8 @@ namespace Rtos
 		KThread *thread = new KThread();
 		uint8_t *stack = new uint8_t[stackSize];
 		thread->Init(stack, stackSize, entry);
-		thread->m_priority = priority;
-		m_board.Printf("    Addr: 0x%x, Stack: 0x%x\r\n", thread, thread->m_stack);
+		thread->m_priority = priority; 
+		m_board.Printf("    Addr: 0x%x, Stack: [0x%x-0x%x]\r\n", thread, thread->m_stack, (uintptr_t)thread->m_stack + stackSize);
 		m_scheduler.AddThread(*thread);
 
 		return true;

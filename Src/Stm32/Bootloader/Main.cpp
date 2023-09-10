@@ -3,25 +3,26 @@
 #include "Stm32/SystemTimer.h"
 #include "Stm32/Nucleo-F746ZG.h"
 #include "Rtos/Kernel.h"
-#include "Drivers/Hc06.h"
+#include "Net/UdpDgramChannel.h"
+#include "core_cm7.h"
 
 #include "Stm32/System.h"
+#include "OTA.h"
 #include "Updater.h"
 
 using namespace Stm32;
 using namespace Rtos;
+using namespace Net;
 
 //Board and Kernel
-NucleoF746ZG board = {};
-Stm32::SystemTimer sysTimer(Sys::TickFreq::TickFreq_100HZ);
+static NucleoF746ZG board = {};
+static Stm32::SystemTimer sysTimer(Sys::TickFreq::TickFreq_100HZ);
 Kernel kernel(board, sysTimer);
 
-//Peripherals
-Usart uart2(USART2);
-Hc06 bluetooth(uart2);
-
 //Updater
-Updater updater(board, kernel, bluetooth);
+static StaticBuffer<1024> buffer;
+static UdpDgramChannel udpChannel(OTA::Server, OTA::Port, board.ip, buffer);
+static Updater updater(board, kernel, udpChannel);
 
 void bootloader()
 {
@@ -33,36 +34,49 @@ int main()
 	//Init Board
 	board.Init();
 	sysTimer.Init(board.GetSysClkFreq());
+	
+	//Init kernel
 	kernel.Init();
 	kernel.RegisterInterrupt(IRQn_Type::SysTick_IRQn, {&Kernel::OnSysTick, &kernel});
-	kernel.RegisterInterrupt(uart2.GetInterupt(), {&Usart::OnInterrupt, &uart2});
-
-	//Init Peripherals
-	{
-		Stm32::GpioPin<Port_D, 5> uart2_tx;
-		uart2_tx.Init(GpioUart2);
-		Stm32::GpioPin<Port_D, 6> uart2_rx;
-		uart2_rx.Init(GpioUart2);
-	}
-	uart2.Init(board.rcc.GetPClk1Freq(), UartDefault);
-	bluetooth.Init();
-
-	board.Printf("Bootloader Active\r\n");
-
+	kernel.RegisterInterrupt(IRQn_Type::ETH_IRQn, {&EthMac::OnInterrupt, &board.mac});
 	kernel.CreateThread(&bootloader);
+
 	kernel.Run();
 }
 
+static bool in_exception = false;
 extern "C" void exception_handler(const ArmContext* context)
 {
-	const uint32_t irq = (__get_IPSR() & 0xFF) - 16;
+	if (in_exception)
+	{
+		board.Printf("Double fault\r\n");
+		while (1);
+	}
+	in_exception = true;
+	
+	const int32_t irq = (__get_IPSR() & 0xFF) - 16;
 	if (kernel.HandleInterrupt((IRQn_Type)irq))
+	{
+		in_exception = false;
 		return;
+	}
+
+	if (irq == -13)
+	{
+		//Hard fault
+		board.Printf("Hard fault\r\n");
+		board.Printf("HFSR 0x%x\r\n", SCB->HFSR);
+		const uint16_t ufsr = SCB->CFSR >> 16;
+		const uint8_t bfsr = (SCB->CFSR >> 8) & 0xFF;
+		const uint8_t mfsr = SCB->CFSR & 0xFF;
+		board.Printf("ufsr 0x%x, bfsr 0x%x, mfsr 0x%x\r\n", ufsr, bfsr, mfsr);
+	}
 
 	//Unhandled interrupt
 	board.Printf("Unhandled interrupt\r\n");
-	board.Printf("IRQ: %d\r\n", irq);
+	board.Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
 	context->Print(board);
+	Bugcheck(__FILE__, STR(__LINE__), "Unhandled");
 }
 
 void DebugPrintf(const char* format, ...)
@@ -76,7 +90,7 @@ void DebugPrintf(const char* format, ...)
 
 void DebugPrintBytes(const char* buffer, const size_t length)
 {
-	board.uart.PrintBytes(buffer, length);
+	board.PrintBytes(buffer, length);
 }
 
 void Bugcheck(const char* file, const char* line, const char* format, ...)

@@ -20,7 +20,7 @@ public:
 		va_end(args);
 	}
 
-	void Printf(const char* format, const va_list args)
+	void Printf(const char* format, va_list args)
 	{
 		char buffer[255];
 

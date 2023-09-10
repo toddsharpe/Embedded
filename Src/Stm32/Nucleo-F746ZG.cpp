@@ -11,6 +11,10 @@
 static uint8_t TxBuffers[Stm32::EthMac::BufferCount][Stm32::EthMac::BufferSize];
 static uint8_t RxBuffers[Stm32::EthMac::BufferCount][Stm32::EthMac::BufferSize];
 
+//IP Buffers
+static StaticBuffer<Stm32::EthMac::BufferSize> IpTxBuffer;
+static StaticBuffer<Stm32::EthMac::BufferSize> IpSysBuffer;
+
 namespace Stm32
 {
 	NucleoF746ZG::NucleoF746ZG() :
@@ -47,7 +51,7 @@ namespace Stm32
 		GpioPin<Port_D, 8>::Configure(GpioUart3);
 		GpioPin<Port_D, 9>::Configure(GpioUart3);
 		uart.Init(rcc.GetPClk1Freq(), UartDefault);
-		uart.EnableInterrupt(USART_CR1_RXNEIE);
+		this->Printf("Board: NucleoF746ZG\r\n");
 
 		//Initialize Ethernet
 		//MAN: Table 11
@@ -63,6 +67,8 @@ namespace Stm32
 
 		//Initialize ethernet/ip layers
 		mac.Init();
+		ip.InitBuffers(IpTxBuffer, IpSysBuffer);
+		ip.Display();
 
 		//Initialize LEDs
 		Led1.Init(GpioOutput);
@@ -70,28 +76,15 @@ namespace Stm32
 		Led3.Init(GpioOutput);
 
 		//Print welcome
-		uart.Printf("Board initialized\r\n");
+		this->Printf("    Initialized\r\n");
 
 		//Print clocks
 		RccClocks clocks = {};
 		rcc.GetSystemClocksFreq(clocks);
-		uart.Printf("-SysClkFreq: %d\r\n", clocks.SysClkFreq);
-		uart.Printf("-HClkFreq: %d\r\n", clocks.HClkFreq);
-		uart.Printf("-PClk1Freq: %d\r\n", clocks.PClk1Freq);
-		uart.Printf("-PClk2Freq: %d\r\n", clocks.PClk2Freq);
-	}
-
-	void NucleoF746ZG::Printf(const char *format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-		uart.Printf(format, args);
-		va_end(args);
-	}
-
-	void NucleoF746ZG::Printf(const char* format, va_list args)
-	{
-		uart.Printf(format, args);
+		this->Printf("-SysClkFreq: %d\r\n", clocks.SysClkFreq);
+		this->Printf("-HClkFreq: %d\r\n", clocks.HClkFreq);
+		this->Printf("-PClk1Freq: %d\r\n", clocks.PClk1Freq);
+		this->Printf("-PClk2Freq: %d\r\n", clocks.PClk2Freq);
 	}
 
 	void NucleoF746ZG::Write(const std::string& str)

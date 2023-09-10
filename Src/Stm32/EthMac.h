@@ -21,10 +21,47 @@ namespace Stm32
 		EthMac(ETH_TypeDef* eth, uint8_t (&txBuffers)[EthMac::BufferCount][EthMac::BufferSize], uint8_t (&rxBuffers)[EthMac::BufferCount][EthMac::BufferSize]);
 		
 		void Init();
-		virtual void Send(uint8_t* buffer, const size_t length) override;
+		virtual void Send(const ReadOnlyBuffer& frame) override;
 		virtual void Display() override;
 
 	private:
+		//MAN: Ethernet DMA status register. Page 1634.
+		struct DMASR_Reg
+		{
+			union
+			{
+				struct
+				{
+					uint32_t TS : 1;
+					uint32_t TPSS : 1;
+					uint32_t TBUS : 1;
+					uint32_t TJTS : 1;
+					uint32_t ROS : 1;
+					uint32_t TUS : 1;
+					uint32_t RS : 1;
+					uint32_t RBUS : 1;
+					uint32_t RPSS : 1;
+					uint32_t RWTS : 1;
+					uint32_t ETS : 1;
+					uint32_t : 2;
+					uint32_t FBES : 1;
+					uint32_t ERS : 1;
+					uint32_t AIS : 1;
+					uint32_t NIS : 1;
+					uint32_t RPS : 3;
+					uint32_t TPS : 3;
+					uint32_t EBS : 3;
+					uint32_t : 1;
+					uint32_t MMCS : 1;
+					uint32_t PMTS : 1;
+					uint32_t TSTS : 1;
+					uint32_t : 2;
+				};
+				uint32_t AsUint32;
+			};
+		};
+		static_assert(sizeof(DMASR_Reg) == sizeof(uint32_t), "Invalid size");
+
 		//MAN: Figure 518. Page 1578.
 		struct TxDmaDescriptor
 		{

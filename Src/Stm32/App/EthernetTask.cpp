@@ -11,7 +11,7 @@ using namespace Net;
 extern NucleoF746ZG board;
 extern Kernel kernel;
 
-void OnDataReceived(void* sender, const Buffer& buffer)
+void OnDataReceived(void* sender, const ReadOnlyBuffer& buffer)
 {
 	board.Printf("Received packet\r\n");
 	board.PrintBytes((char*)buffer.Data, buffer.Length);
@@ -20,7 +20,7 @@ void OnDataReceived(void* sender, const Buffer& buffer)
 void EthernetTask()
 {
 	//Destination
-	const uint16_t TelemPort = 8000;
+	const uint16_t TelemPort = 8080;
 	const IpAddress TelemIp = {{239, 1, 1, 1}};
 
 	//Data
@@ -35,8 +35,6 @@ void EthernetTask()
 	while (true)
 	{
 		board.ip.SendUdp(TelemIp, TelemPort, data);
-		//board.ip.Display();
-
 		kernel.Sleep(5000);
 	}
 }

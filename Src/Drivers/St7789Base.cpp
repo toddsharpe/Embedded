@@ -8,7 +8,7 @@ extern void ThreadSleep(const milli_t ms);
 
 namespace Drivers
 {
-	St7789Base::St7789Base(DataChannel &channel, Sys::GpioPin &dcPin, Sys::GpioPin &resetPin) :
+	St7789Base::St7789Base(OutputChannel &channel, Sys::GpioPin &dcPin, Sys::GpioPin &resetPin) :
 		m_channel(channel),
 		m_dcPin(dcPin),
 		m_resetPin(resetPin),
@@ -84,7 +84,7 @@ namespace Drivers
 
 		uint8_t buffer[1] = {};
 		buffer[0] = (uint8_t)command;
-		m_channel.Write(buffer, sizeof(buffer));
+		m_channel.Write({buffer, sizeof(buffer)});
 	}
 
 	void St7789Base::SendData(const uint8_t data)
@@ -93,13 +93,13 @@ namespace Drivers
 
 		uint8_t buffer[1] = {};
 		buffer[0] = data;
-		m_channel.Write(buffer, sizeof(buffer));
+		m_channel.Write({buffer, sizeof(buffer)});
 	}
 
 	void St7789Base::SendData(const uint8_t *buffer, const size_t length)
 	{
 		m_dcPin.Set(true);
 
-		m_channel.Write(buffer, length);
+		m_channel.Write({buffer, length});
 	}
 }

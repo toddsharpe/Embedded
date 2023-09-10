@@ -1,22 +1,18 @@
 #pragma once
 
-#include "DataChannel.h"
+#include "OutputChannel.h"
 
 #include <cstdint>
 #include <SoC.h>
 
 namespace SoC
 {
-	class Spi : public DataChannel
+	class Spi : public OutputChannel
 	{
 	public:
 		Spi(spi_block *spi);
 
-		void Init();
-
-		virtual void Write(const uint8_t* buffer, size_t length) override;
-		virtual void Read(uint8_t* buffer, size_t length) override;
-		virtual size_t BytesAvailable() override;
+		virtual void Write(const ReadOnlyBuffer& buffer) override;
 
 	private:
 		spi_block * const m_spi;

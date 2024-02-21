@@ -2,3 +2,4 @@ OutDir=../build
 
 [Toolchains]
 Host
+Stm32

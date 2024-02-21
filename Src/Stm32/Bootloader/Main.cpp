@@ -1,4 +1,4 @@
-#include "Arm.h"
+#include "Inc/Arm.h"
 #include "Stm32/GpioPin.h"
 #include "Stm32/SystemTimer.h"
 #include "Stm32/Nucleo-F746ZG.h"
@@ -77,6 +77,11 @@ extern "C" void exception_handler(const ArmContext* context)
 	board.Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
 	context->Print(board);
 	Bugcheck(__FILE__, STR(__LINE__), "Unhandled");
+}
+
+void ThreadSleep(const milli_t ms)
+{
+	kernel.Sleep(ms);
 }
 
 void DebugPrintf(const char* format, ...)

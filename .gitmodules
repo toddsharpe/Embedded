@@ -1,12 +1,12 @@
 [submodule "External/CMSIS_5"]
-	path = External/CMSIS_5
+	path = Src/External/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5.git
 [submodule "External/cmsis_device_f7"]
-	path = External/cmsis_device_f7
+	path = Src/External/cmsis_device_f7
 	url = https://github.com/STMicroelectronics/cmsis_device_f7.git
 [submodule "External/Graphics"]
-	path = External/Graphics
+	path = Src/External/Graphics
 	url = https://github.com/toddsharpe/Graphics.git
 [submodule "External/printf"]
-	path = External/printf
+	path = Src/External/printf
 	url = https://github.com/mpaland/printf.git

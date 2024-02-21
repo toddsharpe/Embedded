@@ -1,0 +1,17 @@
+Bin=/usr/bin
+Prefix=arm-none-eabi-
+
+[Flags]
+-mthumb
+-mcpu=cortex-m7
+-mfpu=fpv5-sp-d16
+-mfloat-abi=hard
+
+[LinkFlags]
+-mthumb
+-mcpu=cortex-m7
+-mfpu=fpv5-sp-d16
+-mfloat-abi=hard
+-specs=nano.specs
+-lc -lm -lnosys 
+-Wl,--gc-sections

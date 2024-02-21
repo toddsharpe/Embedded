@@ -172,7 +172,7 @@ namespace Net
 				break;
 
 				default:
-					DebugPrintf("Unknown ether type 0x%x\r\n", Net::ntohs(type));
+					DebugPrintf("Unknown ether type 0x%x\r\n", type);
 					break;
 			}
 		};

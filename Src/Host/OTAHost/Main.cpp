@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <limits.h>
 
-static const std::string app = "/build/Stm32/App/Nucleo.bin";
+static const std::string app = "/../build/Stm32/Nucleo/Nucleo.bin";
 
 using namespace Host;
 
@@ -33,17 +33,17 @@ int main()
 	std::ifstream appFile(appPath, std::ios_base::binary);
 	Assert(appFile.is_open());
 	std::vector<char>* appData = new std::vector<char>(std::istreambuf_iterator<char>(appFile), std::istreambuf_iterator<char>());
-	size_t numberOfBlocks = (appData->size() + (OTA::DataSize - 1)) / OTA::DataSize;
+	const size_t numberOfBlocks = (appData->size() + (OTA::DataSize - 1)) / OTA::DataSize;
 	std::cout << "App size: " << appData->size() << "  blocks: " << numberOfBlocks << std::endl;
 
 	//Enter loop
 	while (true)
 	{
 		uint8_t buffer[512];
-		size_t bytesRead = server.Receive(buffer, sizeof(buffer));
+		const size_t bytesRead = server.Receive(buffer, sizeof(buffer));
 		Assert(bytesRead >= sizeof(OTA::MessageHeader));
 
-		OTA::MessageHeader* header = (OTA::MessageHeader *)buffer;
+		const OTA::MessageHeader* const header = (OTA::MessageHeader *)buffer;
 		Assert(bytesRead == header->Length);
 
 		switch (header->Type)
@@ -51,7 +51,7 @@ int main()
 			case OTA::MessageType::GetApp:
 			{
 				std::cout << "  GetApp" << std::endl;
-				OTA::GetAppMessage* request = (OTA::GetAppMessage*)header;
+				const OTA::GetAppMessage* const request = (const OTA::GetAppMessage* const)header;
 				
 				OTA::AppInfoMessage response = {};
 				response.Length = sizeof(OTA::AppInfoMessage);
@@ -64,7 +64,7 @@ int main()
 
 			case OTA::MessageType::GetDataBlock:
 			{
-				OTA::GetDataBlockMessage* request = (OTA::GetDataBlockMessage*)header;
+				const OTA::GetDataBlockMessage* const request = (const OTA::GetDataBlockMessage* const)header;
 				std::cout << "  GetDataBlock - " << request->BlockNumber << std::endl;
 
 				OTA::DataBlockMessage response = {};
@@ -72,8 +72,8 @@ int main()
 				response.Length = sizeof(OTA::DataBlockMessage);
 				response.BlockNumber = request->BlockNumber;
 
-				size_t startIndex = request->BlockNumber * sizeof(response.Data);
-				size_t length = std::min<size_t>((appData->size() - startIndex), sizeof(response.Data));
+				const size_t startIndex = request->BlockNumber * sizeof(response.Data);
+				const size_t length = std::min<size_t>((appData->size() - startIndex), sizeof(response.Data));
 				memcpy(response.Data, appData->data() + startIndex, length);
 
 				server.Send(&response, sizeof(response));

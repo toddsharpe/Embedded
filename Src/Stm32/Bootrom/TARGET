@@ -1,4 +1,4 @@
-BinName=Bootloader.elf
+BinName=Bootrom.elf
 Toolchain=Stm32
 
 [IncludeDirs]
@@ -9,14 +9,13 @@ Toolchain=Stm32
 >External/printf
 
 [CSources]
+system_stm32f7xx.c
 >Stm32/sysmem.c
 >syscalls.c
 >External/printf/printf.c
 
 [CppSources]
 Main.cpp
-system_stm32f7xx.cpp
->Stm32/ArmKernel.cpp
 >Stm32/DmaStream.cpp
 >Stm32/EthMac.cpp
 >Stm32/Flash.cpp
@@ -24,19 +23,10 @@ system_stm32f7xx.cpp
 >Stm32/Nucleo-F746ZG.cpp
 >Stm32/Pll.cpp
 >Stm32/Rcc.cpp
->Stm32/Spi.cpp
 >Stm32/SysCfg.cpp
 >Stm32/SystemClock.cpp
->Stm32/SystemTimer.cpp
->Stm32/Timer.cpp
->Drivers/St7789Base.cpp
->Drivers/St7789Dma.cpp
->Rtos/Kernel.cpp
->Rtos/KThread.cpp
->Rtos/Scheduler.cpp
 
 [AsmSources]
->Stm32/KernelInterrupts.s
 startup_stm32f746zgtx.s
 
 [Defines]
@@ -56,10 +46,10 @@ COLOR_RGB565R
 -fno-rtti
 
 [LinkFlags]
--Wl,--defsym=FLASH_ORIGIN=0x8010000
+-Wl,--defsym=FLASH_ORIGIN=0x8000000
 -Wl,--defsym=FLASH_LENGTH=64k
 -TStm32/STM32F746ZGTX_FLASH.ld
 
 [PostBuild]
-$ObjCopy: -O binary -S $OUTDIR/Bootloader.elf $OUTDIR/Bootloader.bin
-$ObjCopy: -O ihex $OUTDIR/Bootloader.elf $OUTDIR/Bootloader.hex
+$ObjCopy: -O binary -S $OUTDIR/Bootrom.elf $OUTDIR/Bootrom.bin
+$ObjCopy: -O ihex $OUTDIR/Bootrom.elf $OUTDIR/Bootrom.hex

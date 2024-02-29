@@ -35,6 +35,8 @@ int main()
 	board.Init();
 	sysTimer.Init(board.GetSysClkFreq());
 	
+	board.Printf("Bootloader Active\r\n");
+
 	//Init kernel
 	kernel.Init();
 	kernel.RegisterInterrupt(IRQn_Type::SysTick_IRQn, {&Kernel::OnSysTick, &kernel});

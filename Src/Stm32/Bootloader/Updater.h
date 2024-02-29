@@ -52,8 +52,7 @@ public:
 
 				case State::ErashFlash:
 					m_board.Printf("ErashFlash\r\n");
-					Flash::EraseSector(SystemSectors::App1);
-					Flash::EraseSector(SystemSectors::App2);
+					Flash::EraseSector(Sectors::App1);
 					m_state = State::GetAppData;
 					break;
 
@@ -132,7 +131,7 @@ private:
 			AssertEqual(response.Type, MessageType::DataBlock);
 
 			//Write bytes
-			const uintptr_t address = (uintptr_t)SystemMemoryMap::App + (i * sizeof(response.Data));
+			const uintptr_t address = (uintptr_t)Addresses::App + (i * sizeof(response.Data));
 			const uint32_t* data = (uint32_t*)&response.Data[0];
 			m_board.Printf("Writing at 0x%x\r\n", address);
 			for (size_t j = 0; j < sizeof(response.Data) / sizeof(uint32_t); j++)
@@ -147,8 +146,8 @@ private:
 	State BootApp()
 	{
 		m_board.Printf("BootApp\r\n");
-		ResetVectorTable* isr_vector = (ResetVectorTable*)SystemMemoryMap::App;
-		if (isr_vector->Reset >= SystemMemoryMap::App && isr_vector->Reset < SystemMemoryMap::SysReserved)
+		ResetVectorTable* isr_vector = (ResetVectorTable*)Addresses::App;
+		if (isr_vector->Reset >= Addresses::App && isr_vector->Reset < FlashEnd)
 		{
 			//Stop existing kernel
 			m_kernel.Stop();

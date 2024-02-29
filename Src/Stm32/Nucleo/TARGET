@@ -9,7 +9,6 @@ Toolchain=Stm32
 >External/printf
 
 [CSources]
-system_stm32f7xx.c
 >Stm32/sysmem.c
 >syscalls.c
 >External/printf/printf.c
@@ -18,6 +17,7 @@ system_stm32f7xx.c
 Main.cpp
 DisplayTask.cpp
 EthernetTask.cpp
+system_stm32f7xx.cpp
 >Stm32/ArmKernel.cpp
 >Stm32/DmaStream.cpp
 >Stm32/EthMac.cpp
@@ -58,7 +58,7 @@ COLOR_RGB565R
 -fno-rtti
 
 [LinkFlags]
--Wl,--defsym=FLASH_ORIGIN=0x08040000
+-Wl,--defsym=FLASH_ORIGIN=0x08080000
 -Wl,--defsym=FLASH_LENGTH=512K
 -TStm32/STM32F746ZGTX_FLASH.ld
 

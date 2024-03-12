@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Board.h"
 #include "Rtos/Types.h"
 #include "Rtos/KThread.h"
 #include "Rtos/Scheduler.h"
@@ -18,7 +17,7 @@ namespace Rtos
 	public:
 		static void OnSysTick(void *arg);
 
-		Kernel(Board &board, Sys::SystemTimer &sysTimer);
+		Kernel(Sys::SystemTimer &sysTimer);
 
 		bool Init();
 		void Run();
@@ -51,7 +50,6 @@ namespace Rtos
 
 		void OnSysTick();
 
-		Board &m_board;
 		Sys::SystemTimer &m_sysTimer;
 		Scheduler m_scheduler;
 		std::map<InterruptVector, InterruptContext> m_interruptHandlers;

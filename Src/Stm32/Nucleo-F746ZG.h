@@ -38,43 +38,6 @@ namespace Stm32
 		Net::IpStack ip;
 
 	private:
-		static constexpr PllConfig const PllConfig72MHz =
-		{
-			.Source = PllSrc::HSE,
-			.M = 4,
-			.N = 72,
-			.P = PllDiv::Div2,
-			.Q = 3
-		};
-
-		//72MHz SYS, 36MHz APB1, 72MHz APB2
-		static constexpr SystemClockConfig const SysClock72MHz =
-		{
-			.Source = RCC_CFGR_SW_PLL,
-			.AHBCLKDivider = RCC_CFGR_HPRE_DIV1,
-			.APB1CLKDivider = RCC_CFGR_PPRE1_DIV2,
-			.APB2CLKDivider = RCC_CFGR_PPRE2_DIV1,
-			.FlashLatency = FLASH_ACR_LATENCY_2WS
-		};
-
-		static constexpr PllConfig const PllConfig216MHz =
-		{
-			.Source = PllSrc::HSE,
-			.M = 4,
-			.N = 216,
-			.P = PllDiv::Div2,
-			.Q = 9
 		
-		};
-
-		//216MHz SYS, 54Hz APB1, 108MHz APB2
-		static constexpr SystemClockConfig const SysClock216MHz =
-		{
-			.Source = RCC_CFGR_SW_PLL,
-			.AHBCLKDivider = RCC_CFGR_HPRE_DIV1,
-			.APB1CLKDivider = RCC_CFGR_PPRE1_DIV4,
-			.APB2CLKDivider = RCC_CFGR_PPRE2_DIV2,
-			.FlashLatency = FLASH_ACR_LATENCY_5WS
-		};
 	};
 }

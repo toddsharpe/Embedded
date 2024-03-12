@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Board.h>
 #include "Sys/EthMac.h"
 #include "Rtos/Types.h"
 #include "Net/Net.h"
@@ -38,7 +39,7 @@ namespace Net
 
 		void Display()
 		{
-			DebugPrintf("IpStack: %d.%d.%d.%d\r\n", IpAddr.bytes[0], IpAddr.bytes[1], IpAddr.bytes[2], IpAddr.bytes[3]);
+			Board::Printf("IpStack: %d.%d.%d.%d\r\n", IpAddr.bytes[0], IpAddr.bytes[1], IpAddr.bytes[2], IpAddr.bytes[3]);
 		}
 
 		void SendUdp(const IpAddress& host, const uint16_t port, const ReadOnlyBuffer& buffer)
@@ -150,7 +151,7 @@ namespace Net
 									break;
 
 								default:
-									DebugPrintf("Unknown ICMP type: %d\r\n", type);
+									Board::Printf("Unknown ICMP type: %d\r\n", type);
 									break;
 							}
 						}
@@ -165,14 +166,14 @@ namespace Net
 							break;
 
 						default:
-							DebugPrintf("Unknown IP protocol: %d\r\n", ip->Protocol);
+							Board::Printf("Unknown IP protocol: %d\r\n", ip->Protocol);
 							break;
 					}
 				}
 				break;
 
 				default:
-					DebugPrintf("Unknown ether type 0x%x\r\n", type);
+					Board::Printf("Unknown ether type 0x%x\r\n", type);
 					break;
 			}
 		};

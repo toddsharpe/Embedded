@@ -1,3 +1,4 @@
+#include "Stm32/Board.h"
 #include "Stm32/EthMac.h"
 #include "Assert.h"
 #include "Sys/EthPhy.h"
@@ -8,9 +9,6 @@
 #include <stm32f7xx.h>
 #include <stm32f746xx.h>
 #include <cstring>
-
-extern void DebugPrintf(const char* format, ...);
-extern void DebugPrintBytes(const char* buffer, const size_t length);
 
 namespace Stm32
 {
@@ -94,28 +92,28 @@ namespace Stm32
 	{
 		DMASR_Reg reg;
 		reg.AsUint32 = m_eth->DMASR;
-		DebugPrintf("DMASR 0x%08X\r\n", reg.AsUint32);
-		DebugPrintf("  TS: 0x%x\r\n", reg.TS);
-		DebugPrintf("  TPSS: 0x%x\r\n", reg.TPSS);
-		DebugPrintf("  TBUS: 0x%x\r\n", reg.TBUS);
-		DebugPrintf("  TJTS: 0x%x\r\n", reg.TJTS);
-		DebugPrintf("  ROS: 0x%x\r\n", reg.ROS);
-		DebugPrintf("  TUS: 0x%x\r\n", reg.TUS);
-		DebugPrintf("  RS: 0x%x\r\n", reg.RS);
-		DebugPrintf("  RBUS: 0x%x\r\n", reg.RBUS);
-		DebugPrintf("  RPSS: 0x%x\r\n", reg.RPSS);
-		DebugPrintf("  RWTS: 0x%x\r\n", reg.RWTS);
-		DebugPrintf("  ETS: 0x%x\r\n", reg.ETS);
-		DebugPrintf("  FBES: 0x%x\r\n", reg.FBES);
-		DebugPrintf("  ERS: 0x%x\r\n", reg.ERS);
-		DebugPrintf("  AIS: 0x%x\r\n", reg.AIS);
-		DebugPrintf("  NIS: 0x%x\r\n", reg.NIS);
-		DebugPrintf("  RPS: 0x%x\r\n", reg.RPS);
-		DebugPrintf("  TPS: 0x%x\r\n", reg.TPS);
-		DebugPrintf("  EBS: 0x%x\r\n", reg.EBS);
-		DebugPrintf("  MMCS: 0x%x\r\n", reg.MMCS);
-		DebugPrintf("  PMTS: 0x%x\r\n", reg.PMTS);
-		DebugPrintf("  TSTS: 0x%x\r\n", reg.TSTS);
+		Board::Printf("DMASR 0x%08X\r\n", reg.AsUint32);
+		Board::Printf("  TS: 0x%x\r\n", reg.TS);
+		Board::Printf("  TPSS: 0x%x\r\n", reg.TPSS);
+		Board::Printf("  TBUS: 0x%x\r\n", reg.TBUS);
+		Board::Printf("  TJTS: 0x%x\r\n", reg.TJTS);
+		Board::Printf("  ROS: 0x%x\r\n", reg.ROS);
+		Board::Printf("  TUS: 0x%x\r\n", reg.TUS);
+		Board::Printf("  RS: 0x%x\r\n", reg.RS);
+		Board::Printf("  RBUS: 0x%x\r\n", reg.RBUS);
+		Board::Printf("  RPSS: 0x%x\r\n", reg.RPSS);
+		Board::Printf("  RWTS: 0x%x\r\n", reg.RWTS);
+		Board::Printf("  ETS: 0x%x\r\n", reg.ETS);
+		Board::Printf("  FBES: 0x%x\r\n", reg.FBES);
+		Board::Printf("  ERS: 0x%x\r\n", reg.ERS);
+		Board::Printf("  AIS: 0x%x\r\n", reg.AIS);
+		Board::Printf("  NIS: 0x%x\r\n", reg.NIS);
+		Board::Printf("  RPS: 0x%x\r\n", reg.RPS);
+		Board::Printf("  TPS: 0x%x\r\n", reg.TPS);
+		Board::Printf("  EBS: 0x%x\r\n", reg.EBS);
+		Board::Printf("  MMCS: 0x%x\r\n", reg.MMCS);
+		Board::Printf("  PMTS: 0x%x\r\n", reg.PMTS);
+		Board::Printf("  TSTS: 0x%x\r\n", reg.TSTS);
 	}
 
 	void EthMac::Send(const ReadOnlyBuffer& frame)

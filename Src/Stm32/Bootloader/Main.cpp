@@ -1,8 +1,8 @@
 #include "Inc/Arm.h"
 #include "Stm32/GpioPin.h"
 #include "Stm32/SystemTimer.h"
-#include "Stm32/Nucleo-F746ZG.h"
 #include "Rtos/Kernel.h"
+#include "Stm32/Board.h"
 #include "Net/UdpDgramChannel.h"
 #include "core_cm7.h"
 
@@ -13,14 +13,14 @@
 using namespace Stm32;
 using namespace Rtos;
 using namespace Net;
+using namespace Board;
 
 //Board and Kernel
-static NucleoF746ZG board = {};
 static Stm32::SystemTimer sysTimer(Sys::TickFreq::TickFreq_100HZ);
-Kernel kernel(board, sysTimer);
+Kernel kernel(sysTimer);
 
 //Updater
-static StaticBuffer<1024> buffer;
+static StaticBuffer<1200> buffer;
 static UdpDgramChannel udpChannel(OTA::Server, OTA::Port, board.ip, buffer);
 static Updater updater(board, kernel, udpChannel);
 
@@ -32,10 +32,10 @@ void bootloader()
 int main()
 {
 	//Init Board
-	board.Init();
-	sysTimer.Init(board.GetSysClkFreq());
+	Board::Init();
+	sysTimer.Init(Board::GetSysClkFreq());
 	
-	board.Printf("Bootloader Active\r\n");
+	Printf("Bootloader Active\r\n");
 
 	//Init kernel
 	kernel.Init();
@@ -51,7 +51,7 @@ extern "C" void exception_handler(const ArmContext* context)
 {
 	if (in_exception)
 	{
-		board.Printf("Double fault\r\n");
+		Board::Printf("Double fault\r\n");
 		while (1);
 	}
 	in_exception = true;
@@ -66,18 +66,18 @@ extern "C" void exception_handler(const ArmContext* context)
 	if (irq == -13)
 	{
 		//Hard fault
-		board.Printf("Hard fault\r\n");
-		board.Printf("HFSR 0x%x\r\n", SCB->HFSR);
+		Printf("Hard fault\r\n");
+		Printf("HFSR 0x%x\r\n", SCB->HFSR);
 		const uint16_t ufsr = SCB->CFSR >> 16;
 		const uint8_t bfsr = (SCB->CFSR >> 8) & 0xFF;
 		const uint8_t mfsr = SCB->CFSR & 0xFF;
-		board.Printf("ufsr 0x%x, bfsr 0x%x, mfsr 0x%x\r\n", ufsr, bfsr, mfsr);
+		Board::Printf("ufsr 0x%x, bfsr 0x%x, mfsr 0x%x\r\n", ufsr, bfsr, mfsr);
 	}
 
 	//Unhandled interrupt
-	board.Printf("Unhandled interrupt\r\n");
-	board.Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
-	context->Print(board);
+	Printf("Unhandled interrupt\r\n");
+	Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
+	context->Print();
 	Bugcheck(__FILE__, STR(__LINE__), "Unhandled");
 }
 
@@ -86,29 +86,15 @@ void ThreadSleep(const milli_t ms)
 	kernel.Sleep(ms);
 }
 
-void DebugPrintf(const char* format, ...)
-{
-	va_list args;
-
-	va_start(args, format);
-	board.Printf(format, args);
-	va_end(args);
-}
-
-void DebugPrintBytes(const char* buffer, const size_t length)
-{
-	board.PrintBytes(buffer, length);
-}
-
 void Bugcheck(const char* file, const char* line, const char* format, ...)
 {
-	board.Printf("Kernel Bugcheck\r\n");
-	board.Printf("\r\n%s\r\n%s\r\n", file, line);
+	Printf("Kernel Bugcheck\r\n");
+	Printf("\r\n%s\r\n%s\r\n", file, line);
 
 	va_list args;
 	va_start(args, format);
-	board.Printf(format, args);
-	board.Printf("\r\n");
+	Printf(format, args);
+	Printf("\r\n");
 	va_end(args);
 
 	kernel.Stop();

@@ -10,8 +10,7 @@ namespace Rtos
 {
 	void Kernel::OnSysTick(void *arg) { ((Kernel *)arg)->OnSysTick(); };
 
-	Kernel::Kernel(Board &board, Sys::SystemTimer &sysTimer) : m_board(board),
-														  m_sysTimer(sysTimer),
+	Kernel::Kernel(Sys::SystemTimer &sysTimer) : m_sysTimer(sysTimer),
 														  m_scheduler(m_sysTimer),
 														  m_interruptHandlers()
 	{
@@ -19,7 +18,7 @@ namespace Rtos
 
 	bool Kernel::Init()
 	{
-		m_board.Printf("Kernel::Init\r\n");
+		//m_board.Printf("Kernel::Init\r\n");
 
 		// Create Idle Thread
 		if (!CreateThread(&KThread::Idle, ThreadPriority::Low))
@@ -30,7 +29,7 @@ namespace Rtos
 
 	void Kernel::Run()
 	{
-		m_board.Printf("Kernel::Run\r\n");
+		//m_board.Printf("Kernel::Run\r\n");
 		m_scheduler.Display();
 		m_sysTimer.Start();
 		this->Start();
@@ -45,13 +44,13 @@ namespace Rtos
 
 	bool Kernel::CreateThread(const ThreadStart entry, const ThreadPriority priority, const size_t stackSize)
 	{
-		m_board.Printf("Kernel::CreateThread\r\n");
+		//m_board.Printf("Kernel::CreateThread\r\n");
 
 		KThread *thread = new KThread();
 		uint8_t *stack = new uint8_t[stackSize];
 		thread->Init(stack, stackSize, entry);
 		thread->m_priority = priority; 
-		m_board.Printf("    Addr: 0x%x, Stack: [0x%x-0x%x]\r\n", thread, thread->m_stack, (uintptr_t)thread->m_stack + stackSize);
+		//m_board.Printf("    Addr: 0x%x, Stack: [0x%x-0x%x]\r\n", thread, thread->m_stack, (uintptr_t)thread->m_stack + stackSize);
 		m_scheduler.AddThread(*thread);
 
 		return true;

@@ -20,11 +20,12 @@ Main.cpp
 >Stm32/EthMac.cpp
 >Stm32/Flash.cpp
 >Stm32/Mdio.cpp
->Stm32/Nucleo-F746ZG.cpp
 >Stm32/Pll.cpp
 >Stm32/Rcc.cpp
 >Stm32/SysCfg.cpp
 >Stm32/SystemClock.cpp
+>Stm32/Boards/Nucleo-F746ZG.cpp
+>Boards/Printer.cpp
 
 [AsmSources]
 startup_stm32f746zgtx.s

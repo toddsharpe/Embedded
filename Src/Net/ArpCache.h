@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Net/Net.h"
+#include "Board.h"
 
 #include <cstddef>
 
@@ -59,16 +60,16 @@ namespace Net
 
 		void Display()
 		{
-			DebugPrintf("ArpCache:\r\n");
+			Board::Printf("ArpCache:\r\n");
 			for (const Entry& entry : m_entries)
 			{
 				if (entry.Free())
 				{
-					DebugPrintf("    <free>\r\n");
+					Board::Printf("    <free>\r\n");
 				}
 				else
 				{
-					DebugPrintf("    %d.%d.%d.%d -> %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+					Board::Printf("    %d.%d.%d.%d -> %02X:%02X:%02X:%02X:%02X:%02X\r\n",
 						entry.IpAddr.bytes[0], entry.IpAddr.bytes[1], entry.IpAddr.bytes[2], entry.IpAddr.bytes[3],
 						entry.MacAddr.bytes[0], entry.MacAddr.bytes[1], entry.MacAddr.bytes[2], entry.MacAddr.bytes[3], entry.MacAddr.bytes[4], entry.MacAddr.bytes[5]);
 				}

@@ -63,6 +63,17 @@ namespace Stm32
 			const ReadOnlyBuffer buffer = { string.c_str(), string.length() };
 			this->Write(buffer);
 		}
+
+		void Write(const void* const buffer, const size_t length)
+		{
+			const uint8_t* data = (uint8_t*)buffer;
+			for (size_t i = 0; i < length; i++)
+			{
+				while (!(m_usart->ISR & USART_ISR_TXE)) { };
+				m_usart->TDR = data[i];
+			}
+			while (!(m_usart->ISR & USART_ISR_TC)) {};
+		}
 		
 		virtual void Write(const ReadOnlyBuffer& buffer) override
 		{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sys/Mdio.h"
+#include <Board.h>
 
 // MAN: DS_LAN8742_00001989A-1534922.pdf
 
@@ -41,12 +42,12 @@ namespace Sys
 		{
 			const uint16_t phyId1 = m_mdio.ReadRegister(m_phyAddr, Registers::PhyId1);
 			const uint16_t phyId2 = m_mdio.ReadRegister(m_phyAddr, Registers::PhyId2);
-			DebugPrintf("EthPhy: %04X:%04X\r\n", phyId1, phyId2);
+			Board::Printf("EthPhy: %04X:%04X\r\n", phyId1, phyId2);
 
 			BasicStatusReg basicStatus;
 			basicStatus.AsUint16 = m_mdio.ReadRegister(m_phyAddr, Registers::BasicStatus);
-			DebugPrintf("    BasicStatus: %04X\r\n", basicStatus.AsUint16);
-			DebugPrintf("    Link: %04X\r\n", basicStatus.LinkStatus);
+			Board::Printf("    BasicStatus: %04X\r\n", basicStatus.AsUint16);
+			Board::Printf("    Link: %04X\r\n", basicStatus.LinkStatus);
 		}
 
 	protected:

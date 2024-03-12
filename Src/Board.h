@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstdarg>
-#include "StringPrinter.h"
 
-class Board : public StringPrinter
+namespace Board
 {
-public:
-	virtual uint32_t GetSysClkFreq() const = 0;
+	void Printf(const char* format, ...);
 };

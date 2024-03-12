@@ -1,7 +1,6 @@
 #pragma once
 
 void Bugcheck(const char* file, const char* line, const char* format, ...);
-void DebugPrintf(const char* format, ...);
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -22,9 +21,13 @@ void DebugPrintf(const char* format, ...);
 		Bugcheck("File: " __FILE__, "Line: " STR(__LINE__), #x " (0x%x) != " #y " (0x%x)", x, y); \
 	}
 #define AssertOp(x, op, y) \
-	if (!((x) op (y))) \
 	{ \
-		Bugcheck("File: " __FILE__, "Line: " STR(__LINE__), #x " (0x%x) " STR(op) " " #y " (0x%x)", (x), (y)); \
+		const size_t X = (x); \
+		const size_t Y = (y); \
+		if (!(X op Y)) \
+		{ \
+			Bugcheck("File: " __FILE__, "Line: " STR(__LINE__), #x " (0x%x) " STR(op) " " #y " (0x%x)", X, Y); \
+		} \
 	}
 #define Fatal(x) Bugcheck("File: " __FILE__, "Line: " STR(__LINE__),  #x); 
-#define Trace() DebugPrintf(__FILE__ "-" STR(__LINE__));
+#define Trace() Board::Printf(__FILE__ "-" STR(__LINE__));

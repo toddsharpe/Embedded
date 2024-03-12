@@ -11,7 +11,7 @@
 
 namespace OTA
 {
-	static constexpr size_t DataSize = 512;
+	static constexpr size_t DataSize = 1024;
 	static const Net::IpAddress Server = { 172, 26, 1, 1};
 	static constexpr uint16_t Port = 8080;
 	
@@ -56,5 +56,4 @@ namespace OTA
 		uint16_t Reserved;
 		uint8_t Data[DataSize];
 	};
-	static_assert(sizeof(DataBlockMessage) == 520, "Keeping this 512");
 }

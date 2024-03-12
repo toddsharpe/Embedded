@@ -3,3 +3,5 @@ OutDir=../build
 [Toolchains]
 Host
 Stm32
+HiFive
+SoC

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <StringPrinter.h>
 
 extern uint32_t __global_pointer$;
 
@@ -77,11 +76,6 @@ namespace RiscV
 			x30(),
 			x31()
 		{
-		}
-
-		void Print(StringPrinter& printer) const
-		{
-			printer.Printf("PC: 0x%x, X1: 0x%x, X2: 0x%x\r\n", PC, x1, x2);
 		}
 	};
 

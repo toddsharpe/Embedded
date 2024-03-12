@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Assert.h"
-#include "Rtos/Types.h"
+#include "Buffer.h"
 #include "Net/Net.h"
 
 #include <arpa/inet.h>

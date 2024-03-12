@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Callback.h"
-#include "Sys/DmaStream.h"
 
+#include <cstddef>
 #include <stm32f746xx.h>
 #include <stm32f7xx.h>
 
@@ -32,7 +32,9 @@ namespace Stm32
 		DmaStreamDataSize PeriphSize;
 	};
 
-	static constexpr DmaStreamConfig const SPI1_TX_Stream3Channel3 =
+	//RM0385: Table 26. DMA2 request mapping.
+	//Channel 3, Stream 3
+	static constexpr DmaStreamConfig const SPI1_TX =
 	{
 		.Channel = 3,
 		.Direction = DmaStreamDir::MemoryToPeriph,
@@ -42,19 +44,25 @@ namespace Stm32
 		.PeriphSize = DmaStreamDataSize::HalfWord,
 	};
 
-	class DmaStream : public Sys::DmaStream
+	class DmaStream
 	{
 	public:
+		static constexpr size_t MaxTransfer = (1 << 16) - 1;
+		static void OnInterrupt(void* arg) { ((DmaStream*)arg)->OnInterrupt(); };
+
 		DmaStream(DMA_Stream_TypeDef* stream, DMA_TypeDef* dma);
 
 		void Init(const DmaStreamConfig& config);
-		virtual void Start(const void* source, const void* destination, const size_t length) override;
+		void Start(const void* source, const void* destination, const size_t length);
 
 		IRQn_Type GetInterupt();
 
+		Callback TransferError;
+		Callback TransferComplete;
+
 	private:
 		//NOTE(tsharpe): LISR is for streams 0-3, HISR for streams 4-7
-		virtual void OnInterrupt() override;
+		void OnInterrupt();
 
 		DMA_Stream_TypeDef* m_stream;
 		DMA_TypeDef* m_dma;

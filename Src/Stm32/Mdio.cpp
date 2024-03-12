@@ -1,47 +1,39 @@
-#include "Stm32/Mdio.h"
-#include "Assert.h"
 #include "Util.h"
 #include <stm32f7xx.h>
+#include <stm32f746xx.h>
 
-namespace Stm32
+namespace Mdio
 {
-	Mdio::Mdio(ETH_TypeDef* eth):
-		Sys::Mdio(),
-		m_eth(eth)
-	{
-
-	}
-
-	uint16_t Mdio::ReadRegister(const uint32_t PhyAddr, const uint32_t RegAddr)
+	uint16_t ReadRegister(const uint32_t phyAddr, const uint32_t regAddr)
 	{
 		//Set MII address register
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MB, 0);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MW, 0);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MR, RegAddr << ETH_MACMIIAR_MR_Pos);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_PA, PhyAddr << ETH_MACMIIAR_PA_Pos);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MB, 0);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MW, 0);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MR, regAddr << ETH_MACMIIAR_MR_Pos);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_PA, phyAddr << ETH_MACMIIAR_PA_Pos);
 
 		//Set busy bit and busy wait
-		SET_BIT(m_eth->MACMIIAR, ETH_MACMIIAR_MB);
-		while (READ_BIT(m_eth->MACMIIAR, ETH_MACMIIAR_MB));
+		SET_BIT(ETH->MACMIIAR, ETH_MACMIIAR_MB);
+		while (READ_BIT(ETH->MACMIIAR, ETH_MACMIIAR_MB));
 
 		//Get value
-		return (uint16_t)GET_REG_FIELD(m_eth->MACMIIDR, ETH_MACMIIDR_MD_Pos, ETH_MACMIIDR_MD_Msk);
+		return (uint16_t)GET_REG_FIELD(ETH->MACMIIDR, ETH_MACMIIDR_MD_Pos, ETH_MACMIIDR_MD_Msk);
 	}
 
-	void Mdio::WriteRegister(const uint32_t PhyAddr, const uint32_t RegAddr, const uint16_t data)
+	void WriteRegister(const uint32_t phyAddr, const uint32_t regAddr, const uint16_t data)
 	{
 		//Set MII address register
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MB, 0);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MW, 0);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_MR, RegAddr << ETH_MACMIIAR_MR_Pos);
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_PA, PhyAddr << ETH_MACMIIAR_PA_Pos);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MB, 0);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MW, 0);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_MR, regAddr << ETH_MACMIIAR_MR_Pos);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_PA, phyAddr << ETH_MACMIIAR_PA_Pos);
 
 		//Set value
-		m_eth->MACMIIDR = data;
+		ETH->MACMIIDR = data;
 
 		//Mark as write, set busy bit and busy wait
-		SET_BIT(m_eth->MACMIIAR, ETH_MACMIIAR_MW);
-		SET_BIT(m_eth->MACMIIAR, ETH_MACMIIAR_MB);
-		while (READ_BIT(m_eth->MACMIIAR, ETH_MACMIIAR_MB));
+		SET_BIT(ETH->MACMIIAR, ETH_MACMIIAR_MW);
+		SET_BIT(ETH->MACMIIAR, ETH_MACMIIAR_MB);
+		while (READ_BIT(ETH->MACMIIAR, ETH_MACMIIAR_MB));
 	}
 }

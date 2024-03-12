@@ -1,26 +1,20 @@
 #pragma once
 
-#include "Net/Net.h"
-#include "Rtos/Types.h"
+#include "Buffer.h"
 #include "Callback.h"
 
 #include <cstddef>
 #include <cstdint>
 
-namespace Sys
+namespace EthMac
 {
-	class EthMac
-	{
-	public:
-		EthMac() :
-			FrameReceived()
-		{
+	void Init();
+	void Send(const ReadOnlyBuffer& frame);
+	void Display();
+	void OnInterrupt(void* arg);
 
-		}
+	static constexpr size_t BufferCount = 4;
+	static constexpr size_t BufferSize = 1518;
 
-		virtual void Send(const ReadOnlyBuffer& frame) = 0;
-		virtual void Display() = 0;
-
-		ParamCallback<const ReadOnlyBuffer&> FrameReceived;
-	};
+	extern ParamCallback<const ReadOnlyBuffer&> FrameReceived;
 }

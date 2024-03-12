@@ -1,12 +1,10 @@
 #pragma once
 
-#include "StringPrinter.h"
-#include "Rtos/Types.h"
+#include "Buffer.h"
 #include "stm32f7xx.h"
 #include "Callback.h"
 #include "Assert.h"
 #include "RingBuffer.h"
-#include "DgramChannel.h"
 
 #include <cstdint>
 #include <cstring>
@@ -23,15 +21,12 @@ namespace Stm32
 
 	static constexpr UartConfig const UartDefault = { .BaudRate = 115200 };
 
-	//Uart bytes are read into ringbuffer, which is copied to staging buffer on idle
-	//TODO(tsharpe): Remove RingBuffer and go right into static buffer?
-	class Usart: public DgramChannel
+	class Usart
 	{
 	public:
-		static void OnInterrupt(void* arg) { ((Usart*)arg)->OnInterrupt(); };
+		static void OnInterupt(void* arg) { ((Usart*)arg)->OnInterupt(); };
 
 		Usart(USART_TypeDef *usart) :
-			DgramChannel(),
 			m_usart(usart),
 			m_ringBuffer(),
 			m_buffer()
@@ -53,9 +48,9 @@ namespace Stm32
 			m_usart->CR1 |= USART_CR1_UE; // USART Enable.
 		}
 
-		void EnableInterrupt(const uint32_t interrupt)
+		void EnableRx()
 		{
-			SET_BIT(m_usart->CR1, interrupt);
+			SET_BIT(m_usart->CR1, USART_CR1_RXNEIE | USART_CR1_IDLEIE);
 		}
 
 		void Write(const std::string& string)
@@ -63,8 +58,8 @@ namespace Stm32
 			const ReadOnlyBuffer buffer = { string.c_str(), string.length() };
 			this->Write(buffer);
 		}
-		
-		virtual void Write(const ReadOnlyBuffer& buffer) override
+
+		void Write(const ReadOnlyBuffer& buffer)
 		{
 			const uint8_t* data = (uint8_t*)buffer.Data;
 			for (size_t i = 0; i < buffer.Length; i++)
@@ -75,7 +70,7 @@ namespace Stm32
 			while (!(m_usart->ISR & USART_ISR_TC)) {};
 		}
 
-		virtual ReadOnlyBuffer Read() override
+		ReadOnlyBuffer Read()
 		{
 			return { m_buffer.Data, m_buffer.Length };
 		}
@@ -92,12 +87,13 @@ namespace Stm32
 				return (IRQn_Type)255;
 		}
 
+		Callback DgramReceived;
+
 	private:
 		static constexpr size_t BUFFER_SIZE = 1024;
 
-		void OnInterrupt()
+		void OnInterupt()
 		{
-			Write("OnInterrupt\r\n");
 			if (m_usart->ISR & USART_ISR_RXNE)
 			{
 				const uint8_t b = (uint8_t)m_usart->RDR;

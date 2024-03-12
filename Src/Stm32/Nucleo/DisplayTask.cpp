@@ -1,49 +1,46 @@
 #include "Arm.h"
+#include "Board.h"
 #include "Rtos/Kernel.h"
 #include "Stm32/DmaStream.h"
 #include "Stm32/GpioPin.h"
 #include "Stm32/Spi.h"
-#include "Drivers/St7789Dma.h"
+#include "Drivers/St7789_Dma.h"
+#include "Sys/IsrVector.h"
 #include "Graphics/Color.h"
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
 #include "UI/Label.h"
 
-#include <sstream>
 #include <stm32f746xx.h>
 
 using namespace Stm32;
 using namespace Rtos;
 
-//Board and Kernel
-extern Kernel kernel;
-
-//Graphics buffer
-Graphics::StaticFrameBuffer<240, 240> frameBuffer;
+namespace
+{
+	Graphics::StaticFrameBuffer<240, 240> frameBuffer;
+}
 
 void DisplayTask()
 {
-	//SPI
-	GpioPin<Port_A, 5> spi1_sck;
-	GpioPin<Port_A, 7> spi1_mosi;
-	spi1_sck.Init(GpioSpi1);
-	spi1_mosi.Init(GpioSpi1);
+	Board::Printf("DisplayTask\r\n");
 	
-	Spi spi1(SPI1);
-	spi1.Init(SpiMode3);
+	//SPI
+	Spi spi(SPI1);
+	spi.Init(SpiMode3);
 
 	Stm32::DmaStream dmaStream(DMA2_Stream3, DMA2);
-	dmaStream.Init(SPI1_TX_Stream3Channel3);
-	kernel.RegisterInterrupt(dmaStream.GetInterupt(), {&Sys::DmaStream::OnInterrupt, &dmaStream});
+	dmaStream.Init(SPI1_TX);
+	IsrVector::Register(dmaStream.GetInterupt(), {&DmaStream::OnInterrupt, &dmaStream});
 
 	//Device pins
-	GpioPin<Port_G, 3> dcPin;
-	GpioPin<Port_G, 2> resetPin;
+	GpioPin dcPin(GPIOG, 3);
 	dcPin.Init(GpioOutput);
+	GpioPin resetPin(GPIOG, 2);
 	resetPin.Init(GpioOutput, true);
 
 	//Screen
-	Drivers::St7789Dma screen(spi1, dcPin, resetPin, dmaStream);
+	Drivers::St7789_Dma<Spi, GpioPin, DmaStream> screen(spi, dcPin, resetPin, dmaStream);
 	screen.Init();
 
 	KernelStats stats = {};
@@ -55,17 +52,15 @@ void DisplayTask()
 
 	while (true)
 	{
-		kernel.GetStats(stats);
+		Rtos::GetStats(stats);
 
-		std::stringstream ss;
-		ss << "Kernel stats" << std::endl;
-		ss << "  Threads: " << stats.Threads << std::endl;
-		ss << " SysTicks: " << stats.SysTicks << std::endl;
-		output.Text = ss.str();
+		char buffer[256] = {};
+		snprintf(buffer, sizeof(buffer), "Kernel stats\n  Threads: %ld\n SysTicks: %ld\n", stats.Threads, stats.SysTicks);
+		output.Text = buffer;
 		
 		window.Draw(frameBuffer);
 		screen.Write(frameBuffer);
 
-		kernel.Sleep(1000);
+		Rtos::SleepThread(1000);
 	}
 }

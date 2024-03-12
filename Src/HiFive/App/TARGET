@@ -1,0 +1,60 @@
+BinName=App
+Toolchain=HiFive
+
+[IncludeDirs]
+>Inc
+>External/printf
+
+[Defines]
+MTIME_RATE_HZ_DEF=32768
+
+[AsmSources]
+>HiFive/Default_Handler.s
+
+[CSources]
+>HiFive/sysmem.c
+>syscalls.c
+>External/printf/printf.c
+
+[CppSources]
+Main.cpp
+AliveTask.cpp
+AliveTask2.cpp
+AliveTask3.cpp
+>HiFive/HandleException.cpp
+>HiFive/Boards/HiFive1RevB.cpp
+>HiFive/RiscV.cpp
+>HiFive/SystemTimer.cpp
+>HiFive/start.cpp
+>Rtos/Kernel.cpp
+>Rtos/KThread.cpp
+>Rtos/RiscV.cpp
+>Boards/Printer.cpp
+>Sys/IsrVector.cpp
+
+[Flags]
+-O3
+-Wall
+-fdata-sections
+-ffunction-sections
+-g -gdwarf-2
+
+[CppFlags]
+-fcommon
+-std=c++17
+-fno-exceptions
+-fno-rtti
+-fno-use-cxa-atexit
+
+[LinkFlags]
+-nostartfiles
+-Xlinker
+--defsym=__heap_max=1
+-THiFive/HiFive1RevB.lds
+-Wl,-Map=$BinFile.map,--cref
+
+[PostBuild]
+$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
+$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
+$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
+$Stat: $BinFile.bin

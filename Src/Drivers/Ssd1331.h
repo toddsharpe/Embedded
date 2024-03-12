@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Rtos/Types.h"
+#include "Buffer.h"
 #include "Sys/GpioPin.h"
 #include "OutputChannel.h"
 #include "Sys/DmaStream.h"

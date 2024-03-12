@@ -1,0 +1,14 @@
+Bin=/opt/riscv32-unknown-elf/bin
+Prefix=riscv32-unknown-elf-
+
+[Flags]
+-march=rv32i
+-mabi=ilp32
+
+[LinkFlags]
+-march=rv32i
+-mabi=ilp32
+-nostartfiles
+--specs=nano.specs
+-lc -lm -lnosys
+-Wl,--gc-sections

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rtos/Types.h"
+#include "Buffer.h"
 #include <cstdint>
 #include <array>
 

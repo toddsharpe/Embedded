@@ -4,9 +4,11 @@
 
 namespace Stm32
 {
-	DmaStream::DmaStream(DMA_Stream_TypeDef *stream, DMA_TypeDef *dma) : Sys::DmaStream(),
-																		 m_stream(stream),
-																		 m_dma(dma)
+	DmaStream::DmaStream(DMA_Stream_TypeDef *stream, DMA_TypeDef *dma) :
+		TransferError(),
+		TransferComplete(),
+		m_stream(stream),
+		m_dma(dma)
 	{
 		Assert(m_dma == DMA2);
 		Assert(m_stream == DMA2_Stream3);

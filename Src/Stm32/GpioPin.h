@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "Sys/GpioPin.h"
-
 #include <stddef.h>
 #include <cstdint>
 #include <stm32f746xx.h>
@@ -92,75 +90,19 @@ namespace Stm32
 	static constexpr GpioPinConfig const GpioEth = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Eth};
 	static constexpr GpioPinConfig const GpioLtdc14 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc14};
 
-	constexpr GPIO_TypeDef *Port_A()
-	{
-		return GPIOA;
-	}
-
-	constexpr GPIO_TypeDef *Port_B()
-	{
-		return GPIOB;
-	}
-
-	constexpr GPIO_TypeDef *Port_C()
-	{
-		return GPIOC;
-	}
-
-	constexpr GPIO_TypeDef *Port_D()
-	{
-		return GPIOD;
-	}
-
-	constexpr GPIO_TypeDef *Port_E()
-	{
-		return GPIOE;
-	}
-
-	constexpr GPIO_TypeDef *Port_F()
-	{
-		return GPIOF;
-	}
-
-	constexpr GPIO_TypeDef *Port_G()
-	{
-		return GPIOG;
-	}
-
-	constexpr GPIO_TypeDef *Port_H()
-	{
-		return GPIOH;
-	}
-
-	constexpr GPIO_TypeDef *Port_I()
-	{
-		return GPIOI;
-	}
-
-	constexpr GPIO_TypeDef *Port_J()
-	{
-		return GPIOJ;
-	}
-
-	constexpr GPIO_TypeDef *Port_K()
-	{
-		return GPIOK;
-	}
-
-	template <GPIO_TypeDef *PORT(), size_t TPin>
-	class GpioPin : public Sys::GpioPin
+	class GpioPin
 	{
 	public:
-		GpioPin() : 
-			Sys::GpioPin()
+		static void Configure(GPIO_TypeDef * const gpio, const size_t pin, const GpioPinConfig &config, const bool initValue = false)
 		{
+			GpioPin gpioPin(gpio, pin);
+			gpioPin.Init(config, initValue);
 		}
 
-		static void Configure(const GpioPinConfig &config, const bool initValue = false)
-		{
-			GpioPin<PORT, TPin> pin;
-			pin.Init(config, initValue);
-		}
+		GpioPin(GPIO_TypeDef *const gpio, const size_t pin) :
+			m_gpio(gpio),
+			m_pin(pin)
+		{}
 
 		void Init(const GpioPinConfig &config, const bool initValue = false)
 		{
@@ -168,36 +110,40 @@ namespace Stm32
 
 			if (config.Mode == GpioMode::Output || config.Mode == GpioMode::Alternate)
 			{
-				SET_REG_FIELD(PORT()->OSPEEDR, TPin * 2, GpioSpeed::GpioSpeedMask, config.Speed);
-				SET_REG_FIELD(PORT()->OTYPER, TPin, GpioOutputType::GpioOutputTypeMask, config.OutputType);
+				SET_REG_FIELD(m_gpio->OSPEEDR, m_pin * 2, GpioSpeed::GpioSpeedMask, config.Speed);
+				SET_REG_FIELD(m_gpio->OTYPER, m_pin, GpioOutputType::GpioOutputTypeMask, config.OutputType);
 			}
 
 			if (config.Mode != GpioMode::Analog)
 			{
-				SET_REG_FIELD(PORT()->PUPDR, TPin * 2, GpioPullType::GpioPullTypeMask, config.PullType);
+				SET_REG_FIELD(m_gpio->PUPDR, m_pin * 2, GpioPullType::GpioPullTypeMask, config.PullType);
 			}
 
 			if (config.Mode == GpioMode::Alternate)
 			{
-				SET_REG_FIELD(PORT()->AFR[TPin >> 3], (TPin & 0b111) * 4, GpioAlternate::GpioAlternateMask, config.Alternate);
+				SET_REG_FIELD(m_gpio->AFR[m_pin >> 3], (m_pin & 0b111) * 4, GpioAlternate::GpioAlternateMask, config.Alternate);
 			}
 
-			SET_REG_FIELD(PORT()->MODER, TPin * 2, GpioMode::GpioModeMask, config.Mode);
+			SET_REG_FIELD(m_gpio->MODER, m_pin * 2, GpioMode::GpioModeMask, config.Mode);
 		}
 
-		virtual void Set(const bool value) override
+		void Set(const bool value)
 		{
-			PORT()->BSRR = (1 << (TPin + (value ? 0 : 16)));
+			m_gpio->BSRR = (1 << (m_pin + (value ? 0 : 16)));
 		}
 
-		virtual bool Get() override
+		bool Get()
 		{
-			return (PORT()->ODR & (1 << TPin)) != 0;
+			return (m_gpio->ODR & (1 << m_pin)) != 0;
 		}
 
-		virtual bool Read() override
+		bool Read()
 		{
-			return (PORT()->IDR & (1 << TPin)) != 0;
+			return (m_gpio->IDR & (1 << m_pin)) != 0;
 		}
+
+	private:
+		GPIO_TypeDef *m_gpio;
+		const size_t m_pin;
 	};
 }

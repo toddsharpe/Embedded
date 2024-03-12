@@ -3,7 +3,6 @@
 namespace Stm32
 {
 	Spi::Spi(SPI_TypeDef *spi) :
-		DirectOutputChannel(),
 		m_spi(spi)
 	{
 	}
@@ -50,7 +49,7 @@ namespace Stm32
 		while ((m_spi->SR & (SPI_SR_BSY))) {};
 	}
 
-	void* Spi::GetWriteAddress()
+	void* Spi::Data()
 	{
 		return (void *)&m_spi->DR;
 	}

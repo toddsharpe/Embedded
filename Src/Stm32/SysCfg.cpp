@@ -13,4 +13,7 @@ void SysCfg::Init()
 	
 	//Select RMII mode
 	SET_BIT(SYSCFG->PMC, SYSCFG_PMC_MII_RMII_SEL);
+
+	//Dummy read of 
+	(void)SYSCFG->PMC;
 }

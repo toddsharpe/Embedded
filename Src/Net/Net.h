@@ -109,6 +109,7 @@ namespace Net
 	enum class IcmpType : uint8_t
 	{
 		EchoReply = 0,
+		DestUnreachable = 3,
 		EchoRequest = 8,
 	};
 

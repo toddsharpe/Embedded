@@ -1,0 +1,16 @@
+[Targets]
+# Host
+Host/OTAHost:Host
+Host/OTATest:Host
+
+# Stm32
+Stm32/Bootrom:Stm32
+Stm32/Bootloader:Stm32
+Stm32/Nucleo:Stm32
+Stm32/Disco:Stm32
+
+# HiFive
+HiFive/App:HiFive
+
+# SoC
+SoC/Bootloader:SoC

@@ -1,0 +1,70 @@
+BinName=Disco
+Toolchain=Stm32
+
+[IncludeDirs]
+>Inc
+>External/cmsis_device_f7/Include
+>External/CMSIS_5/CMSIS/Core/Include
+>External/Graphics/Src
+>External/printf
+
+[CSources]
+>Stm32/sysmem.c
+>syscalls.c
+>External/printf/printf.c
+
+[CppSources]
+Main.cpp
+AliveTask.cpp
+DisplayTask.cpp
+>Stm32/system_stm32f7xx.cpp
+>Stm32/DmaStream.cpp
+>Stm32/Flash.cpp
+>Stm32/HandleException.cpp
+>Sys/IsrVector.cpp
+>Stm32/Boards/Disco-F746GNG.cpp
+>Stm32/Ltdc.cpp
+>Stm32/Pll.cpp
+>Stm32/Rcc.cpp
+>Stm32/Spi.cpp
+>Stm32/SystemClock.cpp
+>Stm32/SystemTimer.cpp
+>Stm32/Timer.cpp
+>Rtos/Kernel.cpp
+>Rtos/KThread.cpp
+>Rtos/Arm.cpp
+>Boards/Printer.cpp
+
+[AsmSources]
+>Rtos/ArmIrqs.s
+>Stm32/startup_stm32f746zgtx.s
+
+[Defines]
+STM32F746xx
+COLOR_RGB565
+
+[Flags]
+-O3
+-Wall
+-fdata-sections
+-ffunction-sections
+-g -gdwarf-2
+
+[CppFlags]
+-std=c++17
+-fno-exceptions
+-fno-rtti
+
+[LinkFlags]
+#-Wl,--defsym=FLASH_ORIGIN=0x08080000
+-Wl,--defsym=FLASH_ORIGIN=0x08000000
+-Wl,--defsym=FLASH_LENGTH=512K
+-TStm32/STM32F746ZGTX_FLASH.ld
+-Wl,-Map=$BinFile.map,--cref
+
+[PostBuild]
+$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
+$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
+$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
+$ObjDump: -s -j .isr_vector $BinFile.elf > $BinFile.isr_vector
+$Stat: $BinFile.bin

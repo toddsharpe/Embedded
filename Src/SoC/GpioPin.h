@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Assert.h"
-#include "Sys/GpioPin.h"
 
 #include <SoC.h>
 
@@ -21,11 +20,12 @@ namespace SoC
 	static constexpr GpioPinConfig const GpioOutput = {.Mode = GpioMode::Output};
 	static constexpr GpioPinConfig const GpioInput = {.Mode = GpioMode::Input};
 	
-	template <size_t TPin>
-	class GpioPin : public Sys::GpioPin
+	class GpioPin
 	{
 	public:
-		GpioPin() : Sys::GpioPin(), m_gpio(GPIO1)
+		GpioPin(gpio_block* const gpio, const size_t pin) :
+			m_gpio(gpio),
+			m_pin(pin)
 		{
 
 		}
@@ -36,33 +36,34 @@ namespace SoC
 			{
 				Set(initValue);
 				
-				m_gpio->dir |= (1 << TPin);
+				m_gpio->dir |= (1 << m_pin);
 			}
 			else
 			{
-				m_gpio->dir &= ~(1 << TPin);
+				m_gpio->dir &= ~(1 << m_pin);
 			}
 		}
 
-		virtual void Set(const bool value) override
+		void Set(const bool value)
 		{
 			if (value)
-				m_gpio->data_out |= (1 << TPin);
+				m_gpio->data_out |= (1 << m_pin);
 			else
-				m_gpio->data_out &= ~(1 << TPin);
+				m_gpio->data_out &= ~(1 << m_pin);
 		}
 
-		virtual bool Get() override
+		bool Get()
 		{
 			return (m_gpio->data_out) != 0;
 		}
 
-		virtual bool Read() override
+		bool Read()
 		{
-			return (m_gpio->data_in & (1 << TPin)) != 0;
+			return (m_gpio->data_in & (1 << m_pin)) != 0;
 		}
 
 	private:
 		gpio_block* const m_gpio;
+		const size_t m_pin;
 	};
 }

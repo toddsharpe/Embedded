@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Assert.h"
-#include "Sys/GpioPin.h"
 
 #include <FE310.h>
 #include <stddef.h>
@@ -24,13 +23,12 @@ namespace HiFive
 
 	static constexpr GpioPinConfig const GpioOutput = {.Mode = GpioMode::Output};
 
-	template <size_t TPin>
-	class GpioPin : public Sys::GpioPin
+	class GpioPin
 	{
 	public:
-		GpioPin()
-		{
-		}
+		GpioPin(const size_t pin) :
+			m_pin(pin)
+		{}
 
 		void Init(const GpioPinConfig &config, const bool initValue = false)
 		{
@@ -38,35 +36,37 @@ namespace HiFive
 			{
 				Set(initValue);
 
-				GPIO0->input_en &= ~(1 << TPin);
-				GPIO0->output_en |= (1 << TPin);
+				GPIO0->input_en &= ~(1 << m_pin);
+				GPIO0->output_en |= (1 << m_pin);
 			}
 			else
 			{
-				GPIO0->input_en |= (1 << TPin);
-				GPIO0->output_en &= ~(1 << TPin);
+				GPIO0->input_en |= (1 << m_pin);
+				GPIO0->output_en &= ~(1 << m_pin);
 			}
 
 			// TODO(tsharpe): Why is this required or else output has to be inverted?
-			GPIO0->out_xor |= (1 << TPin);
+			GPIO0->out_xor |= (1 << m_pin);
 		}
 
-		virtual void Set(const bool value) override
+		void Set(const bool value)
 		{
 			if (value)
-				GPIO0->output_val |= (1 << TPin);
+				GPIO0->output_val |= (1 << m_pin);
 			else
-				GPIO0->output_val &= ~(1 << TPin);
+				GPIO0->output_val &= ~(1 << m_pin);
 		}
 
-		virtual bool Get() override
+		bool Get()
 		{
 			return (GPIO0->output_val) != 0;
 		}
 
-		virtual bool Read() override
+		bool Read()
 		{
-			return (GPIO0->input_val & (1 << TPin)) != 0;
+			return (GPIO0->input_val & (1 << m_pin)) != 0;
 		}
+	private:
+		const size_t m_pin;
 	};
 }

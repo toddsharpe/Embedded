@@ -1,10 +1,14 @@
 #pragma once
 
+#include "Buffer.h"
 #include <cstdarg>
-#include "StringPrinter.h"
 
-class Board : public StringPrinter
+namespace Board
 {
-public:
-	virtual uint32_t GetSysClkFreq() const = 0;
+	void Init();
+	void Printf(const char* format, ...);
+	void PrintfVA(const char* format, va_list args);
+	void PrintBytes(const char* buffer, const size_t length);
+	void Write(const ReadOnlyBuffer& buffer);
+	uint32_t GetSysClkFreq();
 };

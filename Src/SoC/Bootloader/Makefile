@@ -40,7 +40,7 @@ FPGA_MEM_FILE=$(SOC_DIR)/fpga.mem
 C_SOURCES =  \
 ../sysmem.c \
 ../../syscalls.c \
-../../../External/printf/printf.c \
+../../External/printf/printf.c \
 
 #../../Drivers/Ssd1331.cpp
 CXX_SOURCES = \
@@ -118,10 +118,10 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--I../../../Inc \
+-I../../Inc \
 -I../../../Src \
--I../../../External/Graphics/Src \
--I../../../External/printf \
+-I../../External/Graphics/Src \
+-I../../External/printf \
 
 CXX_INCLUDES = $(C_INCLUDES)
 

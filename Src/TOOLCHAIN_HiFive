@@ -1,0 +1,15 @@
+Bin=/opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-ubuntu14/bin
+Prefix=riscv64-unknown-elf-
+
+[Flags]
+-march=rv32imac
+-mabi=ilp32
+-mcmodel=medlow
+
+[LinkFlags]
+-march=rv32imac
+-mabi=ilp32
+-mcmodel=medlow
+--specs=nano.specs
+-lc -lgcc -lm -lstdc++
+-Wl,--gc-sections

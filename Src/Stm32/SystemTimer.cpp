@@ -1,29 +1,37 @@
-#include "Stm32/SystemTimer.h"
+#include "Sys/SystemTimer.h"
 #include <stm32f746xx.h>
 
-namespace Stm32
+namespace SystemTimer
 {
-	SystemTimer::SystemTimer(const Sys::TickFreq freq) :
-		Sys::SystemTimer(freq)
-	{
-		
-	}
+	static TickFreq m_freq;
+	static uint32_t m_ticks;
 
-	void SystemTimer::Init(const uint32_t sysFreq)
+	void Init(const uint32_t sysFreq, const TickFreq tickFreq)
 	{
-		const uint32_t ticks = sysFreq / (1000U / m_freq);
+		m_freq = tickFreq;
+		const uint32_t ticks = sysFreq / (1000U / tickFreq);
 		SysTick->LOAD = (uint32_t)(ticks - 1UL);
 		SysTick->VAL = 0;
 		SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk;
 	}
 
-	void SystemTimer::Start()
+	void Start()
 	{
 		SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 	}
 
-	void SystemTimer::Stop()
+	void Stop()
 	{
 		SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+	}
+
+	void OnTick()
+	{
+		m_ticks += m_freq;
+	}
+
+	uint32_t GetTicks()
+	{
+		return m_ticks;
 	}
 }

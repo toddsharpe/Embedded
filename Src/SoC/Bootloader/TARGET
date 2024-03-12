@@ -1,0 +1,52 @@
+BinName=Bootloader
+Toolchain=SoC
+
+[IncludeDirs]
+>Inc
+>External/Graphics/Src
+>External/printf
+
+[Defines]
+COLOR_RGB565R
+PRINTF_DISABLE_SUPPORT_FLOAT
+PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+
+[CSources]
+>SoC/sysmem.c
+>syscalls.c
+>External/printf/printf.c
+
+[CppSources]
+Main.cpp
+DisplayTask.cpp
+>Boards/Printer.cpp
+>SoC/Boards/Basys3.cpp
+>SoC/Kernel.cpp
+>SoC/start.cpp
+>demangle.cpp
+
+[Flags]
+-O3
+-Wall
+-fdata-sections
+-ffunction-sections
+-g -gdwarf-2
+
+[CppFlags]
+-fcommon
+-std=c++17
+-fno-exceptions
+-fno-rtti
+
+[LinkFlags]
+-nostartfiles
+-Xlinker
+-TSoC/soc.ld
+-Wl,-Map=$BinFile.map,--cref
+
+[PostBuild]
+$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
+$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
+$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
+$Stat: $BinFile.bin
+#hexdump -v -e '"%08x\n"' $(BUILD_DIR)/$(TARGET).bin > $(FPGA_MEM_FILE)

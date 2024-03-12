@@ -3,11 +3,6 @@
 //TODO(tsharpe): Convert to std::function/bind paradigm
 struct Callback
 {
-	Callback() : Context(), Handler()
-	{
-
-	}
-
 	bool IsCallable()
 	{
 		return Handler != nullptr;
@@ -25,11 +20,6 @@ struct Callback
 template<class P>
 struct ParamCallback
 {
-	ParamCallback() : Context(), Handler()
-	{
-
-	}
-
 	bool IsCallable()
 	{
 		return Handler != nullptr;

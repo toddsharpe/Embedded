@@ -1,20 +1,15 @@
-#include "Stm32/GpioPin.h"
-#include "Stm32/Nucleo-F746ZG.h"
+#include "Buffer.h"
 #include "Rtos/Kernel.h"
 #include "Net/Net.h"
 #include "Net/IpStack.h"
 
-using namespace Stm32;
 using namespace Rtos;
 using namespace Net;
 
-extern NucleoF746ZG board;
-extern Kernel kernel;
-
 void OnDataReceived(void* sender, const ReadOnlyBuffer& buffer)
 {
-	board.Printf("Received packet\r\n");
-	board.PrintBytes((char*)buffer.Data, buffer.Length);
+	Board::Printf("Received packet\r\n");
+	Board::PrintBytes((char*)buffer.Data, buffer.Length);
 }
 
 void EthernetTask()
@@ -28,13 +23,12 @@ void EthernetTask()
 	data.Data = (uint8_t*)"Hello, world!";
 	data.Length = 13;
 
-	board.ip.DgramReceived.Context = nullptr;
-	board.ip.DgramReceived.Handler = &OnDataReceived;
+	Net::IpStack::DgramReceived = { nullptr, &OnDataReceived };
 
-	board.Printf("EthernetTask\r\n");
+	Board::Printf("EthernetTask\r\n");
 	while (true)
 	{
-		board.ip.SendUdp(TelemIp, TelemPort, data);
-		kernel.Sleep(5000);
+		IpStack::SendUdp(TelemIp, TelemPort, data);
+		Rtos::SleepThread(5000);
 	}
 }

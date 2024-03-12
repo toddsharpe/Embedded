@@ -1,16 +1,19 @@
-#include "HiFive/SystemTimer.h"
+#include "Sys/SystemTimer.h"
+
+#include <FE310.h>
+#include <RiscV.h>
 
 using namespace RiscV;
 
-namespace HiFive
+namespace SystemTimer
 {
-	SystemTimer::SystemTimer(const Sys::TickFreq freq) :
-		Sys::SystemTimer(freq)
-	{
-	}
+	static TickFreq m_freq;
+	static uint32_t m_ticks;
 
-	void SystemTimer::Init(const uint32_t sysFreq)
+	void Init(const uint32_t sysFreq, const TickFreq tickFreq)
 	{
+		m_freq = tickFreq;
+
 		//Timer isn't based on sysfreq, it's based on the mtime clock rate
 		const uint32_t freq = MTIME_RATE_HZ_DEF;
 		const uint32_t ticks = (freq * m_freq) / 1000U;
@@ -20,10 +23,10 @@ namespace HiFive
 		CLINT->mtimecmph = 0;
 	}
 
-	void SystemTimer::Start()
+	void Start()
 	{
 		//Reset the timer
-		Init(0);
+		Init(0, m_freq);
 		
 		//Enable the machine timer interrupt
 		MIE mie;
@@ -32,7 +35,7 @@ namespace HiFive
 		WriteMIE(mie.AsUint32);
 	}
 
-	void SystemTimer::Stop()
+	void Stop()
 	{
 		//Disable the machine timer interrupt
 		MIE mie;
@@ -41,11 +44,16 @@ namespace HiFive
 		WriteMIE(mie.AsUint32);
 	}
 
-	void SystemTimer::OnTick()
+	void OnTick()
 	{
-		Sys::SystemTimer::OnTick();
+		m_ticks += m_freq;
 
 		//Reset the timer
-		Init(0);
+		Init(0, m_freq);
+	}
+
+	uint32_t GetTicks()
+	{
+		return m_ticks;
 	}
 }

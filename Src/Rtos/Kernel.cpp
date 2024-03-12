@@ -1,25 +1,83 @@
 #include "Assert.h"
+#include "Board.h"
+#include "Sys/SystemTimer.h"
 #include "Rtos/Kernel.h"
+#include "Rtos/KSleep.h"
 
 #include <vector>
-#include <map>
 #include <list>
 #include <limits>
 
+namespace
+{
+	struct Wait
+	{
+		Rtos::KThread *Thread;
+		milli_t Deadline;
+	};
+}
+
 namespace Rtos
 {
-	void Kernel::OnSysTick(void *arg) { ((Kernel *)arg)->OnSysTick(); };
+	static size_t m_threadIndex;
+	static std::vector<KThread*> m_threads;
+	static std::map<KSignalObject*, std::list<Wait>> m_signalWaits;
 
-	Kernel::Kernel(Board &board, Sys::SystemTimer &sysTimer) : m_board(board),
-														  m_sysTimer(sysTimer),
-														  m_scheduler(m_sysTimer),
-														  m_interruptHandlers()
+	static WaitStatus ObjectWait(KSignalObject &object, const milli_t timeout)
 	{
+		AssertOp(m_threadIndex, <, m_threads.size());
+		AssertEqual(m_threads[m_threadIndex]->m_state, ThreadState::Running);
+		KThread *current = m_threads[m_threadIndex];
+
+		if (object.IsSignalled())
+			return WaitStatus::Signaled;
+
+		const milli_t deadline = SystemTimer::GetTicks() + timeout;
+		current->m_state = ThreadState::SignalWait;
+		m_signalWaits[&object].push_back({current, deadline});
+		RequestReschedule();
+
+		current = m_threads[m_threadIndex];
+		return current->m_waitStatus;
 	}
 
-	bool Kernel::Init()
+	static void ObjectSignalled(KSignalObject &object)
 	{
-		m_board.Printf("Kernel::Init\r\n");
+		Assert(object.IsSignalled());
+
+		if (!m_signalWaits[&object].size())
+			return;
+
+		// Ready threads waiting on object
+		for (auto &wait : m_signalWaits[&object])
+		{
+			KThread *thread = wait.Thread;
+			thread->m_waitStatus = WaitStatus::Signaled;
+			thread->m_state = ThreadState::Ready;
+		}
+		m_signalWaits[&object].clear();
+		m_signalWaits.erase(&object);
+	}
+
+	static bool ObjectSignalledOne(KSignalObject &object)
+	{
+		if (object.GetType() != KObjectType::Semaphore)
+			Assert(object.IsSignalled());
+
+		if (!m_signalWaits[&object].size())
+			return false;
+
+		const Wait &wait = m_signalWaits[&object].front();
+		m_signalWaits[&object].pop_front();
+		KThread *thread = wait.Thread;
+		thread->m_waitStatus = WaitStatus::Signaled;
+		thread->m_state = ThreadState::Ready;
+		return true;
+	}
+
+	bool Init()
+	{
+		Board::Printf("Kernel::Init\r\n");
 
 		// Create Idle Thread
 		if (!CreateThread(&KThread::Idle, ThreadPriority::Low))
@@ -28,65 +86,64 @@ namespace Rtos
 		return true;
 	}
 
-	void Kernel::Run()
+	void Run()
 	{
-		m_board.Printf("Kernel::Run\r\n");
-		m_scheduler.Display();
-		m_sysTimer.Start();
-		this->Start();
+		//Board::Printf("Kernel::Run\r\n");
+		Display();
+		SystemTimer::Start();
+		Start();
 	}
 
-	bool Kernel::Stop()
+	bool Stop()
 	{
-		m_sysTimer.Stop();
+		SystemTimer::Stop();
 
 		return true;
 	}
 
-	bool Kernel::CreateThread(const ThreadStart entry, const ThreadPriority priority, const size_t stackSize)
+	void Display()
 	{
-		m_board.Printf("Kernel::CreateThread\r\n");
+		for (size_t i = 0; i < m_threads.size(); i++)
+		{
+			Board::Printf("Thread[%d] = 0x%x, %d\r\n", i, m_threads[i]->m_stack, m_threads[i]->m_state);
+		}
+	}
+
+	bool CreateThread(const ThreadStart entry, const ThreadPriority priority, const size_t stackSize)
+	{
+		//Board::Printf("Kernel::CreateThread\r\n");
 
 		KThread *thread = new KThread();
 		uint8_t *stack = new uint8_t[stackSize];
 		thread->Init(stack, stackSize, entry);
 		thread->m_priority = priority; 
-		m_board.Printf("    Addr: 0x%x, Stack: [0x%x-0x%x]\r\n", thread, thread->m_stack, (uintptr_t)thread->m_stack + stackSize);
-		m_scheduler.AddThread(*thread);
+		//Board::Printf("    Addr: 0x%x, Stack: [0x%x-0x%x]\r\n", thread, thread->m_stack, (uintptr_t)thread->m_stack + stackSize);
+
+		//Add thread
+		thread->m_state = ThreadState::Ready;
+		m_threads.push_back(thread);
 
 		return true;
 	}
 
-	void Kernel::Yield()
+	void YieldThread()
 	{
-		m_scheduler.Reschedule();
+		RequestReschedule();
 	}
 
-	void Kernel::Sleep(const size_t ms)
+	void SleepThread(const size_t ms)
 	{
-		m_scheduler.Sleep(ms);
+		AssertOp(m_threadIndex, <, m_threads.size());
+		AssertEqual(m_threads[m_threadIndex]->m_state, ThreadState::Running);
+
+		KSleep sleep;
+		WaitStatus status = ObjectWait(sleep, ms);
+		AssertEqual(status, WaitStatus::Timeout);
 	}
 
-	void Kernel::RegisterInterrupt(const InterruptVector interrupt, const InterruptContext &context)
+	WaitStatus KeWait(KSignalObject &object, const milli_t timeout)
 	{
-		Assert(m_interruptHandlers.find(interrupt) == m_interruptHandlers.end());
-		m_interruptHandlers.insert({interrupt, context});
-	}
-
-	bool Kernel::HandleInterrupt(const InterruptVector interrupt)
-	{
-		const auto &it = m_interruptHandlers.find(interrupt);
-		if (it == m_interruptHandlers.end())
-			return false;
-
-		InterruptContext ctx = it->second;
-		ctx.Handler(ctx.Context);
-		return true;
-	}
-
-	WaitStatus Kernel::KeWait(KSignalObject &object, const milli_t timeout)
-	{
-		WaitStatus status = m_scheduler.ObjectWait(object, timeout);
+		WaitStatus status = ObjectWait(object, timeout);
 
 		switch (object.GetType())
 		{
@@ -106,41 +163,90 @@ namespace Rtos
 		return status;
 	}
 
-	void Kernel::KeSignal(KEvent &event)
+	void KeSignal(KEvent &event)
 	{
 		event.Set();
 		if (event.IsManual())
 		{
-			m_scheduler.ObjectSignalled(event);
+			ObjectSignalled(event);
 		}
 		else
 		{
-			if (m_scheduler.ObjectSignalledOne(event))
+			if (ObjectSignalledOne(event))
 				event.Reset();
 		}
 	}
 
-	void Kernel::GetStats(KernelStats &stats)
+	void SelectNextThread()
 	{
-		stats.Threads = m_scheduler.GetThreadCount();
-		stats.SysTicks = m_sysTimer.GetTicks();
+		// Promote timeouts/sleeps off queue
+		if (!m_signalWaits.empty())
+		{
+			for (auto &pair : m_signalWaits)
+			{
+				// Loop through waits
+				auto it = pair.second.begin();
+				while (it != pair.second.end())
+				{
+					Wait &item = *it;
+					if (item.Deadline <= SystemTimer::GetTicks())
+					{
+						KThread *thread = item.Thread;
+						Assert(thread);
+						thread->m_waitStatus = WaitStatus::Timeout;
+						thread->m_state = ThreadState::Ready;
+						it = pair.second.erase(it);
+					}
+					else
+					{
+						it++;
+					}
+				}
+			}
+		}
+
+		KThread *current = m_threads[m_threadIndex];
+		if (current->m_state == ThreadState::Running)
+			current->m_state = ThreadState::Ready;
+
+		// Select new thread
+		while (true)
+		{
+			m_threadIndex = (m_threadIndex + 1) % m_threads.size();
+
+			if (m_threads[m_threadIndex]->m_state == ThreadState::Ready)
+				break;
+		}
+
+		KThread *next = m_threads[m_threadIndex];
+		next->m_state = ThreadState::Running;
 	}
 
-	void *Kernel::GetCurrentPSP()
+	void *GetCurrentStack()
 	{
-		return m_scheduler.GetCurrentPSP();
+		// TODO(tsharpe): This function side-effect is a hack for the call to this function with the boot thread (SVC_Handler)
+		m_threads[m_threadIndex]->m_state = ThreadState::Running;
+		return m_threads[m_threadIndex]->m_stack;
 	}
 
-	void *Kernel::PendSV_Handler(void *psp)
+	void *ThreadSwap(void * const psp)
 	{
-		m_scheduler.SaveCurrentPSP(psp);
-		m_scheduler.SelectNextThread();
-		return m_scheduler.GetCurrentPSP();
+		//Save current stack pointer
+		m_threads[m_threadIndex]->m_stack = psp;
+
+		SelectNextThread();
+		return GetCurrentStack();
 	}
 
-	void Kernel::OnSysTick()
+	void OnSysTick(void* arg)
 	{
-		m_sysTimer.OnTick();
-		m_scheduler.Reschedule();
+		SystemTimer::OnTick();
+		RequestReschedule();
+	}
+
+	void GetStats(KernelStats &stats)
+	{
+		stats.Threads = m_threads.size();
+		stats.SysTicks = SystemTimer::GetTicks();
 	}
 }

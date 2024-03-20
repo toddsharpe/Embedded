@@ -1,11 +1,7 @@
 #include "Stm32/Board.h"
-#include "Stm32/SystemTimer.h"
-#include "Rtos/Kernel.h"
+#include "Sys/SystemTimer.h"
 #include "Arm.h"
 #include "Stm32/System.h"
-
-using namespace Stm32;
-using namespace Rtos;
 
 int main()
 {

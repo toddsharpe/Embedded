@@ -1,7 +1,6 @@
 #include "Assert.h"
 #include "Rtos/Types.h"
 #include "Rtos/KThread.h"
-#include "Rtos/Scheduler.h"
 #include "Rtos/Kernel.h"
 
 #include <RiscV.h>

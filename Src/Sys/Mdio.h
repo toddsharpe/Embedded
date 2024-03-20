@@ -2,12 +2,8 @@
 
 #include <cstdint>
 
-namespace Sys
+namespace Mdio
 {
-	class Mdio
-	{
-	public:
-		virtual uint16_t ReadRegister(const uint32_t PhyAddr, const uint32_t RegAddr) = 0;
-		virtual void WriteRegister(const uint32_t PhyAddr, const uint32_t RegAddr, const uint16_t data) = 0;
-	};
+	uint16_t ReadRegister(const uint32_t phyAddr, const uint32_t regAddr);
+	void WriteRegister(const uint32_t phyAddr, const uint32_t regAddr, const uint16_t data);
 }

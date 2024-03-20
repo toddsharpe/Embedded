@@ -1,28 +1,18 @@
-#include "Inc/Arm.h"
-#include "Stm32/GpioPin.h"
-#include "Stm32/SystemTimer.h"
-#include "Rtos/Kernel.h"
+#include "Assert.h"
 #include "Stm32/Board.h"
-#include "Net/UdpDgramChannel.h"
-#include "core_cm7.h"
-
-#include "Stm32/System.h"
+#include "Sys/EthMac.h"
+#include "Sys/SystemTimer.h"
+#include "Rtos/Kernel.h"
+#include "Arm.h"
 #include "OTA.h"
+#include "Net/UdpDgramChannel.h"
+#include "Stm32/System.h"
 #include "Updater.h"
-
-using namespace Stm32;
-using namespace Rtos;
-using namespace Net;
-using namespace Board;
-
-//Board and Kernel
-static Stm32::SystemTimer sysTimer(Sys::TickFreq::TickFreq_100HZ);
-Kernel kernel(sysTimer);
 
 //Updater
 static StaticBuffer<1200> buffer;
-static UdpDgramChannel udpChannel(OTA::Server, OTA::Port, board.ip, buffer);
-static Updater updater(board, kernel, udpChannel);
+static Net::UdpDgramChannel udpChannel(OTA::Server, OTA::Port, buffer);
+static Updater updater(udpChannel);
 
 void bootloader()
 {
@@ -33,17 +23,18 @@ int main()
 {
 	//Init Board
 	Board::Init();
-	sysTimer.Init(Board::GetSysClkFreq());
+	EthMac::Init();
+	SystemTimer::Init(Board::GetSysClkFreq(), SystemTimer::TickFreq_100HZ);
 	
-	Printf("Bootloader Active\r\n");
+	Board::Printf("Bootloader Active\r\n");
 
 	//Init kernel
-	kernel.Init();
-	kernel.RegisterInterrupt(IRQn_Type::SysTick_IRQn, {&Kernel::OnSysTick, &kernel});
-	kernel.RegisterInterrupt(IRQn_Type::ETH_IRQn, {&EthMac::OnInterrupt, &board.mac});
-	kernel.CreateThread(&bootloader);
+	Rtos::Init();
+	Rtos::RegisterInterrupt(IRQn_Type::SysTick_IRQn, {&Rtos::OnSysTick, nullptr});
+	Rtos::RegisterInterrupt(IRQn_Type::ETH_IRQn, {&EthMac::OnInterrupt, nullptr});
+	Rtos::CreateThread(&bootloader);
 
-	kernel.Run();
+	Rtos::Run();
 }
 
 static bool in_exception = false;
@@ -57,7 +48,7 @@ extern "C" void exception_handler(const ArmContext* context)
 	in_exception = true;
 	
 	const int32_t irq = (__get_IPSR() & 0xFF) - 16;
-	if (kernel.HandleInterrupt((IRQn_Type)irq))
+	if (Rtos::HandleInterrupt((IRQn_Type)irq))
 	{
 		in_exception = false;
 		return;
@@ -66,8 +57,8 @@ extern "C" void exception_handler(const ArmContext* context)
 	if (irq == -13)
 	{
 		//Hard fault
-		Printf("Hard fault\r\n");
-		Printf("HFSR 0x%x\r\n", SCB->HFSR);
+		Board::Printf("Hard fault\r\n");
+		Board::Printf("HFSR 0x%x\r\n", SCB->HFSR);
 		const uint16_t ufsr = SCB->CFSR >> 16;
 		const uint8_t bfsr = (SCB->CFSR >> 8) & 0xFF;
 		const uint8_t mfsr = SCB->CFSR & 0xFF;
@@ -75,28 +66,24 @@ extern "C" void exception_handler(const ArmContext* context)
 	}
 
 	//Unhandled interrupt
-	Printf("Unhandled interrupt\r\n");
-	Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
-	context->Print();
+	Board::Printf("Unhandled interrupt\r\n");
+	Board::Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
+	Board::Printf("PC: 0x%x, LR: 0x%x, CallerLR: 0x%x\r\n", context->HW.PC, context->SW.LR, context->HW.LR);
+	Board::Printf("R4: 0x%x, R5: 0x%x, R6: 0x%x, R7: 0x%x\r\n", context->SW.R4, context->SW.R5, context->SW.R6, context->SW.R7);
 	Bugcheck(__FILE__, STR(__LINE__), "Unhandled");
-}
-
-void ThreadSleep(const milli_t ms)
-{
-	kernel.Sleep(ms);
 }
 
 void Bugcheck(const char* file, const char* line, const char* format, ...)
 {
-	Printf("Kernel Bugcheck\r\n");
-	Printf("\r\n%s\r\n%s\r\n", file, line);
+	Board::Printf("Kernel Bugcheck\r\n");
+	Board::Printf("\r\n%s\r\n%s\r\n", file, line);
 
 	va_list args;
 	va_start(args, format);
-	Printf(format, args);
-	Printf("\r\n");
+	Board::Printf(format, args);
+	Board::Printf("\r\n");
 	va_end(args);
 
-	kernel.Stop();
+	Rtos::Stop();
 	while (1);
 }

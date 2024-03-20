@@ -4,8 +4,6 @@
 #include <cstddef>
 #include <cstring>
 
-extern void DebugPrintf(const char* format, ...);
-
 struct ReadOnlyBuffer
 {
 	const void* Data;

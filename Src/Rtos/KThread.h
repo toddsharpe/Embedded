@@ -25,8 +25,8 @@ namespace Rtos
 	
 	//ArchKernel
 	private:
-		size_t GetContextSize();
-		void InitContext(void* stack, ThreadStart entry);
+		static size_t GetContextSize();
+		static void InitContext(void* stack, ThreadStart entry);
 
 	public:
 		void *m_stack;

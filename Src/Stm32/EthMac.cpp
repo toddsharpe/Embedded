@@ -1,30 +1,151 @@
-#include "Stm32/Board.h"
-#include "Stm32/EthMac.h"
-#include "Assert.h"
+#include "Board.h"
 #include "Sys/EthPhy.h"
-#include "Stm32/Mdio.h"
-#include "Rtos/Types.h"
+#include "Sys/EthMac.h"
+#include "Sys/Mdio.h"
 #include "Util.h"
-
 #include <stm32f7xx.h>
 #include <stm32f746xx.h>
-#include <cstring>
 
-namespace Stm32
+//MAN: rm0385-stm32f75xxx-and-stm32f74xxx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
+
+namespace
 {
-	EthMac::EthMac(ETH_TypeDef* eth, uint8_t (&txBuffers)[EthMac::BufferCount][EthMac::BufferSize], uint8_t (&rxBuffers)[EthMac::BufferCount][EthMac::BufferSize]) :
-		Sys::EthMac(),
-		m_eth(eth),
-		m_txIndex(),
-		m_txDescriptors(),
-		m_txBuffers(txBuffers),
-		m_rxDescriptors(),
-		m_rxBuffers(rxBuffers)
+	//MAN: Ethernet DMA status register. Page 1634.
+	struct DMASR_Reg
 	{
-	}
+		union
+		{
+			struct
+			{
+				uint32_t TS : 1;
+				uint32_t TPSS : 1;
+				uint32_t TBUS : 1;
+				uint32_t TJTS : 1;
+				uint32_t ROS : 1;
+				uint32_t TUS : 1;
+				uint32_t RS : 1;
+				uint32_t RBUS : 1;
+				uint32_t RPSS : 1;
+				uint32_t RWTS : 1;
+				uint32_t ETS : 1;
+				uint32_t : 2;
+				uint32_t FBES : 1;
+				uint32_t ERS : 1;
+				uint32_t AIS : 1;
+				uint32_t NIS : 1;
+				uint32_t RPS : 3;
+				uint32_t TPS : 3;
+				uint32_t EBS : 3;
+				uint32_t : 1;
+				uint32_t MMCS : 1;
+				uint32_t PMTS : 1;
+				uint32_t TSTS : 1;
+				uint32_t : 2;
+			};
+			uint32_t AsUint32;
+		};
+	};
+	static_assert(sizeof(DMASR_Reg) == sizeof(uint32_t), "Invalid size");
+
+	//MAN: Figure 518. Page 1578.
+	struct TxDmaDescriptor
+	{
+		union
+		{
+			struct
+			{
+				uint32_t Status : 17;
+				uint32_t TTSS : 1;
+				uint32_t : 2;
+				uint32_t TCH : 1;
+				uint32_t TER : 1;
+				uint32_t CIC : 2;
+				uint32_t : 1;
+				uint32_t TTSE : 1;
+				uint32_t DP : 1;
+				uint32_t DC : 1;
+				uint32_t FS : 1;
+				uint32_t LS : 1;
+				uint32_t IC : 1;
+				uint32_t Own : 1;
+			};
+			uint32_t AsUint32;
+		} TDES0;
+
+		union
+		{
+			struct
+			{
+				uint32_t Buffer1Size : 13;
+				uint32_t Reserved : 3;
+				uint32_t Buffer2Size : 13;
+				uint32_t Reserved2 : 3;
+			};
+			uint32_t AsUint32;
+		} TDES1;
+		
+		//Buffer Address
+		uint32_t TDES2;
+
+		//Buffer2/Chain address
+		uint32_t TDES3;
+	};
+	static_assert(sizeof(TxDmaDescriptor) == sizeof(uint32_t) * 4, "Invalid size");
+
+	//MAN: Figure 521. Page 1588.
+	struct RxDmaDescriptor
+	{
+		union
+		{
+			struct
+			{
+				uint32_t Status : 16;
+				uint32_t FrameLength : 14;
+				uint32_t AFM : 1;
+				uint32_t Own : 1;
+			};
+			uint32_t AsUint32;
+		} TDES0;
+
+		union
+		{
+			struct
+			{
+				uint32_t Buffer1Count : 13;
+				uint32_t : 1;
+				uint32_t Chain : 1;
+				uint32_t Ring : 1;
+				uint32_t Buffer2Count : 13;
+				uint32_t : 2;
+				uint32_t CTRL2 : 1;
+			};
+			uint32_t AsUint32;
+		} TDES1;
+
+		//Buffer Address
+		uint32_t TDES2;
+
+		//Buffer2/Chain address
+		uint32_t TDES3;
+	};
+	static_assert(sizeof(RxDmaDescriptor) == sizeof(uint32_t) * 4, "Invalid size");
+	
+	//Tx DMA
+	static size_t m_txIndex;
+	static TxDmaDescriptor m_txDescriptors[EthMac::BufferCount];
+	static uint8_t m_txBuffers[EthMac::BufferCount][EthMac::BufferSize];
+
+	//Rx DMA
+	static RxDmaDescriptor m_rxDescriptors[EthMac::BufferCount];
+	static uint8_t m_rxBuffers[EthMac::BufferCount][EthMac::BufferSize];
+}
+
+namespace EthMac
+{
+	ParamCallback<const ReadOnlyBuffer&> FrameReceived;
 
 	//MAN: 38.6.1 Initialization of a transfer using DMA. Page 1571.
-	void EthMac::Init()
+	void Init()
 	{
 		//Initialize TX DMA
 		for (size_t i = 0; i < BufferCount; ++i)
@@ -54,44 +175,113 @@ namespace Stm32
 		__DSB();
 
 		//Reset MAC
-		SET_BIT(m_eth->DMABMR, ETH_DMABMR_SR);
-		while(READ_BIT(m_eth->DMABMR, ETH_DMABMR_SR) != 0);
+		SET_BIT(ETH->DMABMR, ETH_DMABMR_SR);
+		while(READ_BIT(ETH->DMABMR, ETH_DMABMR_SR) != 0);
 
 		//Initialize MDIO clock
-		MODIFY_REG(m_eth->MACMIIAR, ETH_MACMIIAR_CR, ETH_MACMIIAR_CR_Div102);
+		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_CR, ETH_MACMIIAR_CR_Div102);
 
 		//Reset Phy
-		Mdio mdio(m_eth);
-		Sys::EthPhy phy(0, mdio);
+		EthPhy phy(0);
 		phy.Init();
 		phy.Display();
 
 		//Setup interrupts
-		SET_BIT(m_eth->DMAIER, ETH_DMAIER_NISE);
-		SET_BIT(m_eth->DMAIER, ETH_DMAIER_RIE);
+		SET_BIT(ETH->DMAIER, ETH_DMAIER_NISE);
+		SET_BIT(ETH->DMAIER, ETH_DMAIER_RIE);
 
 		//Set descriptors
-		m_eth->DMARDLAR = (uint32_t)(uintptr_t)m_rxDescriptors;
-		m_eth->DMATDLAR = (uint32_t)(uintptr_t)m_txDescriptors;
+		ETH->DMARDLAR = (uint32_t)(uintptr_t)m_rxDescriptors;
+		ETH->DMATDLAR = (uint32_t)(uintptr_t)m_txDescriptors;
 
 		//Enable transmit and receive
-		m_eth->MACCR = ETH_MACCR_FES | ETH_MACCR_DM | ETH_MACCR_TE | ETH_MACCR_RE;
+		ETH->MACCR = ETH_MACCR_FES | ETH_MACCR_DM | ETH_MACCR_TE | ETH_MACCR_RE;
 
 		//Start DMA TX
-		m_eth->DMAOMR = ETH_DMAOMR_TSF | ETH_DMAOMR_RSF | ETH_DMAOMR_ST | ETH_DMAOMR_SR;
+		ETH->DMAOMR = ETH_DMAOMR_TSF | ETH_DMAOMR_RSF | ETH_DMAOMR_ST | ETH_DMAOMR_SR;
 
 		//TODO: MAC filtering
 		//Enable all MAC
-		m_eth->MACFFR = ETH_MACFFR_RA;
+		ETH->MACFFR = ETH_MACFFR_RA;
 
 		//Enable interrupts
 		NVIC_EnableIRQ(ETH_IRQn);
 	}
 
-	void EthMac::Display()
+	void Send(const ReadOnlyBuffer& frame)
+	{
+		//Check buffer size
+		Assert(frame.Length <= EthMac::BufferSize);
+		
+		//Ensure descriptor is free
+		AssertPrintHex32(m_txDescriptors[m_txIndex].TDES0.Own == 0, ETH->DMASR);
+
+		//Copy data to buffer
+		memcpy(m_txBuffers[m_txIndex], frame.Data, frame.Length);
+		m_txDescriptors[m_txIndex].TDES1.Buffer1Size = frame.Length;
+		
+		m_txDescriptors[m_txIndex].TDES0.AsUint32 = 0;
+		m_txDescriptors[m_txIndex].TDES0.FS = 1;
+		m_txDescriptors[m_txIndex].TDES0.LS = 1;
+		m_txDescriptors[m_txIndex].TDES0.TCH = 1;
+		m_txDescriptors[m_txIndex].TDES0.Own = 1;
+
+		m_txIndex = (m_txIndex + 1) % BufferCount;
+
+		//If suspended, resume
+		if (READ_BIT(ETH->DMASR, ETH_DMASR_TBUS))
+		{
+			SET_BIT(ETH->DMASR, ETH_DMASR_TBUS);
+			SET_BIT(ETH->DMATPDR, ETH_DMATPDR_TPD);
+		}
+	}
+
+	void OnInterrupt(void* arg)
+	{
+		if (READ_BIT(ETH->DMASR, ETH_DMASR_RS))
+		{
+			//Loop through descriptors to find received packets
+			for (size_t i = 0; i < EthMac::BufferCount; i++)
+			{
+				RxDmaDescriptor& desc = m_rxDescriptors[i];
+				if (desc.TDES0.Own)
+					continue;
+
+				uint8_t packet[desc.TDES0.FrameLength];
+				memcpy(packet, m_rxBuffers[i], desc.TDES0.FrameLength);
+				const ReadOnlyBuffer buffer = { packet, desc.TDES0.FrameLength };
+				if (FrameReceived.IsCallable())
+					FrameReceived.Invoke(buffer);
+
+				desc.TDES0.Own = 1;
+			}
+
+			//Clear
+			SET_BIT(ETH->DMASR, ETH_DMASR_RS);
+		}
+
+		//If DMA RX stopped because no buffers were available, restart it
+		if (READ_BIT(ETH->DMASR, ETH_DMASR_RBUS))
+		{
+			SET_BIT(ETH->DMASR, ETH_DMASR_RBUS);
+			SET_BIT(ETH->DMARPDR, ETH_DMARPDR_RPD);
+		}
+
+		//If Tx Suspended, restart
+		/*
+		if (GET_REG_FIELD(ETH->DMASR, ETH_DMASR_TPS_Suspended, ETH_DMASR_TPS_Pos))
+		{
+			ETH->DMASR |= ETH_DMASR_TPS;
+		}
+		*/
+		ETH->DMASR = ETH->DMASR & ~(ETH_DMASR_TBUS | ETH_DMASR_RBUS);
+		SET_BIT(ETH->DMATPDR, ETH_DMATPDR_TPD);
+	}
+
+	void Display()
 	{
 		DMASR_Reg reg;
-		reg.AsUint32 = m_eth->DMASR;
+		reg.AsUint32 = ETH->DMASR;
 		Board::Printf("DMASR 0x%08X\r\n", reg.AsUint32);
 		Board::Printf("  TS: 0x%x\r\n", reg.TS);
 		Board::Printf("  TPSS: 0x%x\r\n", reg.TPSS);
@@ -114,75 +304,5 @@ namespace Stm32
 		Board::Printf("  MMCS: 0x%x\r\n", reg.MMCS);
 		Board::Printf("  PMTS: 0x%x\r\n", reg.PMTS);
 		Board::Printf("  TSTS: 0x%x\r\n", reg.TSTS);
-	}
-
-	void EthMac::Send(const ReadOnlyBuffer& frame)
-	{
-		//Check buffer size
-		Assert(frame.Length <= EthMac::BufferSize);
-		
-		//Ensure descriptor is free
-		AssertPrintHex32(m_txDescriptors[m_txIndex].TDES0.Own == 0, m_eth->DMASR);
-
-		//Copy data to buffer
-		memcpy(m_txBuffers[m_txIndex], frame.Data, frame.Length);
-		m_txDescriptors[m_txIndex].TDES1.Buffer1Size = frame.Length;
-		
-		m_txDescriptors[m_txIndex].TDES0.AsUint32 = 0;
-		m_txDescriptors[m_txIndex].TDES0.FS = 1;
-		m_txDescriptors[m_txIndex].TDES0.LS = 1;
-		m_txDescriptors[m_txIndex].TDES0.TCH = 1;
-		m_txDescriptors[m_txIndex].TDES0.Own = 1;
-
-		m_txIndex = (m_txIndex + 1) % BufferCount;
-
-		//If suspended, resume
-		if (READ_BIT(m_eth->DMASR, ETH_DMASR_TBUS))
-		{
-			SET_BIT(m_eth->DMASR, ETH_DMASR_TBUS);
-			SET_BIT(m_eth->DMATPDR, ETH_DMATPDR_TPD);
-		}
-	}
-
-	void EthMac::OnInterrupt()
-	{
-		if (READ_BIT(m_eth->DMASR, ETH_DMASR_RS))
-		{
-			//Loop through descriptors to find received packets
-			for (size_t i = 0; i < EthMac::BufferCount; i++)
-			{
-				RxDmaDescriptor& desc = m_rxDescriptors[i];
-				if (desc.TDES0.Own)
-					continue;
-
-				uint8_t packet[desc.TDES0.FrameLength];
-				memcpy(packet, m_rxBuffers[i], desc.TDES0.FrameLength);
-				const ReadOnlyBuffer buffer = { packet, desc.TDES0.FrameLength };
-				if (FrameReceived.IsCallable())
-					FrameReceived.Invoke(buffer);
-
-				desc.TDES0.Own = 1;
-			}
-
-			//Clear
-			SET_BIT(m_eth->DMASR, ETH_DMASR_RS);
-		}
-
-		//If DMA RX stopped because no buffers were available, restart it
-		if (READ_BIT(m_eth->DMASR, ETH_DMASR_RBUS))
-		{
-			SET_BIT(m_eth->DMASR, ETH_DMASR_RBUS);
-			SET_BIT(m_eth->DMARPDR, ETH_DMARPDR_RPD);
-		}
-
-		//If Tx Suspended, restart
-		/*
-		if (GET_REG_FIELD(m_eth->DMASR, ETH_DMASR_TPS_Suspended, ETH_DMASR_TPS_Pos))
-		{
-			m_eth->DMASR |= ETH_DMASR_TPS;
-		}
-		*/
-		m_eth->DMASR = m_eth->DMASR & ~(ETH_DMASR_TBUS | ETH_DMASR_RBUS);
-		SET_BIT(m_eth->DMATPDR, ETH_DMATPDR_TPD);
 	}
 }

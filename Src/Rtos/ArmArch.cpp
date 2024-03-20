@@ -1,6 +1,5 @@
 #include "Rtos/Types.h"
 #include "Rtos/KThread.h"
-#include "Rtos/Scheduler.h"
 #include "Rtos/Kernel.h"
 
 #include <Arm.h>
@@ -26,12 +25,12 @@ namespace Rtos
 		new (stack) ArmContext((void *)entry, (void *)&KThread::Idle);
 	}
 
-	void Scheduler::Reschedule()
+	void RequestReschedule()
 	{
 		SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 	}
 
-	void Kernel::Start()
+	void Start()
 	{
 		__asm("SVC 0");
 		KThread::Idle();

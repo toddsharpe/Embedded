@@ -7,7 +7,7 @@
 #include "Stm32/GpioPin.h"
 #include "Stm32/Pll.h"
 #include "Stm32/SystemClock.h"
-#include "Stm32/EthMac.h"
+#include "Sys/EthMac.h"
 #include "Net/IpStack.h"
 
 #include <stm32f746xx.h>
@@ -15,17 +15,10 @@
 // MAN: um1974-stm32-nucleo144-boards-mb1137-stmicroelectronics.pdf
 
 using namespace Stm32;
+using namespace Net;
 
 namespace Board
 {
-	//Static eth buffers
-	static uint8_t TxBuffers[Stm32::EthMac::BufferCount][Stm32::EthMac::BufferSize];
-	static uint8_t RxBuffers[Stm32::EthMac::BufferCount][Stm32::EthMac::BufferSize];
-
-	//IP Buffers
-	static StaticBuffer<Stm32::EthMac::BufferSize> IpTxBuffer;
-	static StaticBuffer<Stm32::EthMac::BufferSize> IpSysBuffer;
-
 	//Peripheral configuration
 	static constexpr PllConfig const PllConfig72MHz =
 	{
@@ -69,13 +62,9 @@ namespace Board
 	//Peripherals
 	Rcc rcc(16'000'000, 8'000'000);
 	Usart uart(USART3);
-	EthMac mac(ETH, TxBuffers, RxBuffers);
 	GpioPin<Port_B, 0> Led1;
 	GpioPin<Port_B, 7> Led2;
 	GpioPin<Port_B, 14> Led3;
-
-	//IP stack
-	Net::IpStack ip(mac);
 
 	void Init()
 	{
@@ -114,11 +103,6 @@ namespace Board
 		GpioPin<Port_G, 11>::Configure(GpioEth);	//MII_TX_EN
 		GpioPin<Port_G, 13>::Configure(GpioEth);	//MII_TXD0
 		GpioPin<Port_B, 13>::Configure(GpioEth);	//MII_TXD1
-
-		//Initialize ethernet/ip layers
-		mac.Init();
-		ip.InitBuffers(IpTxBuffer, IpSysBuffer);
-		ip.Display();
 
 		//Initialize LEDs
 		Led1.Init(GpioOutput);

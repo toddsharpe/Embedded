@@ -24,8 +24,7 @@ arm_exception_handler:
 SVC_Handler:
 	cpsid if // Disable interrupts
 
-	ldr r0, =kernel
-	bl _ZN4Rtos6Kernel13GetCurrentPSPEv
+	bl GetCurrentStack
 
 	ldmfd r0!, {r4-r11, lr}
 	msr psp, r0
@@ -41,11 +40,10 @@ SVC_Handler:
 PendSV_Handler:
 	cpsid if
 
-	mrs r1, psp
-	stmfd r1!, {r4-r11, lr}
+	mrs r0, psp
+	stmfd r0!, {r4-r11, lr}
 
-	ldr r0, =kernel
-	bl _ZN4Rtos6Kernel14PendSV_HandlerEPv
+	bl ThreadSwap
 	
 	ldmfd r0!, {r4-r11, lr}
 	msr psp, r0

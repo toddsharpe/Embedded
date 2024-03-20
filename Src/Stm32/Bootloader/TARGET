@@ -16,12 +16,11 @@ Toolchain=Stm32
 [CppSources]
 Main.cpp
 system_stm32f7xx.cpp
->Stm32/ArmKernel.cpp
 >Stm32/DmaStream.cpp
 >Stm32/EthMac.cpp
 >Stm32/Flash.cpp
 >Stm32/Mdio.cpp
->Stm32/Nucleo-F746ZG.cpp
+>Stm32/Boards/Nucleo-F746ZG.cpp
 >Stm32/Pll.cpp
 >Stm32/Rcc.cpp
 >Stm32/Spi.cpp
@@ -33,7 +32,10 @@ system_stm32f7xx.cpp
 >Drivers/St7789Dma.cpp
 >Rtos/Kernel.cpp
 >Rtos/KThread.cpp
->Rtos/Scheduler.cpp
+>Rtos/ArmArch.cpp
+>Net/ArpCache.cpp
+>Net/IpStack.cpp
+>Boards/Printer.cpp
 
 [AsmSources]
 >Stm32/KernelInterrupts.s

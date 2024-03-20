@@ -13,21 +13,19 @@ namespace Net
 	public:
 		static void OnDgramReceived(void* arg, const ReadOnlyBuffer& buffer) { ((UdpDgramChannel*)arg)->OnDgramReceived(buffer); };
 
-		UdpDgramChannel(const IpAddress& serverIp, const uint16_t serverPort, IpStack& stack, Buffer& buffer) :
+		UdpDgramChannel(const IpAddress& serverIp, const uint16_t serverPort, Buffer& buffer) :
 			DgramChannel(),
 			m_serverIp(serverIp),
 			m_serverPort(serverPort),
-			m_ipStack(stack),
 			m_buffer(buffer)
 		{
-			m_ipStack.DgramReceived.Context = this;
-			m_ipStack.DgramReceived.Handler = &UdpDgramChannel::OnDgramReceived;
+			IpStack::DgramReceived.Context = this;
+			IpStack::DgramReceived.Handler = &UdpDgramChannel::OnDgramReceived;
 		}
-
 
 		virtual void Write(const ReadOnlyBuffer& buffer) override
 		{
-			m_ipStack.SendUdp(m_serverIp, m_serverPort, buffer);
+			IpStack::SendUdp(m_serverIp, m_serverPort, buffer);
 		}
 
 		virtual ReadOnlyBuffer Read() override
@@ -54,7 +52,6 @@ namespace Net
 
 		const IpAddress& m_serverIp;
 		const uint16_t m_serverPort;
-		IpStack& m_ipStack;
 		Buffer& m_buffer;
 	};
 }

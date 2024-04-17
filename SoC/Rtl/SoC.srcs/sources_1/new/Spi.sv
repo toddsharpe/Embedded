@@ -80,6 +80,7 @@ module Spi #(parameter ADDRESS, parameter WORDS = 1)(
     );
 
     assign dataOut = enabled ? {!tx_idle, 31'h0} : 32'hzzzzzzzz;
+    assign cs = 1'b0; //NOTE(tsharpe): Assume one device on the bus
 
 `ifdef DEBUG
     spi_vio spi_vio (

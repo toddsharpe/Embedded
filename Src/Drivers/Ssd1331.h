@@ -20,7 +20,7 @@ namespace Drivers
 		void Write(Graphics::FrameBuffer& framebuffer);
 
 	private:
-		static constexpr uint8_t COLOR_MODE_16bit = 0x55; // RGB565 (16bit)
+		static constexpr uint8_t COLOR_MODE_16bit = 0x72; // RGB565 (16bit)
 
 		//DOC 8: Command Table
 		enum Command : uint8_t
@@ -28,11 +28,21 @@ namespace Drivers
 			SETCOLUMN = 0x15,
 			SETROW = 0x75,
 
+			SETREMAP = 0xA0,
+
 			SETDISPLAYDIM = 0xAC,
 			SETDISPLAYOFF = 0xAE,
 			SETDISPLAYON = 0xAF,
 
-			NORMALDISPLAY = 0xA4
+			SETSTARTLINE = 0xA1,
+			SETDISPLAYOFFSET = 0xA2,
+
+			NORMALDISPLAY = 0xA4,
+			ENTIREDISPLAYON = 0xA5,
+			ENTIREDISPLAYOFF = 0xA6,
+			INVERSEDISPLAY = 0xA7,
+
+			POWERMODE = 0xB0,
 		};
 
 		//NOTE(tsharpe): This method doesn't allow for offsets

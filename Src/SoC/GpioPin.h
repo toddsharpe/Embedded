@@ -25,6 +25,12 @@ namespace SoC
 	class GpioPin : public Sys::GpioPin
 	{
 	public:
+		static void Configure(const GpioPinConfig &config, const bool initValue = false)
+		{
+			GpioPin<TPin> pin;
+			pin.Init(config, initValue);
+		}
+
 		GpioPin() : Sys::GpioPin(), m_gpio(GPIO1)
 		{
 

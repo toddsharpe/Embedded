@@ -49,8 +49,7 @@ Main.cpp \
 ../Uart.cpp \
 ../Spi.cpp \
 ../start.cpp \
-../../Drivers/St7789Base.cpp \
-../../Drivers/St7789.cpp \
+../../Drivers/Ssd1331.cpp \
 ../../demangle.cpp \
 
 # ASM sources

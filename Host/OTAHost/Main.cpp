@@ -6,6 +6,7 @@
 #include <vector>
 #include <shlwapi.h>
 #include <RingBuffer.h>
+#include "SerialChannel.h"
 
 static const std::string app = "..\\..\\build\\Stm32\App\\Nucleo.bin";
 
@@ -13,20 +14,9 @@ RingBuffer<uint8_t, 1024*1024> commBuffer;
 
 int main()
 {
-	//Connect to comm
-	HANDLE hComm = CreateFileA("COM4",
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		OPEN_EXISTING,
-		0,
-		NULL);
-	if (hComm == INVALID_HANDLE_VALUE)
-	{
-		printf("Error opening serial port\n");
-		exit(-1);
-	}
-	printf("Opened serial port\n");
+	Channel* channel = new SerialChannel();
+	channel->Init();
+	printf("Opened channel\n");
 	
 	//Build path to app
 	TCHAR buffer[MAX_PATH] = { 0 };
@@ -45,13 +35,7 @@ int main()
 	while (true)
 	{
 		uint8_t buffer[512];
-		DWORD bytesRead = 0;
-
-		if (!ReadFile(hComm, &buffer, sizeof(buffer), &bytesRead, NULL))
-		{
-			printf("ReadFile failed\n");
-			exit(-1);
-		}
+		size_t bytesRead = channel->Read(buffer, sizeof(buffer));
 
 		for (size_t i = 0; i < bytesRead; i++)
 		{
@@ -71,19 +55,13 @@ int main()
 		case OTA::MessageType::GetApp:
 		{
 			OTA::GetAppMessage* request = (OTA::GetAppMessage*)commBuffer.Front();
-			
+
 			OTA::AppInfoMessage response = {};
 			response.Length = sizeof(OTA::AppInfoMessage);
 			response.Type = OTA::MessageType::AppInfo;
 			response.NumberOfBlocks = numberOfBlocks;
 
-			DWORD bytesWritten = 0;
-			if (!WriteFile(hComm, &response, sizeof(response), &bytesWritten, NULL))
-			{
-				printf("WriteFile failed\n");
-				exit(-1);
-			}
-			AssertEqual(bytesWritten, sizeof(response));
+			channel->Write(&response, sizeof(response));
 		}
 			break;
 
@@ -102,15 +80,8 @@ int main()
 
 			memcpy(response.Data, appData->data() + startIndex, length);
 
-			DWORD bytesWritten = 0;
-			if (!WriteFile(hComm, &response, sizeof(response), &bytesWritten, NULL))
-			{
-				printf("WriteFile failed\n");
-				exit(-1);
-			}
-			AssertEqual(bytesWritten, sizeof(response));
+			channel->Write(&response, sizeof(response));
 		}
-
 			break;
 
 		default:

@@ -94,10 +94,8 @@ module MemoryAccess import _SoC::*; (
                 loadData = {{24{memSigned & loadByte[7]}}, loadByte};
             MEM_HALF:
                 loadData = {{16{memSigned & loadHalf[15]}}, loadHalf};
-            MEM_WORD:
-                loadData = memDataR;
             default:
-                loadData = 0;
+                loadData = memDataR;
         endcase
 
 endmodule

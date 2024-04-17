@@ -2,8 +2,7 @@
 #include "SoC/GpioPin.h"
 #include "SoC/Spi.h"
 #include "Rtos/Types.h"
-//#include "Drivers/Ssd1331.h"
-#include "Drivers/St7789.h"
+#include "Drivers/Ssd1331.h"
 #include "Graphics/Color.h"
 #include "Graphics/StaticFrameBuffer.h"
 #include "UI/Window.h"
@@ -15,7 +14,7 @@ using namespace SoC;
 Basys3 board = {};
 
 //Graphics buffer
-Graphics::StaticFrameBuffer<240, 240> frameBuffer;
+Graphics::StaticFrameBuffer<96, 64> frameBuffer;
 
 void ThreadSleep(const milli_t ms);
 
@@ -30,12 +29,14 @@ int main()
 	
 	//Display screen pins
 	GpioPin<0> dcPin;
-	GpioPin<1> resetPin;
 	dcPin.Init(GpioOutput);
-	resetPin.Init(GpioOutput, true);
+	GpioPin<1> resPin;
+	resPin.Init(GpioOutput, true);
+	GpioPin<2>::Configure(GpioOutput, true);	//VCCEN = 1
+	GpioPin<3>::Configure(GpioOutput, true);	//PMODEN = 1
 
 	//Screen
-	Drivers::St7789 screen(spi1, dcPin, resetPin);
+	Drivers::Ssd1331 screen(spi1, dcPin, resPin);
 	screen.Init();
 
 	UI::Window window("SoC App");

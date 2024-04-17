@@ -54,7 +54,4 @@ AliveTask3.cpp
 -Wl,-Map=$BinFile.map,--cref
 
 [PostBuild]
-$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
-$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
-$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
-$Stat: $BinFile.bin
+$Bash: >HiFive/PostBuild.sh

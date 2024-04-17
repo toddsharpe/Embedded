@@ -15,24 +15,29 @@ Toolchain=Stm32
 
 [CppSources]
 Main.cpp
-AliveTask.cpp
 DisplayTask.cpp
+EthernetTask.cpp
 >Stm32/system_stm32f7xx.cpp
 >Stm32/DmaStream.cpp
+>Stm32/EthMac.cpp
 >Stm32/Flash.cpp
 >Stm32/HandleException.cpp
 >Sys/IsrVector.cpp
 >Stm32/Boards/Disco-F746GNG.cpp
 >Stm32/Ltdc.cpp
+>Stm32/Mdio.cpp
 >Stm32/Pll.cpp
 >Stm32/Rcc.cpp
 >Stm32/Spi.cpp
+>Stm32/SysCfg.cpp
 >Stm32/SystemClock.cpp
 >Stm32/SystemTimer.cpp
 >Stm32/Timer.cpp
 >Rtos/Kernel.cpp
 >Rtos/KThread.cpp
 >Rtos/Arm.cpp
+>Net/ArpCache.cpp
+>Net/IpStack.cpp
 >Boards/Printer.cpp
 
 [AsmSources]
@@ -56,15 +61,10 @@ COLOR_RGB565
 -fno-rtti
 
 [LinkFlags]
-#-Wl,--defsym=FLASH_ORIGIN=0x08080000
 -Wl,--defsym=FLASH_ORIGIN=0x08000000
 -Wl,--defsym=FLASH_LENGTH=512K
 -TStm32/STM32F746ZGTX_FLASH.ld
 -Wl,-Map=$BinFile.map,--cref
 
 [PostBuild]
-$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
-$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
-$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
-$ObjDump: -s -j .isr_vector $BinFile.elf > $BinFile.isr_vector
-$Stat: $BinFile.bin
+$Bash: >Stm32/PostBuild.sh

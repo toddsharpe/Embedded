@@ -182,8 +182,12 @@ namespace EthMac
 		//Initialize MDIO clock
 		MODIFY_REG(ETH->MACMIIAR, ETH_MACMIIAR_CR, ETH_MACMIIAR_CR_Div102);
 
+		//Detect phy
+		uint16_t phyAddr = 0;
+		Assert(EthPhy::Detect(phyAddr));
+
 		//Reset Phy
-		EthPhy phy(0);
+		EthPhy phy(phyAddr);
 		phy.Init();
 		phy.Display();
 

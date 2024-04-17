@@ -45,8 +45,4 @@ DisplayTask.cpp
 -Wl,-Map=$BinFile.map,--cref
 
 [PostBuild]
-$ObjCopy: -O binary -S $BinFile.elf $BinFile.bin
-$ObjCopy: -O ihex $BinFile.elf $BinFile.hex
-$ObjDump: -S --disassemble $BinFile.elf > $BinFile.disasm
-$Stat: $BinFile.bin
-#hexdump -v -e '"%08x\n"' $(BUILD_DIR)/$(TARGET).bin > $(FPGA_MEM_FILE)
+$Bash: >SoC/PostBuild.sh

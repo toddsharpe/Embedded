@@ -84,6 +84,7 @@ namespace Board
 		SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_ETHMACTXEN);
 		__DSB();
 	
+		//Enable RMII
 		SysCfg::Init();
 
 		//Initialize system: PLL, System Clock, SysCfg

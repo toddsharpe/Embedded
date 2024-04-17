@@ -1,15 +1,17 @@
 #include "Assert.h"
+#include "Sys/EthMac.h"
 #include "Stm32/Boards/Disco-F746GNG.h"
 #include "Sys/IsrVector.h"
 #include "Sys/SystemTimer.h"
+#include "Net/IpStack.h"
 #include "Rtos/Kernel.h"
 
 using namespace Stm32;
 using namespace Rtos;
 
 //Tasks
-extern void AliveTask();
 extern void DisplayTask();
+extern void EthernetTask();
 
 void RxReceived(void* arg)
 {
@@ -21,6 +23,8 @@ int main(void)
 {
 	//Init board
 	Board::Init();
+	EthMac::Init();
+	Net::IpStack::Init();
 	SystemTimer::Init(Board::GetSysClkFreq(), SystemTimer::TickFreq_100HZ);
 	Board::Printf("Application Active\r\n");
 
@@ -34,8 +38,8 @@ int main(void)
 	Board::uart.DgramReceived = { nullptr, RxReceived };
 
 	//Create threads
-	Rtos::CreateThread(&AliveTask);
 	Rtos::CreateThread(&DisplayTask);
+	Rtos::CreateThread(&EthernetTask);
 	Rtos::Run();
 }
 

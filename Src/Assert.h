@@ -30,4 +30,4 @@ void Bugcheck(const char* file, const char* line, const char* format, ...);
 		} \
 	}
 #define Fatal(x) Bugcheck("File: " __FILE__, "Line: " STR(__LINE__),  #x); 
-#define Trace() Board::Printf(__FILE__ "-" STR(__LINE__));
+#define Trace() Board::Printf(__FILE__ "-" STR(__LINE__) "\r\n");

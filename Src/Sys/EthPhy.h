@@ -9,9 +9,37 @@
 class EthPhy
 {
 public:
+	static bool Detect(uint16_t& phyAddr)
+	{
+		for (phyAddr = 0; phyAddr < 32; phyAddr++)
+		{
+			EthPhy phy(phyAddr);
+			if (phy.Present())
+				return true;
+		}
+		return false;
+	}
+	
 	EthPhy(const uint16_t phyAddr) :
 		m_phyAddr(phyAddr)
 	{
+	}
+
+	bool Present()
+	{
+		Mdio::WriteRegister(m_phyAddr, Registers::BasicControl, 0x8000);
+		uint16_t v = Mdio::ReadRegister(m_phyAddr, Registers::BasicControl);
+		if (v == 0xFFFF)
+			return false;
+
+		while (v & 0x8000)
+		{
+			v = Mdio::ReadRegister(m_phyAddr, Registers::BasicControl);
+			if (v == 0xFFFF)
+				return false;
+		}
+
+		return true;
 	}
 
 	void Init()

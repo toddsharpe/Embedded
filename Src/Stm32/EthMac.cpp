@@ -218,7 +218,7 @@ namespace EthMac
 		NVIC_EnableIRQ(ETH_IRQn);
 
 		//TODO(tsharpe): Delay hack, find out why this is needed.
-		Display();
+		(void)ETH->DMASR;
 	}
 
 	void Send(const ReadOnlyBuffer& frame)
@@ -239,7 +239,6 @@ namespace EthMac
 		m_txDescriptors[m_txIndex].TDES0.TCH = 1;
 		m_txDescriptors[m_txIndex].TDES0.Own = 1;
 		__DSB();
-		//SCB_CleanInvalidateDCache();
 
 		m_txIndex = (m_txIndex + 1) % BufferCount;
 

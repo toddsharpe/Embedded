@@ -2,8 +2,11 @@
 
 #pragma once
 
+#include "Sys/IsrVector.h"
+#include "Callback.h"
 #include <stddef.h>
 #include <cstdint>
+#include <stm32f7xx.h>
 #include <stm32f746xx.h>
 
 namespace Stm32
@@ -20,6 +23,14 @@ namespace Stm32
 			temp |= ((value) << (offset));\
 			reg = temp;\
 		} while (false)
+
+		size_t GetIndex(const GPIO_TypeDef * const gpio)
+		{
+			const uintptr_t base = (uintptr_t)GPIOA;
+			const uintptr_t size = (uintptr_t)GPIOB - base;
+			const uintptr_t offset = (uintptr_t)gpio - base;
+			return offset / size;
+		}
 	}
 	
 	enum GpioMode : uint8_t
@@ -93,6 +104,8 @@ namespace Stm32
 	class GpioPin
 	{
 	public:
+		static void OnInterupt(void* arg) { ((GpioPin*)arg)->OnInterupt(); };
+
 		static void Configure(GPIO_TypeDef * const gpio, const size_t pin, const GpioPinConfig &config, const bool initValue = false)
 		{
 			GpioPin gpioPin(gpio, pin);
@@ -127,6 +140,43 @@ namespace Stm32
 			SET_REG_FIELD(m_gpio->MODER, m_pin * 2, GpioMode::GpioModeMask, config.Mode);
 		}
 
+		//NOTE(tsharpe): Method only does rising edge.
+		void EnableInterrupt()
+		{
+			//Enable syscfg
+			SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SYSCFGEN);
+			__DSB();
+
+			//Set interrupt configuration
+			const size_t i = m_pin >> 2;
+			const size_t offset = m_pin & 0x03;
+			const size_t gpioIndex = GetIndex(m_gpio);
+			SET_REG_FIELD(SYSCFG->EXTICR[i], 4 * offset, 0xF, gpioIndex);
+
+			//Set interrupt mask
+			const uint32_t mask = (1 << m_pin);
+			SET_BIT(EXTI->IMR, mask);
+
+			//Clear event mask
+			CLEAR_BIT(EXTI->EMR, mask);
+
+			//Set rising edge
+			SET_BIT(EXTI->RTSR, mask);
+
+			//Clear falling edge
+			CLEAR_BIT(EXTI->FTSR, mask);
+
+			//Enable interrupts
+			NVIC_EnableIRQ(GetInterupt());
+		}
+
+		void OnInterupt()
+		{
+			//Signal
+			if (Interrupt.IsCallable())
+				Interrupt.Invoke();
+		}
+
 		void Set(const bool value)
 		{
 			m_gpio->BSRR = (1 << (m_pin + (value ? 0 : 16)));
@@ -141,6 +191,18 @@ namespace Stm32
 		{
 			return (m_gpio->IDR & (1 << m_pin)) != 0;
 		}
+
+		IRQn_Type GetInterupt()
+		{
+			if (m_pin < 5)
+				return (IRQn_Type)(EXTI0_IRQn + m_pin);
+			else if (m_pin < 10)
+				return EXTI9_5_IRQn;
+			else
+				return EXTI15_10_IRQn;
+		}
+
+		Callback Interrupt;
 
 	private:
 		GPIO_TypeDef *m_gpio;

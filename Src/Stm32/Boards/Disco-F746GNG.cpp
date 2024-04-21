@@ -1,4 +1,5 @@
 #include "Stm32/Boards/Disco-F746GNG.h"
+#include "Stm32/I2c.h"
 #include "Stm32/Pll.h"
 #include "Stm32/SysCfg.h"
 #include "Stm32/SystemClock.h"
@@ -55,12 +56,19 @@ namespace Board
 		.Vfp = 2
 	};
 
+	static constexpr I2cConfig const TouchI2cConfig
+	{
+		.Master = true,
+		.Timing = 0x40412A3B
+	};
+
 	//Peripherals
 	Rcc rcc(16'000'000, 25'000'000);
 	Usart uart(USART1);
 	Ltdc ltdc(RK043FN48HConfig);
 	GpioPin LcdDisp(GPIOI, 12);
 	GpioPin LcdBlacklightCtrl(GPIOK, 3);
+	GpioPin lcdInt(GPIOI, 13);
 
 	void Init()
 	{

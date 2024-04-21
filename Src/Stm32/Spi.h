@@ -23,7 +23,7 @@ namespace Stm32
 	class Spi
 	{
 	public:
-		Spi(SPI_TypeDef *spi);
+		Spi(SPI_TypeDef * const spi);
 
 		void Init(const SpiConfig& config);
 		void Write(const ReadOnlyBuffer& buffer);

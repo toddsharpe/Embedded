@@ -19,6 +19,11 @@ void RxReceived(void* arg)
 	Board::Printf("Received: %s\r\n", buffer.Data);
 }
 
+void TouchScreen(void* arg)
+{
+	Board::Printf("TouchScreen\r\n");
+}
+
 int main(void)
 {
 	//Init board
@@ -36,6 +41,11 @@ int main(void)
 	IsrVector::Register(Board::uart.GetInterupt(), {&Usart::OnInterupt, &Board::uart});
 	Board::uart.EnableRx();
 	Board::uart.DgramReceived = { nullptr, RxReceived };
+
+	//Initialize touch screen.
+	IsrVector::Register(Board::lcdInt.GetInterupt(), {&GpioPin::OnInterupt, &Board::lcdInt});
+	Board::lcdInt.EnableInterrupt();
+	Board::lcdInt.Interrupt = { nullptr, TouchScreen };
 
 	//Create threads
 	Rtos::CreateThread(&DisplayTask);

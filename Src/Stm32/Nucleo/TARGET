@@ -16,13 +16,14 @@ Toolchain=Stm32
 [CppSources]
 Main.cpp
 AliveTask.cpp
-DisplayTask.cpp
+#DisplayTask.cpp
 EthernetTask.cpp
 >Stm32/system_stm32f7xx.cpp
 >Stm32/DmaStream.cpp
 >Stm32/EthMac.cpp
 >Stm32/Flash.cpp
 >Stm32/HandleException.cpp
+>Stm32/I2c.cpp
 >Sys/IsrVector.cpp
 >Stm32/Mdio.cpp
 >Stm32/Boards/Nucleo-F746ZG.cpp

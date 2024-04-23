@@ -59,6 +59,7 @@ namespace Stm32
 	// STM: Table 12 Alternate function mapping
 	enum GpioAlternate
 	{
+		I2c1 = 4,
 		Usart1 = 7,
 		Usart2 = 7,
 		Usart3 = 7,
@@ -86,6 +87,7 @@ namespace Stm32
 	static constexpr GpioPinConfig const GpioUart3 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Usart3};
 
 	static constexpr GpioPinConfig const GpioSpi1 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Spi1};
+	static constexpr GpioPinConfig const GpioI2c1 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::OpenDrain, .PullType = GpioPullType::PullUp, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::I2c1};
 	static constexpr GpioPinConfig const GpioLtdc9 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc9};
 	static constexpr GpioPinConfig const GpioEth = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::VeryHigh, .Alternate = GpioAlternate::Eth};
 	static constexpr GpioPinConfig const GpioLtdc14 = {.Mode = GpioMode::Alternate, .OutputType = GpioOutputType::PushPull, .PullType = GpioPullType::None, .Speed = GpioSpeed::Low, .Alternate = GpioAlternate::Ltdc14};

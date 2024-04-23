@@ -219,6 +219,7 @@ namespace EthMac
 
 		//TODO(tsharpe): Delay hack, find out why this is needed.
 		(void)ETH->DMASR;
+		//Display();
 	}
 
 	void Send(const ReadOnlyBuffer& frame)

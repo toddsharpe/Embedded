@@ -15,6 +15,7 @@
 
 using namespace Stm32;
 using namespace Rtos;
+using namespace Graphics;
 
 namespace
 {
@@ -45,7 +46,7 @@ void DisplayTask()
 
 	KernelStats stats = {};
 	UI::Window window("Nucleo App");
-	window.Background = Graphics::Colors::Black;
+	window.Background = Colors::Black;
 
 	UI::Label output("Output", {5, 25, 0, 0});
 	window.Children.push_back(&output);

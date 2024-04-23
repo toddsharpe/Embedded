@@ -3,15 +3,17 @@
 #include "Sys/EthMac.h"
 #include "Sys/IsrVector.h"
 #include "Sys/SystemTimer.h"
+#include "Stm32/I2c.h"
 #include "Stm32/Usart.h"
 #include "Net/IpStack.h"
 #include "Rtos/Kernel.h"
 
 using namespace Stm32;
+using namespace Net;
 
 //Tasks
 extern void AliveTask();
-extern void DisplayTask();
+//extern void DisplayTask();
 extern void EthernetTask();
 
 void RxReceived(void* arg)
@@ -20,18 +22,33 @@ void RxReceived(void* arg)
 	Board::Printf("Received: %s\r\n", buffer.Data);
 }
 
+void CheckStSafe()
+{
+	const I2cConfig config
+	{
+		.Master = true,
+		.Addr7 = true,
+		.Timing = 0x10A60D20
+	};
+	I2c i2c(I2C1);
+	i2c.Init(config);
+	i2c.Probe();
+}
+
 int main(void)
 {
 	//Init board
 	Board::Init();
 	EthMac::Init();
-	Net::IpStack::Init();
+	IpStack::Init();
 	SystemTimer::Init(Board::GetSysClkFreq(), SystemTimer::TickFreq_100HZ);
 	Board::Printf("Application Active\r\n");
 
 	//Init kernel
 	Rtos::Init();
 	IsrVector::Register(IRQn_Type::SysTick_IRQn, {&Rtos::OnSysTick, nullptr});
+
+	CheckStSafe();
 
 	//Initialize Uart RX
 	IsrVector::Register(Board::uart.GetInterupt(), {&Usart::OnInterupt, &Board::uart});
@@ -40,7 +57,7 @@ int main(void)
 
 	//Create threads
 	Rtos::CreateThread(&AliveTask);
-	Rtos::CreateThread(&DisplayTask);
+	//Rtos::CreateThread(&DisplayTask);
 	Rtos::CreateThread(&EthernetTask);
 
 	Rtos::Run();

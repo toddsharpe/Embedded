@@ -82,6 +82,7 @@ namespace Board
 		SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_ETHMACEN);
 		SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_ETHMACRXEN);
 		SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_ETHMACTXEN);
+		SET_BIT(RCC->AHB1ENR, RCC_APB1ENR_I2C1EN);
 		__DSB();
 	
 		//Enable RMII
@@ -108,6 +109,10 @@ namespace Board
 		GpioPin::Configure(GPIOG, 11, GpioEth);	//MII_TX_EN
 		GpioPin::Configure(GPIOG, 13, GpioEth);	//MII_TXD0
 		GpioPin::Configure(GPIOB, 13, GpioEth);	//MII_TXD1
+
+		//Initialize I2C1
+		GpioPin::Configure(GPIOB, 8, GpioI2c1);
+		GpioPin::Configure(GPIOB, 9, GpioI2c1);
 
 		//Initialize SPI1
 		GpioPin::Configure(GPIOA, 5, GpioSpi1);

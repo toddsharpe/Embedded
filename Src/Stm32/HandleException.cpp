@@ -32,6 +32,7 @@ extern "C" void HandleException(const ArmContext* context)
 		//Hard fault
 		Board::Printf("Hard fault\r\n");
 		Board::Printf("HFSR 0x%x\r\n", SCB->HFSR);
+		Board::Printf("CFSR 0x%x\r\n", SCB->CFSR);
 		const uint16_t ufsr = SCB->CFSR >> 16;
 		const uint8_t bfsr = (SCB->CFSR >> 8) & 0xFF;
 		const uint8_t mfsr = SCB->CFSR & 0xFF;
@@ -40,6 +41,7 @@ extern "C" void HandleException(const ArmContext* context)
 
 	//Unhandled interrupt
 	Board::Printf("Unhandled interrupt\r\n");
+	Board::Printf("MSP: 0x%08x, PSP: 0x%08x\r\n", __get_MSP(), __get_PSP());
 	Board::Printf("IRQ: %d, Context: [0x%08x-0x%08x]\r\n", irq, context, (uintptr_t)context + sizeof(ArmContext));
 	Board::Printf("PC: 0x%x, LR: 0x%x, CallerLR: 0x%x\r\n", context->HW.PC, context->SW.LR, context->HW.LR);
 	Board::Printf("R4: 0x%x, R5: 0x%x, R6: 0x%x, R7: 0x%x\r\n", context->SW.R4, context->SW.R5, context->SW.R6, context->SW.R7);

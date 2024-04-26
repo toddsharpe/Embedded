@@ -21,6 +21,7 @@ namespace Stm32
 
 		void Init(const I2cConfig config);
 		bool Write(const uint8_t address, const ReadOnlyBuffer& buffer);
+		bool Read(const uint8_t address, const Buffer& buffer);
 
 		void Probe();
 

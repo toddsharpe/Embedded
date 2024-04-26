@@ -150,6 +150,7 @@ private:
 		{
 			//Stop existing kernel
 			Rtos::Stop();
+			__disable_irq();
 			
 			AppMain main = (AppMain)isr_vector->Reset;
 			__set_MSP(isr_vector->InitialSP);

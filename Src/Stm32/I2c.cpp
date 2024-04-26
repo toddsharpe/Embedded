@@ -2,6 +2,8 @@
 #include "Board.h"
 #include "Stm32/I2c.h"
 #include "I2c.h"
+#include "Util.h"
+#include <algorithm>
 
 //MAN: rm0385
 
@@ -71,6 +73,65 @@ namespace Stm32
 			SET_BIT(m_i2c->ICR, I2C_ICR_NACKCF);
 		}
 		return success;
+	}
+
+	bool I2c::Read(const uint8_t address, const Buffer& buffer)
+	{
+		const size_t max_chunk = 255;
+		
+		//Ensure bus isnt busy
+		while (READ_BIT(m_i2c->ISR, I2C_ISR_BUSY));
+
+		uint8_t* data = (uint8_t*)buffer.Data;
+		size_t count = buffer.Length;
+		while (count > 0)
+		{
+			const size_t chunk = std::clamp(count, size_t(0), max_chunk);
+			count -= chunk;
+			const uint32_t flag = count == 0 ? I2C_CR2_AUTOEND : I2C_CR2_RELOAD;
+
+			//Set transfer config
+			MODIFY_REG(m_i2c->CR2, I2C_CR2_SADD, (address << 1) & I2C_CR2_SADD);
+			CLEAR_BIT(m_i2c->CR2, I2C_CR2_ADD10);
+			MODIFY_REG(m_i2c->CR2, I2C_CR2_NBYTES, chunk << I2C_CR2_NBYTES_Pos);
+
+			//Set mode by clearing first, then applying
+			CLEAR_BIT(m_i2c->CR2, I2C_CR2_RELOAD);
+			CLEAR_BIT(m_i2c->CR2, I2C_CR2_AUTOEND);
+			SET_BIT(m_i2c->CR2, flag);
+			
+			//Set read and start
+			SET_BIT(m_i2c->CR2, I2C_CR2_RD_WRN);
+			SET_BIT(m_i2c->CR2, I2C_CR2_START);
+
+			for (size_t i = 0; i < chunk; i++)
+			{
+				//Wait for data, asserting no stop conditions
+				while (!READ_BIT(m_i2c->ISR, I2C_ISR_RXNE))
+				{
+					Assert(!READ_BIT(m_i2c->ISR, I2C_ISR_STOPF));
+					Assert(!READ_BIT(m_i2c->ISR, I2C_ISR_NACKF));
+				}
+
+				*data = (uint8_t)m_i2c->RXDR;
+				data++;
+			}
+
+			//Wait for TCR
+			if (count > 0)
+				while (!READ_BIT(m_i2c->ISR, I2C_ISR_TCR));
+		}
+
+		//Wait for stop
+		while (!READ_BIT(m_i2c->ISR, I2C_ISR_STOPF))
+		{
+			Assert(!READ_BIT(m_i2c->ISR, I2C_ISR_NACKF));
+		}
+
+		//Clear stop
+		SET_BIT(m_i2c->ICR, I2C_ICR_STOPCF);
+
+		return true;
 	}
 
 	void I2c::Probe()

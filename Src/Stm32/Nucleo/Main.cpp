@@ -5,11 +5,13 @@
 #include "Sys/SystemTimer.h"
 #include "Stm32/I2c.h"
 #include "Stm32/Usart.h"
+#include "Drivers/StSafe_A110.h"
 #include "Net/IpStack.h"
 #include "Rtos/Kernel.h"
 
 using namespace Stm32;
 using namespace Net;
+using namespace Drivers;
 
 //Tasks
 extern void AliveTask();
@@ -30,9 +32,14 @@ void CheckStSafe()
 		.Addr7 = true,
 		.Timing = 0x10A60D20
 	};
+
 	I2c i2c(I2C1);
 	i2c.Init(config);
-	i2c.Probe();
+	//i2c.Probe();
+
+	StSafe_A110<I2c> stsafe(i2c);
+	char test[] = "test";
+	stsafe.Echo({test, sizeof(test)});
 }
 
 int main(void)
@@ -48,7 +55,7 @@ int main(void)
 	Rtos::Init();
 	IsrVector::Register(IRQn_Type::SysTick_IRQn, {&Rtos::OnSysTick, nullptr});
 
-	CheckStSafe();
+	//CheckStSafe();
 
 	//Initialize Uart RX
 	IsrVector::Register(Board::uart.GetInterupt(), {&Usart::OnInterupt, &Board::uart});

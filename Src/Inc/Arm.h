@@ -5,7 +5,7 @@
 //M7: DUI0646C_cortex_m7_dgug.pdf
 
 //ARM non-volatile registers
-struct SoftwareStackFrame
+struct __attribute__((packed)) SoftwareStackFrame
 {
 	uint32_t R4;
 	uint32_t R5;
@@ -31,7 +31,7 @@ struct SoftwareStackFrame
 };
 
 //M7: Section 2.3.7
-struct HardwareStackFrame
+struct __attribute__((packed)) HardwareStackFrame
 {
 	uint32_t R0;
 	uint32_t R1;
@@ -54,7 +54,7 @@ struct HardwareStackFrame
 	{}
 };
 
-struct ArmContext
+struct __attribute__((packed)) ArmContext
 {
 	SoftwareStackFrame SW;
 	HardwareStackFrame HW;

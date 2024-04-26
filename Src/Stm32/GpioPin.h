@@ -2,26 +2,13 @@
 
 #pragma once
 
+#include "Util.h"
 #include <stddef.h>
 #include <cstdint>
 #include <stm32f746xx.h>
 
 namespace Stm32
 {
-	namespace
-	{
-		//NOTE(tsharpe): Beware both mask and value are shifted by offset, making this difficult to really use with CMSIS
-		#define SET_REG_FIELD(reg, offset, mask, value)\
-		do\
-		{\
-			uint32_t temp;\
-			temp = reg;\
-			temp &= ~((mask) << (offset));\
-			temp |= ((value) << (offset));\
-			reg = temp;\
-		} while (false)
-	}
-	
 	enum GpioMode : uint8_t
 	{
 		Input = 0b00,

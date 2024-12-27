@@ -3,7 +3,11 @@
 #include "Rtos/Kernel.h"
 
 #include <Arm.h>
-#include <stm32f746xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
 
 namespace Rtos
 {

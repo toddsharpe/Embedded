@@ -2,8 +2,6 @@
 
 #include "Assert.h"
 
-#include <stm32f746xx.h>
-#include <stm32f7xx.h>
 #include <cstdint>
 
 namespace Stm32
@@ -33,6 +31,7 @@ namespace Stm32
 	struct PllConfig
 	{
 		PllSrc Source;
+		bool HseBypass;
 		uint32_t M;
 		uint32_t N;
 		PllDiv P;

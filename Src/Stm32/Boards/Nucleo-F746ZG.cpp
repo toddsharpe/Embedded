@@ -23,6 +23,7 @@ namespace Board
 	static constexpr PllConfig const PllConfig72MHz =
 	{
 		.Source = PllSrc::HSE,
+		.HseBypass = true,
 		.M = 4,
 		.N = 72,
 		.P = PllDiv::Div2,
@@ -42,6 +43,7 @@ namespace Board
 	static constexpr PllConfig const PllConfig216MHz =
 	{
 		.Source = PllSrc::HSE,
+		.HseBypass = true,
 		.M = 4,
 		.N = 216,
 		.P = PllDiv::Div2,

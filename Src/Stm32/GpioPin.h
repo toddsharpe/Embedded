@@ -4,7 +4,11 @@
 
 #include <stddef.h>
 #include <cstdint>
-#include <stm32f746xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
 
 namespace Stm32
 {
@@ -62,6 +66,7 @@ namespace Stm32
 		Usart1 = 7,
 		Usart2 = 7,
 		Usart3 = 7,
+		Tim4 = 2,
 		Spi1 = 5,
 		Ltdc9 = 9,
 		Eth = 11,
@@ -135,6 +140,11 @@ namespace Stm32
 		bool Get()
 		{
 			return (m_gpio->ODR & (1 << m_pin)) != 0;
+		}
+
+		void Toggle()
+		{
+			Set(!Get());
 		}
 
 		bool Read()

@@ -14,6 +14,7 @@ namespace Board
 	static constexpr PllConfig const PllConfig216MHz =
 	{
 		.Source = PllSrc::HSE,
+		.HseBypass = true,
 		.M = 25,
 		.N = 432,
 		.P = PllDiv::Div2,

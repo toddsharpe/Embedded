@@ -49,6 +49,22 @@ namespace Stm32
 		while ((m_spi->SR & (SPI_SR_BSY))) {};
 	}
 
+	void Spi::Read(Buffer& buffer)
+	{
+		while ((m_spi->SR & (SPI_SR_BSY))) {};
+
+		uint8_t *data = reinterpret_cast<uint8_t*>(buffer.Data);
+		for (size_t i = 0; i < buffer.Length; i++)
+		{
+			*((volatile uint8_t *)&(SPI1->DR)) = 0x00;
+
+			while (!(m_spi->SR & (SPI_SR_RXNE))) {};
+			data[i] = *((volatile uint8_t *)&(SPI1->DR));
+		}
+
+		while ((m_spi->SR & (SPI_SR_BSY))) {};
+	}
+
 	void* Spi::Data()
 	{
 		return (void *)&m_spi->DR;

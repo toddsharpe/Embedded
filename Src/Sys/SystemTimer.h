@@ -17,7 +17,9 @@ namespace SystemTimer
 
 	void Start();
 	void Stop();
+	void ThreadSleep(const uint32_t ms);
 
 	void OnTick();
+	void OnTick(void* arg);
 	uint32_t GetTicks();
 }

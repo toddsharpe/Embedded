@@ -26,6 +26,7 @@ namespace Stm32
 		Spi(SPI_TypeDef *spi);
 
 		void Init(const SpiConfig& config);
+		void Read(Buffer& buffer);
 		void Write(const ReadOnlyBuffer& buffer);
 		void* Data();
 

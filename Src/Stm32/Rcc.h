@@ -9,6 +9,7 @@ namespace Stm32
 		uint32_t SysClkFreq;
 		uint32_t HClkFreq;
 		uint32_t PClk1Freq;
+		uint32_t PClk1TimerFreq;
 		uint32_t PClk2Freq;
 	};
 
@@ -21,6 +22,7 @@ namespace Stm32
 
 		uint32_t GetSysClkFreq() const;
 		uint32_t GetPClk1Freq() const;
+		uint32_t GetPClk1TimerFreq() const;
 		uint32_t GetPClk2Freq() const;
 		uint32_t GetScaledClkFreq(const uint32_t sysClk, const uint32_t prescaler) const;
 		uint32_t GetLcdFreq() const;

@@ -1,8 +1,13 @@
 #include "Assert.h"
 #include "Stm32/SystemClock.h"
 
-#include <stm32f746xx.h>
-#include <stm32f7xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+	#include <stm32f7xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
+#include "Util.h"
 
 namespace Stm32
 {

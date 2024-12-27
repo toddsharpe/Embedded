@@ -1,4 +1,12 @@
 #include "Stm32/Pll.h"
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+	#include <stm32f7xx.h>
+	#define SAI_PRESENT
+#else
+	#include "stm32f401xc.h"
+#endif
+#include "Util.h"
 
 namespace Stm32
 {
@@ -8,7 +16,8 @@ namespace Stm32
 		AssertEqual(config.Source, PllSrc::HSE);
 
 		// On Nucleo, HSE clock is provided by STLink
-		SET_BIT(RCC->CR, RCC_CR_HSEBYP);
+		if (config.HseBypass)
+			SET_BIT(RCC->CR, RCC_CR_HSEBYP);
 		SET_BIT(RCC->CR, RCC_CR_HSEON);
 
 		// Wait for HSE to be ready
@@ -32,6 +41,7 @@ namespace Stm32
 			continue;
 	}
 
+#if defined(SAI_PRESENT)
 	void Pll::Init(const PllSaiConfig& config)
 	{
 		// Disable PLL SAI
@@ -53,4 +63,5 @@ namespace Stm32
 		while (!READ_BIT(RCC->CR, RCC_CR_PLLSAIRDY))
 			continue;
 	}
+#endif
 }

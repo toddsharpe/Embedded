@@ -1,7 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <stm32f746xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
 
 namespace Stm32
 {

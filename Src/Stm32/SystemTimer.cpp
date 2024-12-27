@@ -1,5 +1,11 @@
 #include "Sys/SystemTimer.h"
-#include <stm32f746xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
+#include "Board.h"
+#include "Assert.h"
 
 namespace SystemTimer
 {
@@ -23,6 +29,18 @@ namespace SystemTimer
 	void Stop()
 	{
 		SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+	}
+
+	void ThreadSleep(const uint32_t ms)
+	{
+		const uint32_t stop = m_ticks +  ms;
+		while (m_ticks < stop)
+			__WFI();
+	}
+
+	void OnTick(void* arg)
+	{
+		m_ticks += m_freq;
 	}
 
 	void OnTick()

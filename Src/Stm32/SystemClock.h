@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <stm32f746xx.h>
 
 namespace Stm32
 {

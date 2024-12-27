@@ -2,7 +2,11 @@
 #include "Util.h"
 #include "Stm32/Rcc.h"
 
-#include <stm32f746xx.h>
+#if defined(STM32F746xx)
+	#include <stm32f746xx.h>
+#else
+	#include "stm32f401xc.h"
+#endif
 
 namespace Stm32
 {
@@ -15,8 +19,9 @@ namespace Stm32
 	{
 		clocks.SysClkFreq = GetSysClkFreq();
 		clocks.HClkFreq = clocks.SysClkFreq;
-		clocks.PClk1Freq = GetScaledClkFreq(clocks.SysClkFreq, GET_REG_FIELD(RCC->CFGR, RCC_CFGR_PPRE1_Pos, RCC_CFGR_PPRE1));
-		clocks.PClk2Freq = GetScaledClkFreq(clocks.SysClkFreq, GET_REG_FIELD(RCC->CFGR, RCC_CFGR_PPRE2_Pos, RCC_CFGR_PPRE2));
+		clocks.PClk1Freq = GetPClk1Freq();
+		clocks.PClk1TimerFreq = GetPClk1TimerFreq();
+		clocks.PClk2Freq = GetPClk2Freq();
 	}
 
 	uint32_t Rcc::GetSysClkFreq() const
@@ -50,7 +55,7 @@ namespace Stm32
 			break;
 		}
 	}
-
+#if defined(STM32F746xx)
 	uint32_t Rcc::GetLcdFreq() const
 	{
 		Assert((RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL);
@@ -65,6 +70,16 @@ namespace Stm32
 		Assert(divR == 0b10);
 
 		return (pllSourceFreq / pllm) * pllsai1n / pllsai1r / 8;
+	}
+#endif
+
+	uint32_t Rcc::GetPClk1TimerFreq() const
+	{
+		const uint32_t apb1Prescaler = GET_REG_FIELD(RCC->CFGR, RCC_CFGR_PPRE1_Pos, RCC_CFGR_PPRE1);
+		if (apb1Prescaler == 0)
+			return GetPClk1Freq();
+		else
+			return GetPClk1Freq() * 2;
 	}
 
 	uint32_t Rcc::GetPClk1Freq() const

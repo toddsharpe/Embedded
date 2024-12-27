@@ -10,3 +10,9 @@
 [submodule "External/printf"]
 	path = Src/External/printf
 	url = https://github.com/mpaland/printf.git
+[submodule "Src/External/cmsis-device-f4"]
+	path = Src/External/cmsis-device-f4
+	url = https://github.com/STMicroelectronics/cmsis-device-f4.git
+[submodule "Src/External/RTT"]
+	path = Src/External/RTT
+	url = https://github.com/SEGGERMicro/RTT.git
